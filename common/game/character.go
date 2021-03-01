@@ -1,17 +1,22 @@
 package game
 
-type characterPos struct {
+import (
+	"fmt"
+)
+
+type CharacterPos struct {
 	x int
 	y int
 	d int
 }
 
-type graphics string
+type Graphics string
 
-type character struct {
-	characterPos
-	graphics
+type Character struct {
+	CharacterPos
+	Graphics
 }
 
-func (c *character) move(d int) {
+func (c *Character) Move(d int) {
+	fmt.Println("ㅇㅇ")
 }

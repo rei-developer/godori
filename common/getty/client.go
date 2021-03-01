@@ -8,9 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const (
-	HEADER_SIZE = 2
-)
+const HEADER_SIZE = 2
 
 type Client struct {
 	conn     *websocket.Conn

@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"sync"
 
 	"github.com/gorilla/websocket"
+	user "godori.com/game/user"
 	"godori.com/getty"
 	toserver "godori.com/packet/toserver"
 )
@@ -30,6 +32,9 @@ var (
 //err = c.WriteMessage(mt, refineSendData)
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	fmt.Println(runtime.GOMAXPROCS(0))
+
 	var wg sync.WaitGroup
 	server := getty.NewServer("")
 	server.OnConnect = onConnect
@@ -56,6 +61,9 @@ func onConnect(c *getty.Client) {
 }
 
 func onDisconnect(c *getty.Client) {
+	if _, ok := user.Users[c]; ok {
+		delete(user.Users, c)
+	}
 	connections--
 	fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 }
@@ -64,6 +72,15 @@ func onMessage(c *getty.Client, d *getty.Data) {
 	fmt.Println(d.Type)
 	switch d.Type {
 	case toserver.HELLO:
+		user.Users[c] = *user.New(c, user.UserData{Id: "아이디데스", Uuid: "유유아이디데스"})
+		u := user.Users[c]
+		fmt.Println(u.GetName())
+		fmt.Println(u.GetUserdata())
+		for key, val := range user.Users {
+			fmt.Println(key, val)
+		}
+		fmt.Println(user.UserLength())
+	case toserver.ADD_USER_REPORT:
 		b := []byte(string(d.Buffers))
 		var data map[string]interface{}
 		err := json.Unmarshal(b, &data)
@@ -71,7 +88,7 @@ func onMessage(c *getty.Client, d *getty.Data) {
 		num := int(data["number"].(float64))
 		fmt.Println(num)
 		fmt.Println(data["string"])
-	case toserver.ADD_USER_REPORT:
+	case toserver.BUY_ITEM:
 		fmt.Println("하하 채팅이네")
 		//message, err := packet.ReadChat(d.Buffers)
 		//if err != nil {
