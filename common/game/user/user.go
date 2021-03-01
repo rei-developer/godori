@@ -13,7 +13,7 @@ type UserData struct {
 type User struct {
 	client    *getty.Client
 	character game.Character
-	room      int
+	room      int `tag: "채널"`
 	place     int
 	name      string
 	userdata  UserData
