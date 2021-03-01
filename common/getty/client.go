@@ -1,11 +1,15 @@
 package getty
 
 import (
-	"encoding/json"
-	"github.com/gorilla/websocket"
 	"log"
 	"net"
 	"time"
+
+	"github.com/gorilla/websocket"
+)
+
+const (
+	HEADER_SIZE = 2
 )
 
 type Client struct {
@@ -23,6 +27,16 @@ func NewClient(conn *websocket.Conn, server *Server) *Client {
 		sendChan: make(chan string),
 		done:     make(chan struct{}),
 	}
+}
+
+func bytesToInt(b []byte) int {
+	var n int
+	addr := uint((len(b) - 1) * 8)
+	for i, _ := range b {
+		n += int(b[i]) << addr
+		addr -= 8
+	}
+	return n
 }
 
 func (c *Client) RemoteAddr() net.Addr {
@@ -73,9 +87,15 @@ func (c *Client) request() {
 				time.Sleep(100 * time.Millisecond)
 				continue
 			}
-			var data map[string]interface{}
-			json.Unmarshal(message, &data)
-			c.server.packetChan <- &Message{c, &Data{data["type"].(float64), data["data"].(interface{})}}
+			pSize := len(message)
+			pType := bytesToInt(message[:HEADER_SIZE])
+			c.server.packetChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			//far := []byte{2,166}
+			//fmt.Println(far)
+			//fmt.Println(bytesToInt(far))
+
+			//var data map[string]interface{}
+			//json.Unmarshal(message, &data)
 		}
 	}
 }

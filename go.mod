@@ -4,13 +4,13 @@ go 1.16
 
 require (
 	github.com/gorilla/websocket v1.4.2
-	sandspoon.com/game v0.0.0
-	sandspoon.com/getty v0.0.0
-	sandspoon.com/packet v0.0.0
+	godori.com/game v0.0.0
+	godori.com/getty v0.0.0
+	godori.com/packet/toserver v0.0.0
 )
 
 replace (
-	sandspoon.com/game v0.0.0 => ./common/game
-	sandspoon.com/getty v0.0.0 => ./common/getty
-	sandspoon.com/packet v0.0.0 => ./common/packet
+	godori.com/game v0.0.0 => ./common/game
+	godori.com/getty v0.0.0 => ./common/getty
+	godori.com/packet/toserver v0.0.0 => ./common/packet/toserver
 )

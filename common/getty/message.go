@@ -1,8 +1,8 @@
 package getty
 
 type Data struct {
-	Type     float64
-	JsonData interface{}
+	Type    int
+	Buffers []byte
 }
 
 type Message struct {

@@ -8,13 +8,11 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"sandspoon.com/getty"
-	"sandspoon.com/packet"
+	"godori.com/getty"
+	toserver "godori.com/packet/toserver"
 )
 
-const (
-	maxAcceptCnt = 3
-)
+const maxAcceptCnt = 3
 
 var (
 	connections = 0
@@ -24,40 +22,12 @@ var (
 	}
 )
 
-func echo(w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Print("upgrade:", err)
-		return
-	}
-	defer c.Close()
-	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-
-		fmt.Println(string(message))
-
-		var randomData string = `{ "event": "Bye" }`
-
-		var data map[string]interface{}
-		json.Unmarshal(message, &data)
-		fmt.Println(data["event"].(string))
-
-		var sendData map[string]interface{}
-		json.Unmarshal([]byte(randomData), &sendData)
-		fmt.Println(sendData["event"].(string))
-
-		refineSendData, err := json.Marshal(sendData)
-		err = c.WriteMessage(mt, refineSendData)
-		if err != nil {
-			log.Println("write:", err)
-			break
-		}
-	}
-}
+//var randomData string = `{ "event": "Bye" }`
+//var sendData map[string]interface{}
+//json.Unmarshal([]byte(randomData), &sendData)
+//fmt.Println(sendData["event"].(string))
+//refineSendData, err := json.Marshal(sendData)
+//err = c.WriteMessage(mt, refineSendData)
 
 func main() {
 	var wg sync.WaitGroup
@@ -77,7 +47,6 @@ func main() {
 }
 
 func beforeAccept() bool {
-	// 최대 접속 인원 제한
 	return connections < maxAcceptCnt
 }
 
@@ -92,15 +61,18 @@ func onDisconnect(c *getty.Client) {
 }
 
 func onMessage(c *getty.Client, d *getty.Data) {
-	b, _ := json.MarshalIndent(d.JsonData, "", "  ")
-	var data map[string]interface{}
-	json.Unmarshal(b, &data)
-	fmt.Println(data["test"])
-
+	fmt.Println(d.Type)
 	switch d.Type {
-	case packet.USER_LOGIN:
-
-	case packet.USER_CHAT:
+	case toserver.HELLO:
+		b := []byte(string(d.Buffers))
+		var data map[string]interface{}
+		err := json.Unmarshal(b, &data)
+		checkError(err)
+		num := int(data["number"].(float64))
+		fmt.Println(num)
+		fmt.Println(data["string"])
+	case toserver.ADD_USER_REPORT:
+		fmt.Println("하하 채팅이네")
 		//message, err := packet.ReadChat(d.Buffers)
 		//if err != nil {
 		//	return
