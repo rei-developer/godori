@@ -53,7 +53,7 @@ func GetUserCount() (count int) {
 }
 
 func GetUser(findIndex int) (id string, uuid string) {
-	err := db.QueryRow("SELECT id, uuid FROM user WHERE `index` = ?", findIndex).Scan(&id, &uuid)
+	err := db.QueryRow("SELECT id, uuid FROM users WHERE `index` = ?", findIndex).Scan(&id, &uuid)
 	checkError(err)
 	return id, uuid
 }
