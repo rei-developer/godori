@@ -35,21 +35,26 @@ var (
 
 func main() {
 
-	id, uuid := db.GetUser(1)
-	fmt.Println(id, uuid, "입니다")
+	//id, uuid := db.GetUser(1)
+	//fmt.Println(id, uuid, "입니다")
 
-	result := db.GetUsers()
-	for i, v := range result {
-		var index int32 = v.Id.Int32
-		fmt.Println(index, i)
-		fmt.Println(v.Uid, i)
-		if v.Uuid.Valid {
-			fmt.Println(v.Uuid, "uuid")
-		}
-		if v.Name.Valid {
-			fmt.Println(v.Name, "name")
-		}
+	items := db.GetClanMembers(29)
+	for i, v := range items {
+		fmt.Println(v, i, "ㅇㅇ")
 	}
+
+	//result := db.GetUsers()
+	//for i, v := range result {
+	//	var index int32 = v.Id.Int32
+	//	fmt.Println(index, i)
+	//	fmt.Println(v.Uid, i)
+	//	if v.Uuid.Valid {
+	//		fmt.Println(v.Uuid, "uuid")
+	//	}
+	//	if v.Name.Valid {
+	//		fmt.Println(v.Name, "name")
+	//	}
+	//}
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println(runtime.GOMAXPROCS(0))
