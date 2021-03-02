@@ -1,10 +1,12 @@
 package getty
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
 	"github.com/gorilla/websocket"
+	db "godori.com/database"
 )
 
 var upgrader = websocket.Upgrader{
@@ -36,6 +38,9 @@ func NewServer(host string) *Server {
 	server.packetChan = make(chan *Message)
 	server.connChan = make(chan *Client)
 	server.disconnChan = make(chan *Client)
+
+	result := db.GetUserCount()
+	fmt.Println(result, "입니다zzzz")
 
 	return server
 }

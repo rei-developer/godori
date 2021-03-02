@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	db "godori.com/database"
 	user "godori.com/game/user"
 	"godori.com/getty"
 	toserver "godori.com/packet/toserver"
@@ -32,6 +33,9 @@ var (
 //err = c.WriteMessage(mt, refineSendData)
 
 func main() {
+	result := db.GetUserCount()
+	fmt.Println(result, "입니다")
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println(runtime.GOMAXPROCS(0))
 
