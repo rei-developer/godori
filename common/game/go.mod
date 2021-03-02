@@ -1,3 +1,3 @@
-module server/common/game
+module godori/common/game
 
 go 1.16

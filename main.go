@@ -33,8 +33,13 @@ var (
 //err = c.WriteMessage(mt, refineSendData)
 
 func main() {
-	result := db.GetUserCount()
-	fmt.Println(result, "입니다")
+	id, uuid := db.GetUser(1)
+	fmt.Println(id, uuid, "입니다")
+
+	//result := db.GetUsers()
+	//fmt.Println(result[0].Id)
+	//fmt.Println(result[1].Name)
+	//fmt.Println(result[1].Uuid)
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println(runtime.GOMAXPROCS(0))
@@ -65,9 +70,9 @@ func onConnect(c *getty.Client) {
 }
 
 func onDisconnect(c *getty.Client) {
-	if _, ok := user.Users[c]; ok {
-		delete(user.Users, c)
-	}
+	//if _, ok := user.Users[c]; ok {
+	//	delete(user.Users, c)
+	//}
 	connections--
 	fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 }

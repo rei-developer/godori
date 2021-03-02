@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"log"
 	"os"
 	"time"
 
@@ -25,9 +24,7 @@ type Database struct {
 
 func LoadEnvFile() {
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	checkError(err)
 	dbInfo = &Database{
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -41,22 +38,51 @@ func init() {
 	LoadEnvFile()
 	var err error
 	db, err = sql.Open(dbInfo.engine, dbInfo.user+":"+dbInfo.password+"@tcp("+dbInfo.url+")/"+dbInfo.database)
-	if err != nil {
-		log.Fatalf("Error on initializing database connection: %s", err.Error())
-	}
+	checkError(err)
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
 	err = db.Ping() // This DOES open a connection if necessary. This makes sure the database is accessible
-	if err != nil {
-		log.Fatalf("Error on opening database connection: %s", err.Error())
-	}
+	checkError(err)
 }
 
 func GetUserCount() (count int) {
-	err := db.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
-	if err != nil {
-		log.Fatal(err)
-	}
+	err := db.QueryRow("SELECT COUNT(*) count FROM user").Scan(&count)
+	checkError(err)
 	return count
+}
+
+func GetUser(findIndex int) (id string, uuid string) {
+	err := db.QueryRow("SELECT id, uuid FROM user WHERE `index` = ?", findIndex).Scan(&id, &uuid)
+	checkError(err)
+	return id, uuid
+}
+
+type UserInfo struct {
+	Id   string
+	Uuid string
+	Name string
+}
+
+func GetUsers() []UserInfo {
+	rows, err := db.Query("SELECT id, uuid, name FROM user")
+	checkError(err)
+	var items []UserInfo
+	for rows.Next() {
+		item := UserInfo{}
+		err = rows.Scan(
+			&item.Id,
+			&item.Uuid,
+			&item.Name,
+		)
+		checkError(err)
+		items = append(items, item)
+	}
+	return items
+}
+
+func checkError(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
