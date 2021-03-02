@@ -58,18 +58,19 @@ func GetUser(findIndex int) (id string, uuid string) {
 	return id, uuid
 }
 
-type UserInfo struct {
+type UserData struct {
 	Id   string
 	Uuid string
 	Name string
 }
 
-func GetUsers() []UserInfo {
+func GetUsers() []UserData {
 	rows, err := db.Query("SELECT id, uuid, name FROM users")
 	checkError(err)
-	var items []UserInfo
+	defer rows.Close()
+	var items []UserData
 	for rows.Next() {
-		item := UserInfo{}
+		item := UserData{}
 		err = rows.Scan(
 			&item.Id,
 			&item.Uuid,

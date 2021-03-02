@@ -21,10 +21,7 @@ type User struct {
 
 var Users map[*getty.Client]User = make(map[*getty.Client]User)
 
-func New(
-	client *getty.Client,
-	userdata UserData,
-) *User {
+func New(client *getty.Client, userdata UserData) *User {
 	return &User{
 		client:   client,
 		name:     "호옹이",
@@ -42,8 +39,4 @@ func (u *User) GetName() string {
 
 func (u *User) GetUserdata() UserData {
 	return u.userdata
-}
-
-func UserLength() int {
-	return len(Users)
 }

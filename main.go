@@ -37,9 +37,11 @@ func main() {
 	fmt.Println(id, uuid, "입니다")
 
 	result := db.GetUsers()
-	fmt.Println(result[0].Id)
-	fmt.Println(result[1].Name)
-	fmt.Println(result[1].Uuid)
+	for i, v := range result {
+		fmt.Println(v.Id, i)
+		fmt.Println(v.Name, i)
+		fmt.Println(v.Uuid, i)
+	}
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println(runtime.GOMAXPROCS(0))
@@ -88,7 +90,7 @@ func onMessage(c *getty.Client, d *getty.Data) {
 		for key, val := range user.Users {
 			fmt.Println(key, val)
 		}
-		fmt.Println(user.UserLength())
+		fmt.Println(len(user.Users))
 	case toserver.ADD_USER_REPORT:
 		b := []byte(string(d.Buffers))
 		var data map[string]interface{}
