@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -12,63 +13,58 @@ import (
 
 var db *sql.DB
 
-type Database struct {
-	driver   string
-	host     string
-	port     string
-	user     string
-	password string
-	database string
-}
-
-type UserData struct {
-	Id   string
-	Uuid string
-	Name string
+type User struct {
+	Id   sql.NullInt32
+	Uid  sql.NullString
+	Uuid sql.NullString
+	Name sql.NullString
 }
 
 func init() {
 	var err error
-	db, err = sql.Open(LoadConfig())
+	driverName, dataSourceName, connectionLimit := LoadConfig()
+	db, err = sql.Open(driverName, dataSourceName)
 	checkError(err)
-	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
+	db.SetConnMaxLifetime(time.Minute)
+	db.SetMaxOpenConns(connectionLimit)
+	db.SetMaxIdleConns(connectionLimit)
 	err = db.Ping()
 	checkError(err)
 }
 
-func LoadConfig() (driverName string, dataSourceName string) {
+func LoadConfig() (driverName string, dataSourceName string, connectionLimit int) {
 	err := godotenv.Load()
 	checkError(err)
-	var dbInfo *Database = &Database{
-		os.Getenv("DB_DRIVER"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_DATABASE"),
-	}
-	driverName = dbInfo.driver
-	dataSourceName = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbInfo.user, dbInfo.password, dbInfo.host, dbInfo.port, dbInfo.database)
+	var (
+		driver   = os.Getenv("DB_DRIVER")
+		host     = os.Getenv("DB_HOST")
+		port     = os.Getenv("DB_PORT")
+		user     = os.Getenv("DB_USER")
+		password = os.Getenv("DB_PASSWORD")
+		database = os.Getenv("DB_DATABASE")
+	)
+	driverName = driver
+	dataSourceName = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, database)
+	connectionLimit, _ = strconv.Atoi(os.Getenv("DB_CONNECTION_LIMIT"))
 	return
 }
 
-func GetUser(findIndex int) (id string, uuid string) {
-	err := db.QueryRow("SELECT id, uuid FROM users WHERE `index` = ?", findIndex).Scan(&id, &uuid)
+func GetUser(findId int) (uid sql.NullString, uuid sql.NullString) {
+	err := db.QueryRow("SELECT uid, uuid FROM users WHERE id = ?", findId).Scan(&uid, &uuid)
 	checkError(err)
-	return id, uuid
+	return uid, uuid
 }
 
-func GetUsers() []UserData {
-	rows, err := db.Query("SELECT id, uuid, name FROM users")
+func GetUsers() []User {
+	rows, err := db.Query("SELECT id, uid, uuid, name FROM users")
 	checkError(err)
 	defer rows.Close()
-	items := []UserData{}
+	items := []User{}
 	for rows.Next() {
-		item := UserData{}
+		item := User{}
 		err = rows.Scan(
 			&item.Id,
+			&item.Uid,
 			&item.Uuid,
 			&item.Name,
 		)

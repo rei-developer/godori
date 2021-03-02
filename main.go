@@ -40,9 +40,15 @@ func main() {
 
 	result := db.GetUsers()
 	for i, v := range result {
-		fmt.Println(v.Id, i)
-		fmt.Println(v.Name, i)
-		fmt.Println(v.Uuid, i)
+		var index int32 = v.Id.Int32
+		fmt.Println(index, i)
+		fmt.Println(v.Uid, i)
+		if v.Uuid.Valid {
+			fmt.Println(v.Uuid, "uuid")
+		}
+		if v.Name.Valid {
+			fmt.Println(v.Name, "name")
+		}
 	}
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
