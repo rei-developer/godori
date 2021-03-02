@@ -38,10 +38,8 @@ func main() {
 	//id, uuid := db.GetUser(1)
 	//fmt.Println(id, uuid, "입니다")
 
-	items := db.GetClanMembers(29)
-	for i, v := range items {
-		fmt.Println(v, i, "ㅇㅇ")
-	}
+	item := db.GetUserById(1)
+	fmt.Println(item.Name)
 
 	//result := db.GetUsers()
 	//for i, v := range result {

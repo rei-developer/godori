@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -365,10 +366,35 @@ func GetClanMembers(clanId int) (userId []int) {
 	return items
 }
 
-func GetUser(findId int) (uid sql.NullString, uuid sql.NullString) {
-	err := db.QueryRow("SELECT uid, uuid FROM users WHERE id = ?", findId).Scan(&uid, &uuid)
+func GetInviteClans(userId int) (clanId []int) {
+	rows, err := db.Query("SELECT clan_id clanId FROM invite_clans WHERE target_id = ?", userId)
 	checkError(err)
-	return uid, uuid
+	defer rows.Close()
+	items := []int{}
+	for rows.Next() {
+		clanId := 0
+		err = rows.Scan(&clanId)
+		checkError(err)
+		items = append(items, clanId)
+	}
+	return items
+}
+
+func GetUser(args ...string) User {
+	cond := strings.Join(args, " AND ")
+	item := User{}
+
+	fmt.Println(cond)
+
+	err := db.QueryRow(`SELECT uid, uuid, name FROM users WHERE id = ?`, 1).Scan(&item.Uid, &item.Uuid, &item.Name)
+	checkError(err)
+	return item
+}
+
+func GetUserById(findId int) User {
+	id := fmt.Sprintf("id = %d", findId)
+	name := fmt.Sprintf("name = \"%s\"", "마니아")
+	return GetUser(id, name)
 }
 
 func GetUsers() []User {
