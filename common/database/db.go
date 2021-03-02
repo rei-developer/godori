@@ -10,10 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var (
-	db     *sql.DB
-	dbInfo *Database
-)
+var db *sql.DB
 
 type Database struct {
 	driver   string
@@ -31,10 +28,8 @@ type UserData struct {
 }
 
 func init() {
-	LoadConfig()
 	var err error
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbInfo.user, dbInfo.password, dbInfo.host, dbInfo.port, dbInfo.database)
-	db, err = sql.Open(dbInfo.driver, dataSource)
+	db, err = sql.Open(LoadConfig())
 	checkError(err)
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(1)
@@ -43,10 +38,10 @@ func init() {
 	checkError(err)
 }
 
-func LoadConfig() {
+func LoadConfig() (driverName string, dataSourceName string) {
 	err := godotenv.Load()
 	checkError(err)
-	dbInfo = &Database{
+	var dbInfo *Database = &Database{
 		os.Getenv("DB_DRIVER"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
@@ -54,6 +49,9 @@ func LoadConfig() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_DATABASE"),
 	}
+	driverName = dbInfo.driver
+	dataSourceName = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbInfo.user, dbInfo.password, dbInfo.host, dbInfo.port, dbInfo.database)
+	return
 }
 
 func GetUser(findIndex int) (id string, uuid string) {
