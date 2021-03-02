@@ -1,7 +1,7 @@
 package user
 
 import (
-	//"godori.com/game/character"
+	"godori.com/game/character"
 	"godori.com/getty"
 )
 
@@ -12,7 +12,7 @@ type UserData struct {
 
 type User struct {
 	client    *getty.Client
-	//character character.Character
+	character character.Character
 	room      int // `tag: "채널"`
 	place     int
 	name      string
@@ -33,7 +33,7 @@ func New(
 }
 
 func (u *User) Move(d int) {
-	//u.character.Moves(d)
+	u.character.Move(d)
 }
 
 func (u *User) GetName() string {

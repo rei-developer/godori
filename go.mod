@@ -8,6 +8,7 @@ require (
 	github.com/joho/godotenv v1.3.0 // indirect
 
 	godori.com/database v0.0.0
+	godori.com/game/character v0.0.0
 	godori.com/game/user v0.0.0
 	godori.com/getty v0.0.0
 	godori.com/packet/toserver v0.0.0
@@ -15,6 +16,7 @@ require (
 
 replace (
 	godori.com/database v0.0.0 => ./common/database
+	godori.com/game/character v0.0.0 => ./common/game/character
 	godori.com/game/user v0.0.0 => ./common/game/user
 	godori.com/getty v0.0.0 => ./common/getty
 	godori.com/packet/toserver v0.0.0 => ./common/packet/toserver

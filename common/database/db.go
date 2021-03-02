@@ -47,7 +47,7 @@ func init() {
 }
 
 func GetUserCount() (count int) {
-	err := db.QueryRow("SELECT COUNT(*) count FROM user").Scan(&count)
+	err := db.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
 	checkError(err)
 	return count
 }
@@ -65,7 +65,7 @@ type UserInfo struct {
 }
 
 func GetUsers() []UserInfo {
-	rows, err := db.Query("SELECT id, uuid, name FROM user")
+	rows, err := db.Query("SELECT id, uuid, name FROM users")
 	checkError(err)
 	var items []UserInfo
 	for rows.Next() {
