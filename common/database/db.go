@@ -413,25 +413,6 @@ func GetUserByName(name string) User {
 	return GetUser(array)
 }
 
-func GetUsers() []User {
-	rows, err := db.Query("SELECT id, uid, uuid, name FROM users")
-	checkError(err)
-	defer rows.Close()
-	items := []User{}
-	for rows.Next() {
-		item := User{}
-		err = rows.Scan(
-			&item.Id,
-			&item.Uid,
-			&item.Uuid,
-			&item.Name,
-		)
-		checkError(err)
-		items = append(items, item)
-	}
-	return items
-}
-
 func GetUserCount() (count int) {
 	err := db.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
 	checkError(err)
