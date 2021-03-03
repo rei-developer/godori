@@ -113,17 +113,17 @@ func init() {
 	var err error
 	driverName, dataSourceName, connectionLimit := LoadConfig()
 	db, err = sql.Open(driverName, dataSourceName)
-	checkError(err)
+	CheckError(err)
 	db.SetConnMaxLifetime(time.Minute)
 	db.SetMaxOpenConns(connectionLimit)
 	db.SetMaxIdleConns(connectionLimit)
 	err = db.Ping()
-	checkError(err)
+	CheckError(err)
 }
 
 func LoadConfig() (driverName string, dataSourceName string, connectionLimit int) {
 	err := godotenv.Load()
-	checkError(err)
+	CheckError(err)
 	var (
 		driver   = os.Getenv("DB_DRIVER")
 		host     = os.Getenv("DB_HOST")
@@ -140,7 +140,7 @@ func LoadConfig() (driverName string, dataSourceName string, connectionLimit int
 
 func GetPortals() []Portal {
 	rows, err := db.Query("SELECT place, x, y, next_place, next_x, next_y, next_dir_x, next_dir_y, sound FROM portals")
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []Portal{}
 	for rows.Next() {
@@ -156,7 +156,7 @@ func GetPortals() []Portal {
 			&item.NextDirY,
 			&item.Sound,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -164,7 +164,7 @@ func GetPortals() []Portal {
 
 func GetItems() []Item {
 	rows, err := db.Query("SELECT id, num, icon, name, description, cost, method FROM items")
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []Item{}
 	for rows.Next() {
@@ -178,7 +178,7 @@ func GetItems() []Item {
 			&item.Cost,
 			&item.Method,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -186,7 +186,7 @@ func GetItems() []Item {
 
 func GetInventorys() []Inventory {
 	rows, err := db.Query("SELECT item_id, num, expiry FROM inventorys")
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []Inventory{}
 	for rows.Next() {
@@ -196,7 +196,7 @@ func GetInventorys() []Inventory {
 			&item.Num,
 			&item.Expiry,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -204,7 +204,7 @@ func GetInventorys() []Inventory {
 
 func GetBillings() []Billing {
 	rows, err := db.Query("SELECT id, productId, purchaseDate, useState, refundRequestState FROM billings")
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []Billing{}
 	for rows.Next() {
@@ -216,7 +216,7 @@ func GetBillings() []Billing {
 			&item.UseState,
 			&item.RefundRequestState,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -240,7 +240,7 @@ func GetNoticeMessages(id int, deleted bool) []NoticeMessage {
 		WHERE nm.user_id = ? AND ?ISNULL(nm.deleted)
 		ORDER BY id DESC
 	`, id, isDeleted)
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []NoticeMessage{}
 	for rows.Next() {
@@ -253,7 +253,7 @@ func GetNoticeMessages(id int, deleted bool) []NoticeMessage {
 			&item.Author,
 			&item.Avatar,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -279,7 +279,7 @@ func GetRanks() []User {
 			LEFT JOIN clans c ON c.id = cm.clan_id
 		WHERE u.verify = 1 ORDER BY u.point DESC
 	`)
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []User{}
 	for rows.Next() {
@@ -298,7 +298,7 @@ func GetRanks() []User {
 			&item.Admin,
 			&item.Clanname,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -324,7 +324,7 @@ func GetClans() []Clan {
 			condition
 		FROM clans
 	`)
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []Clan{}
 	for rows.Next() {
@@ -346,7 +346,7 @@ func GetClans() []Clan {
 			&item.Regdate,
 			&item.Condition,
 		)
-		checkError(err)
+		CheckError(err)
 		items = append(items, item)
 	}
 	return items
@@ -354,13 +354,13 @@ func GetClans() []Clan {
 
 func GetClanMembers(clanId int) (userId []int) {
 	rows, err := db.Query("SELECT user_id userId FROM clan_members WHERE clan_id = ? ORDER BY level DESC", clanId)
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []int{}
 	for rows.Next() {
 		userId := 0
 		err = rows.Scan(&userId)
-		checkError(err)
+		CheckError(err)
 		items = append(items, userId)
 	}
 	return items
@@ -368,13 +368,13 @@ func GetClanMembers(clanId int) (userId []int) {
 
 func GetInviteClans(userId int) (clanId []int) {
 	rows, err := db.Query("SELECT clan_id clanId FROM invite_clans WHERE target_id = ?", userId)
-	checkError(err)
+	CheckError(err)
 	defer rows.Close()
 	items := []int{}
 	for rows.Next() {
 		clanId := 0
 		err = rows.Scan(&clanId)
-		checkError(err)
+		CheckError(err)
 		items = append(items, clanId)
 	}
 	return items
@@ -390,7 +390,7 @@ func GetUser(args map[string]interface{}) User {
 	cond := strings.Join(keys, " AND ")
 	item := User{}
 	err := db.QueryRow("SELECT uuid, name FROM users WHERE "+cond, values...).Scan(&item.Uuid, &item.Name)
-	checkError(err)
+	CheckError(err)
 	return item
 }
 
@@ -415,11 +415,11 @@ func GetUserByName(name string) User {
 
 func GetUserCount() (count int) {
 	err := db.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
-	checkError(err)
+	CheckError(err)
 	return count
 }
 
-func checkError(err error) {
+func CheckError(err error) {
 	if err != nil {
 		panic(err)
 	}

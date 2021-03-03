@@ -10,6 +10,9 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 type Server struct {
@@ -67,7 +70,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	fork.OnDisconnect = s.OnDisconnect
 
 	conn, err := upgrader.Upgrade(w, r, nil)
-	checkError(err)
+	CheckError(err)
 
 	defer conn.Close()
 	var wg sync.WaitGroup
@@ -78,7 +81,8 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 			if s.BeforeAccept() == false {
 				continue
 			}
-			fork.connChan <- NewClient(conn, fork)
+			token := r.URL.Query().Get("token")
+			fork.connChan <- NewClient(conn, fork, token)
 			wg.Wait()
 		}
 	}()
@@ -96,7 +100,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func checkError(err error) {
+func CheckError(err error) {
 	if err != nil {
 		panic(err)
 	}

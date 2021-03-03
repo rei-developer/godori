@@ -1,6 +1,7 @@
 package getty
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"time"
@@ -15,15 +16,17 @@ type Client struct {
 	server   *Server
 	sendChan chan string
 	done     chan struct{}
+	token    string
 	buffer   []byte
 }
 
-func NewClient(conn *websocket.Conn, server *Server) *Client {
+func NewClient(conn *websocket.Conn, server *Server, token string) *Client {
 	return &Client{
 		conn:     conn,
 		server:   server,
 		sendChan: make(chan string),
 		done:     make(chan struct{}),
+		token:    token,
 	}
 }
 
@@ -35,6 +38,10 @@ func bytesToInt(b []byte) int {
 		addr -= 8
 	}
 	return n
+}
+
+func (c *Client) GetToken() string {
+	return c.token
 }
 
 func (c *Client) RemoteAddr() net.Addr {
@@ -78,9 +85,12 @@ func (c *Client) request() {
 			return
 		default:
 			_, message, err := c.conn.ReadMessage()
-			if c, k := err.(*websocket.CloseError); k {
-				if c.Code == 1005 {
+			if e, ok := err.(*websocket.CloseError); ok {
+				switch e.Code {
+				case 1001, 1005:
 					return
+				default:
+					fmt.Println(e)
 				}
 				time.Sleep(100 * time.Millisecond)
 				continue

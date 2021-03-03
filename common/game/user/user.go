@@ -15,17 +15,15 @@ type User struct {
 	character character.Character
 	room      int // `tag: "채널"`
 	place     int
-	name      string
 	userdata  UserData
 }
 
 var Users map[*getty.Client]User = make(map[*getty.Client]User)
 
-func New(client *getty.Client, userdata UserData) *User {
+func New(client *getty.Client) *User {
 	return &User{
 		client:   client,
-		name:     "호옹이",
-		userdata: userdata,
+		//userdata: userdata,
 	}
 }
 
