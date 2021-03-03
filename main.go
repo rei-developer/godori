@@ -8,7 +8,6 @@ import (
 	"runtime"
 	"sync"
 
-	db "godori.com/database"
 	_ "godori.com/game/shop"
 	user "godori.com/game/user"
 	"godori.com/getty"
@@ -31,11 +30,15 @@ func main() {
 	//id, uuid := db.GetUser(1)
 	//fmt.Println(id, uuid, "입니다")
 
-	item := db.GetUserById(1)
-	fmt.Println(item.Name)
-
-	item2 := db.GetUserByOAuth("test", 0)
-	fmt.Println(item2.Name)
+	//item, _ := db.GetUserById(1)
+	//fmt.Println(item.Name)
+	//
+	//item2, ok := db.GetUserByOAuth("test", 0)
+	//if ok {
+	//	fmt.Println(item2)
+	//} else {
+	//	fmt.Println(" 없구나")
+	//}
 
 	//result := db.GetUsers()
 	//for i, v := range result {
@@ -73,13 +76,25 @@ func BeforeAccept() bool {
 	return connections < maxAcceptCnt
 }
 
+func Login(u *user.User) {
+	fmt.Println(u.GetUserdata().Name + "이라네~~~~ 로그인 성공이라네")
+}
+
 func OnConnect(c *getty.Client) {
-	fmt.Println(c.GetToken(), "토큰이어라")
-
-	u := user.New(c)
-
-	connections++
-	fmt.Printf("클라이언트 %s 접속 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
+	token := c.GetToken()
+	var uid string
+	var loginType int
+	if token == "debug" {
+		uid, loginType = "110409668035092753325", 0
+	} else {
+		uid, loginType = "110409668035092753325", 0
+	}
+	if u, ok := user.New(c, uid, loginType); ok {
+		data := u.GetUserdata()
+		Login(u)
+		connections++
+		fmt.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
+	}
 }
 
 func OnDisconnect(c *getty.Client) {
@@ -91,17 +106,10 @@ func OnDisconnect(c *getty.Client) {
 }
 
 func OnMessage(c *getty.Client, d *getty.Data) {
-	fmt.Println(d.Type)
+	u := user.Users[c]
 	switch d.Type {
 	case toserver.HELLO:
-		//user.Users[c] = *user.New(c, user.UserData{Id: "아이디데스", Uuid: "유유아이디데스"})
-		//u := user.Users[c]
-		//fmt.Println(u.GetName())
-		//fmt.Println(u.GetUserdata())
-		//for key, val := range user.Users {
-		//	fmt.Println(key, val)
-		//}
-		//fmt.Println(len(user.Users))
+		Login(u)
 	case toserver.ADD_USER_REPORT:
 		b := []byte(string(d.Buffers))
 		var data map[string]interface{}

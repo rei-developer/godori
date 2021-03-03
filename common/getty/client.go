@@ -17,7 +17,6 @@ type Client struct {
 	sendChan chan string
 	done     chan struct{}
 	token    string
-	buffer   []byte
 }
 
 func NewClient(conn *websocket.Conn, server *Server, token string) *Client {
@@ -30,7 +29,7 @@ func NewClient(conn *websocket.Conn, server *Server, token string) *Client {
 	}
 }
 
-func bytesToInt(b []byte) int {
+func BytesToInt(b []byte) int {
 	var n int
 	addr := uint((len(b) - 1) * 8)
 	for i, _ := range b {
@@ -96,11 +95,11 @@ func (c *Client) request() {
 				continue
 			}
 			pSize := len(message)
-			pType := bytesToInt(message[:HEADER_SIZE])
+			pType := BytesToInt(message[:HEADER_SIZE])
 			c.server.packetChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 			//far := []byte{2,166}
 			//fmt.Println(far)
-			//fmt.Println(bytesToInt(far))
+			//fmt.Println(BytesToInt(far))
 
 			//var data map[string]interface{}
 			//json.Unmarshal(message, &data)

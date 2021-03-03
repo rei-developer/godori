@@ -380,7 +380,7 @@ func GetInviteClans(userId int) (clanId []int) {
 	return items
 }
 
-func GetUser(args map[string]interface{}) User {
+func GetUser(args map[string]interface{}) (User, bool) {
 	var keys []string
 	var values []interface{}
 	for k, v := range args {
@@ -390,24 +390,24 @@ func GetUser(args map[string]interface{}) User {
 	cond := strings.Join(keys, " AND ")
 	item := User{}
 	err := db.QueryRow("SELECT uuid, name FROM users WHERE "+cond, values...).Scan(&item.Uuid, &item.Name)
-	CheckError(err)
-	return item
+	ok := CheckError(err)
+	return item, ok
 }
 
-func GetUserById(id int) User {
+func GetUserById(id int) (User, bool) {
 	var array map[string]interface{} = make(map[string]interface{})
 	array["id"] = id
 	return GetUser(array)
 }
 
-func GetUserByOAuth(uid string, loginType int) User {
+func GetUserByOAuth(uid string, loginType int) (User, bool) {
 	var array map[string]interface{} = make(map[string]interface{})
 	array["uid"] = uid
 	array["login_type"] = loginType
 	return GetUser(array)
 }
 
-func GetUserByName(name string) User {
+func GetUserByName(name string) (User, bool) {
 	var array map[string]interface{} = make(map[string]interface{})
 	array["name"] = name
 	return GetUser(array)
@@ -419,8 +419,13 @@ func GetUserCount() (count int) {
 	return count
 }
 
-func CheckError(err error) {
+func CheckError(err error) bool {
 	if err != nil {
-		panic(err)
+		if err == sql.ErrNoRows {
+			return false
+		} else {
+			panic(err)
+		}
 	}
+	return true
 }
