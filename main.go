@@ -41,6 +41,9 @@ func main() {
 	item := db.GetUserById(1)
 	fmt.Println(item.Name)
 
+	item2 := db.GetUserByOAuth("test", 0)
+	fmt.Println(item2.Name)
+
 	//result := db.GetUsers()
 	//for i, v := range result {
 	//	var index int32 = v.Id.Int32

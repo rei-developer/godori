@@ -380,21 +380,37 @@ func GetInviteClans(userId int) (clanId []int) {
 	return items
 }
 
-func GetUser(args ...string) User {
-	cond := strings.Join(args, " AND ")
+func GetUser(args map[string]interface{}) User {
+	var keys []string
+	var values []interface{}
+	for k, v := range args {
+		keys = append(keys, fmt.Sprintf("%s = ?", k))
+		values = append(values, v)
+	}
+	cond := strings.Join(keys, " AND ")
 	item := User{}
-
-	fmt.Println(cond)
-
-	err := db.QueryRow(`SELECT uid, uuid, name FROM users WHERE id = ?`, 1).Scan(&item.Uid, &item.Uuid, &item.Name)
+	err := db.QueryRow("SELECT uuid, name FROM users WHERE "+cond, values...).Scan(&item.Uuid, &item.Name)
 	checkError(err)
 	return item
 }
 
-func GetUserById(findId int) User {
-	id := fmt.Sprintf("id = %d", findId)
-	name := fmt.Sprintf("name = \"%s\"", "마니아")
-	return GetUser(id, name)
+func GetUserById(id int) User {
+	var array map[string]interface{} = make(map[string]interface{})
+	array["id"] = id
+	return GetUser(array)
+}
+
+func GetUserByOAuth(uid string, loginType int) User {
+	var array map[string]interface{} = make(map[string]interface{})
+	array["uid"] = uid
+	array["login_type"] = loginType
+	return GetUser(array)
+}
+
+func GetUserByName(name string) User {
+	var array map[string]interface{} = make(map[string]interface{})
+	array["name"] = name
+	return GetUser(array)
 }
 
 func GetUsers() []User {
