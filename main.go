@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -77,7 +79,7 @@ func BeforeAccept() bool {
 }
 
 func Login(u *user.User) {
-	fmt.Println(u.GetUserdata().Name + "이라네~~~~ 로그인 성공이라네")
+	//fmt.Println(u.GetUserdata().Name + "이라네~~~~ 로그인 성공이라네")
 }
 
 func OnConnect(c *getty.Client) {
@@ -91,7 +93,7 @@ func OnConnect(c *getty.Client) {
 	}
 	if u, ok := user.New(c, uid, loginType); ok {
 		data := u.GetUserdata()
-		Login(u)
+		//Login(u)
 		connections++
 		fmt.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
@@ -110,6 +112,14 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 	switch d.Type {
 	case toserver.HELLO:
 		Login(u)
+	case toserver.INPUT_ARROW:
+		var pos [2]int8
+		var dir [1]uint8
+		buf := bytes.NewBuffer(d.Buffers)
+		binary.Read(buf, binary.BigEndian, &pos)
+		binary.Read(buf, binary.BigEndian, &dir)
+		fmt.Println(pos[0], pos[1])
+		fmt.Println(dir[0])
 	case toserver.ADD_USER_REPORT:
 		b := []byte(string(d.Buffers))
 		var data map[string]interface{}

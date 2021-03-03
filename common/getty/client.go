@@ -73,7 +73,7 @@ func (c *Client) Close() {
 	c.conn = nil
 }
 
-func (c *Client) request() {
+func (c *Client) Request() {
 	defer func() {
 		c.server.disconnChan <- c
 	}()
@@ -107,13 +107,13 @@ func (c *Client) request() {
 	}
 }
 
-func (c *Client) response() {
+func (c *Client) Response() {
 	for {
 		select {
 		case <-c.done:
 			return
 		case data := <-c.sendChan:
-			log.Println(data, "response입니다")
+			log.Println(data, "Response입니다")
 			//c.writer.WriteString(data)
 			//c.writer.Flush()
 		}
@@ -121,6 +121,6 @@ func (c *Client) response() {
 }
 
 func (c *Client) Handle() {
-	go c.request()
-	go c.response()
+	go c.Request()
+	go c.Response()
 }
