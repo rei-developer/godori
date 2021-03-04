@@ -40,6 +40,10 @@ func (u *User) Move(d int) {
 	u.character.Move(d)
 }
 
+func (u *User) Entry() {
+
+}
+
 func RemoveByClient(c *getty.Client) bool {
 	_, ok := Users[c]
 	if ok {

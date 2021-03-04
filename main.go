@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -119,16 +118,60 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 		binary.Read(buf, binary.BigEndian, &dir)
 		fmt.Println(pos[0], pos[1])
 		fmt.Println(dir[0])
-	case toserver.ADD_USER_REPORT:
-		b := []byte(string(d.Buffers))
-		var data map[string]interface{}
-		err := json.Unmarshal(b, &data)
-		CheckError(err)
-		num := int(data["number"].(float64))
-		fmt.Println(num)
-		fmt.Println(data["string"])
+	case toserver.INPUT_HIT:
+	case toserver.ENTER_ROOM:
+		u.Entry()
+	case toserver.REWARD:
+	case toserver.ESCAPE:
+	case toserver.CHAT:
+	case toserver.CHANGE_USERNAME:
+	case toserver.CREATE_CLAN:
+	case toserver.GET_CLAN:
+	case toserver.LEAVE_CLAN:
+	case toserver.JOIN_CLAN:
+	case toserver.CANCEL_CLAN:
+	case toserver.KICK_CLAN:
+	case toserver.SET_OPTION_CLAN:
+	case toserver.PAY_CLAN:
+	case toserver.DONATE_CLAN:
+	case toserver.WITHDRAW_CLAN:
+	case toserver.LEVEL_UP_CLAN:
+	case toserver.MEMBER_INFO_CLAN:
+	case toserver.SET_UP_MEMBER_LEVEL_CLAN:
+	case toserver.SET_DOWN_MEMBER_LEVEL_CLAN:
+	case toserver.CHANGE_MASTER_CLAN:
+	case toserver.GET_BILLING:
+	case toserver.USE_BILLING:
+	case toserver.REFUND_BILLING:
+	case toserver.GET_SHOP:
+	case toserver.GET_INFO_ITEM:
 	case toserver.BUY_ITEM:
-		fmt.Println("하하 채팅이네")
+	case toserver.GET_SKIN_LIST:
+	case toserver.SET_SKIN:
+	case toserver.GET_PAY_INFO_ITEM:
+	case toserver.GET_RANK:
+	case toserver.GET_USER_INFO_RANK:
+	case toserver.GET_USER_INFO_RANK_BY_USERNAME:
+	case toserver.GET_NOTICE_MESSAGE_COUNT:
+	case toserver.GET_NOTICE_MESSAGE:
+	case toserver.GET_INFO_NOTICE_MESSAGE:
+	case toserver.WITHDRAW_NOTICE_MESSAGE:
+	case toserver.DELETE_NOTICE_MESSAGE:
+	case toserver.RESTORE_NOTICE_MESSAGE:
+	case toserver.CLEAR_NOTICE_MESSAGE:
+	case toserver.ADD_NOTICE_MESSAGE:
+	case toserver.ADD_USER_REPORT:
+	case toserver.USE_ITEM:
+		//case toserver.ADD_USER_REPORT:
+		//	b := []byte(string(d.Buffers))
+		//	var data map[string]interface{}
+		//	err := json.Unmarshal(b, &data)
+		//	CheckError(err)
+		//	num := int(data["number"].(float64))
+		//	fmt.Println(num)
+		//	fmt.Println(data["string"])
+		//case toserver.BUY_ITEM:
+		//	fmt.Println("하하 채팅이네")
 		//message, err := packet.ReadChat(d.Buffers)
 		//if err != nil {
 		//	return
