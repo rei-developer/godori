@@ -100,11 +100,10 @@ func OnConnect(c *getty.Client) {
 }
 
 func OnDisconnect(c *getty.Client) {
-	if _, ok := user.Users[c]; ok {
-		delete(user.Users, c)
+	if ok := user.RemoveByClient(c); ok {
+		connections--
+		fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 	}
-	connections--
-	fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 }
 
 func OnMessage(c *getty.Client, d *getty.Data) {

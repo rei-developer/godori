@@ -32,10 +32,26 @@ func New(client *getty.Client, uid string, loginType int) (*User, bool) {
 	}, ok
 }
 
+func (u *User) GetUserdata() UserData {
+	return *u.userdata
+}
+
 func (u *User) Move(d int) {
 	u.character.Move(d)
 }
 
-func (u *User) GetUserdata() UserData {
-	return *u.userdata
+func RemoveByClient(c *getty.Client) bool {
+	_, ok := Users[c]
+	if ok {
+		delete(Users, c)
+	}
+	return ok
+}
+
+func RemoveByUser(u *User) bool {
+	_, ok := Users[u.client]
+	if ok {
+		delete(Users, u.client)
+	}
+	return ok
 }
