@@ -1,4 +1,4 @@
-module server/common/game/user
+module server/src/game/user
 
 go 1.16
 

@@ -12,10 +12,10 @@ require (
 )
 
 replace (
-	godori.com/db v0.0.0 => ./common/db
-	godori.com/game v0.0.0 => ./common/game
-	godori.com/getty v0.0.0 => ./common/getty
-	godori.com/packet/toServer v0.0.0 => ./common/packet/toServer
+	godori.com/db v0.0.0 => ./src/db
+	godori.com/game v0.0.0 => ./src/game
+	godori.com/getty v0.0.0 => ./src/getty
+	godori.com/packet/toServer v0.0.0 => ./src/packet/toServer
 	godori.com/util/math v0.0.0 => ./util/math
 	godori.com/util/pix v0.0.0 => ./util/pix
 )

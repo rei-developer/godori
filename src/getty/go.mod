@@ -1,4 +1,4 @@
-module server/common/getty
+module server/src/getty
 
 go 1.16
 

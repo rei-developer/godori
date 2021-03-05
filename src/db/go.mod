@@ -1,4 +1,4 @@
-module server/common/db
+module server/src/db
 
 go 1.16
 
