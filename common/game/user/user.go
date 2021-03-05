@@ -4,11 +4,15 @@ import (
 	db "godori.com/database"
 	"godori.com/game/character"
 	"godori.com/getty"
+	cMath "godori.com/util/math"
 )
 
 type UserData struct {
-	Uuid string
-	Name string
+	Uuid   string
+	Name   string
+	Level  int
+	Exp    int
+	MaxExp int
 }
 
 type User struct {
@@ -28,12 +32,38 @@ func New(client *getty.Client, uid string, loginType int) (*User, bool) {
 		userdata: &UserData{
 			result.Uuid.String,
 			result.Name.String,
+			0,
+			0,
+			0,
 		},
 	}, ok
 }
 
 func (u *User) GetUserdata() UserData {
 	return *u.userdata
+}
+
+func (u *User) SetUpLevel(val int) {
+	u.userdata.Level += val
+}
+
+func (u *User) SetUpExp(val int) {
+	if u.userdata.Level > 200 {
+		return
+	}
+	u.userdata.Exp = cMath.Max(u.userdata.Exp+val, 0)
+	for u.userdata.Exp >= u.userdata.MaxExp {
+		u.userdata.Exp -= u.userdata.MaxExp
+		u.SetUpLevel(1)
+	}
+}
+
+func (u *User) SetUpCash(val int) {
+	// TODO : 개발중
+}
+
+func (u *User) GetMaxExp(val int) int {
+	return (cMath.Pow(val, 2) * (val * 5)) + 200
 }
 
 func (u *User) Move(d int) {

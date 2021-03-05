@@ -12,6 +12,8 @@ require (
 	godori.com/game/user v0.0.0
 	godori.com/getty v0.0.0
 	godori.com/packet/toserver v0.0.0
+	godori.com/util/math v0.0.0
+	godori.com/util/pix v0.0.0
 )
 
 replace (
@@ -21,4 +23,6 @@ replace (
 	godori.com/game/user v0.0.0 => ./common/game/user
 	godori.com/getty v0.0.0 => ./common/getty
 	godori.com/packet/toserver v0.0.0 => ./common/packet/toserver
+	godori.com/util/math v0.0.0 => ./util/math
+	godori.com/util/pix v0.0.0 => ./util/pix
 )
