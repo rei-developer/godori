@@ -1,7 +1,7 @@
 package game
 
 import (
-	db "godori.com/database"
+	db "godori.com/db"
 	"godori.com/getty"
 	cMath "godori.com/util/math"
 )
@@ -24,10 +24,10 @@ type User struct {
 
 var Users map[*getty.Client]*User = make(map[*getty.Client]*User)
 
-func NewUser(client *getty.Client, uid string, loginType int) (*User, bool) {
+func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 	result, ok := db.GetUserByOAuth(uid, loginType)
 	user := &User{
-		client: client,
+		client: c,
 		userdata: &UserData{
 			result.Uuid.String,
 			result.Name.String,
@@ -36,7 +36,7 @@ func NewUser(client *getty.Client, uid string, loginType int) (*User, bool) {
 			0,
 		},
 	}
-	Users[client] = user
+	Users[c] = user
 	return user, ok
 }
 
@@ -44,27 +44,27 @@ func (u *User) GetUserdata() UserData {
 	return *u.userdata
 }
 
-func (u *User) SetUpLevel(val int) {
-	u.userdata.Level += val
+func (u *User) SetUpLevel(v int) {
+	u.userdata.Level += v
 }
 
-func (u *User) SetUpExp(val int) {
+func (u *User) SetUpExp(v int) {
 	if u.userdata.Level > 200 {
 		return
 	}
-	u.userdata.Exp = cMath.Max(u.userdata.Exp+val, 0)
+	u.userdata.Exp = cMath.Max(u.userdata.Exp+v, 0)
 	for u.userdata.Exp >= u.userdata.MaxExp {
 		u.userdata.Exp -= u.userdata.MaxExp
 		u.SetUpLevel(1)
 	}
 }
 
-func (u *User) SetUpCash(val int) {
+func (u *User) SetUpCash(v int) {
 	// TODO : 개발중
 }
 
-func (u *User) GetMaxExp(val int) int {
-	return (cMath.Pow(val, 2) * (val * 5)) + 200
+func (u *User) GetMaxExp(v int) int {
+	return (cMath.Pow(v, 2) * (v * 5)) + 200
 }
 
 func (u *User) Move(d int) {

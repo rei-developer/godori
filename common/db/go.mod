@@ -1,4 +1,4 @@
-module godori/common/database
+module server/common/db
 
 go 1.16
 

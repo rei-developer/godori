@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"database/sql"
@@ -12,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var db *sql.DB
+var database *sql.DB
 
 type Portal struct {
 	Place     sql.NullInt32
@@ -112,12 +112,12 @@ type User struct {
 func init() {
 	var err error
 	driverName, dataSourceName, connectionLimit := LoadConfig()
-	db, err = sql.Open(driverName, dataSourceName)
+	database, err = sql.Open(driverName, dataSourceName)
 	CheckError(err)
-	db.SetConnMaxLifetime(time.Minute)
-	db.SetMaxOpenConns(connectionLimit)
-	db.SetMaxIdleConns(connectionLimit)
-	err = db.Ping()
+	database.SetConnMaxLifetime(time.Minute)
+	database.SetMaxOpenConns(connectionLimit)
+	database.SetMaxIdleConns(connectionLimit)
+	err = database.Ping()
 	CheckError(err)
 }
 
@@ -139,7 +139,7 @@ func LoadConfig() (driverName string, dataSourceName string, connectionLimit int
 }
 
 func GetPortals() []Portal {
-	rows, err := db.Query("SELECT place, x, y, next_place, next_x, next_y, next_dir_x, next_dir_y, sound FROM portals")
+	rows, err := database.Query("SELECT place, x, y, next_place, next_x, next_y, next_dir_x, next_dir_y, sound FROM portals")
 	CheckError(err)
 	defer rows.Close()
 	items := []Portal{}
@@ -163,7 +163,7 @@ func GetPortals() []Portal {
 }
 
 func GetItems() []Item {
-	rows, err := db.Query("SELECT id, num, icon, name, description, cost, method FROM items")
+	rows, err := database.Query("SELECT id, num, icon, name, description, cost, method FROM items")
 	CheckError(err)
 	defer rows.Close()
 	items := []Item{}
@@ -185,7 +185,7 @@ func GetItems() []Item {
 }
 
 func GetInventorys() []Inventory {
-	rows, err := db.Query("SELECT item_id, num, expiry FROM inventorys")
+	rows, err := database.Query("SELECT item_id, num, expiry FROM inventorys")
 	CheckError(err)
 	defer rows.Close()
 	items := []Inventory{}
@@ -203,7 +203,7 @@ func GetInventorys() []Inventory {
 }
 
 func GetBillings() []Billing {
-	rows, err := db.Query("SELECT id, productId, purchaseDate, useState, refundRequestState FROM billings")
+	rows, err := database.Query("SELECT id, productId, purchaseDate, useState, refundRequestState FROM billings")
 	CheckError(err)
 	defer rows.Close()
 	items := []Billing{}
@@ -227,7 +227,7 @@ func GetNoticeMessages(id int, deleted bool) []NoticeMessage {
 	if deleted {
 		isDeleted = "!"
 	}
-	rows, err := db.Query(`
+	rows, err := database.Query(`
 		SELECT
 			nm.id,
 			nm.title,
@@ -260,7 +260,7 @@ func GetNoticeMessages(id int, deleted bool) []NoticeMessage {
 }
 
 func GetRanks() []User {
-	rows, err := db.Query(`
+	rows, err := database.Query(`
 		SELECT
 			u.id,
 			u.name,
@@ -305,7 +305,7 @@ func GetRanks() []User {
 }
 
 func GetClans() []Clan {
-	rows, err := db.Query(`
+	rows, err := database.Query(`
 		SELECT
 			id,
 		    master_id,
@@ -353,7 +353,7 @@ func GetClans() []Clan {
 }
 
 func GetClanMembers(clanId int) (userId []int) {
-	rows, err := db.Query("SELECT user_id userId FROM clan_members WHERE clan_id = ? ORDER BY level DESC", clanId)
+	rows, err := database.Query("SELECT user_id userId FROM clan_members WHERE clan_id = ? ORDER BY level DESC", clanId)
 	CheckError(err)
 	defer rows.Close()
 	items := []int{}
@@ -367,7 +367,7 @@ func GetClanMembers(clanId int) (userId []int) {
 }
 
 func GetInviteClans(userId int) (clanId []int) {
-	rows, err := db.Query("SELECT clan_id clanId FROM invite_clans WHERE target_id = ?", userId)
+	rows, err := database.Query("SELECT clan_id clanId FROM invite_clans WHERE target_id = ?", userId)
 	CheckError(err)
 	defer rows.Close()
 	items := []int{}
@@ -389,7 +389,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 	}
 	cond := strings.Join(keys, " AND ")
 	item := User{}
-	err := db.QueryRow("SELECT uuid, name FROM users WHERE "+cond, values...).Scan(&item.Uuid, &item.Name)
+	err := database.QueryRow("SELECT uuid, name FROM users WHERE "+cond, values...).Scan(&item.Uuid, &item.Name)
 	ok := CheckError(err)
 	return item, ok
 }
@@ -414,7 +414,7 @@ func GetUserByName(name string) (User, bool) {
 }
 
 func GetUserCount() (count int) {
-	err := db.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
+	err := database.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
 	CheckError(err)
 	return count
 }

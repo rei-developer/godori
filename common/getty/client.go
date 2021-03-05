@@ -14,18 +14,18 @@ const HEADER_SIZE = 2
 type Client struct {
 	conn     *websocket.Conn
 	server   *Server
+	token    string
 	sendChan chan string
 	done     chan struct{}
-	token    string
 }
 
-func NewClient(conn *websocket.Conn, server *Server, token string) *Client {
+func NewClient(c *websocket.Conn, s *Server, t string) *Client {
 	return &Client{
-		conn:     conn,
-		server:   server,
+		conn:     c,
+		server:   s,
+		token:    t,
 		sendChan: make(chan string),
 		done:     make(chan struct{}),
-		token:    token,
 	}
 }
 
@@ -47,22 +47,22 @@ func (c *Client) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
 }
 
-func (c *Client) Send(data []byte) {
-	c.sendChan <- string(data)
+func (c *Client) Send(d []byte) {
+	c.sendChan <- string(d)
 }
 
-func (c *Client) Broadcast(data []byte) {
-	for _, ic := range c.server.clients {
-		ic.Send(data)
+func (c *Client) Broadcast(d []byte) {
+	for _, ic := range c.server.Clients {
+		ic.Send(d)
 	}
 }
 
-func (c *Client) BroadcastAnother(data []byte) {
-	for _, ic := range c.server.clients {
+func (c *Client) BroadcastAnother(d []byte) {
+	for _, ic := range c.server.Clients {
 		if c == ic {
 			continue
 		}
-		ic.Send(data)
+		ic.Send(d)
 	}
 }
 
@@ -75,7 +75,7 @@ func (c *Client) Close() {
 
 func (c *Client) Request() {
 	defer func() {
-		c.server.disconnChan <- c
+		c.server.DisConnChan <- c
 	}()
 
 	for {
@@ -96,7 +96,7 @@ func (c *Client) Request() {
 			}
 			pSize := len(message)
 			pType := BytesToInt(message[:HEADER_SIZE])
-			c.server.packetChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			c.server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 			//far := []byte{2,166}
 			//fmt.Println(far)
 			//fmt.Println(BytesToInt(far))

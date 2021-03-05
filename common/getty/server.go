@@ -16,55 +16,52 @@ var upgrader = websocket.Upgrader{
 }
 
 type Server struct {
-	host         string
-	clients      map[string]*Client
-	packetChan   chan *Message
-	connChan     chan *Client
-	disconnChan  chan *Client
+	Host         string
+	Clients      map[string]*Client
+	PacketChan   chan *Message
+	ConnChan     chan *Client
+	DisConnChan  chan *Client
 	OnConnect    func(*Client)
 	OnMessage    func(*Client, *Data)
 	OnDisconnect func(*Client)
 	BeforeAccept func() bool
 }
 
-func NewServer(host string) *Server {
-	server := &Server{host: host}
-
+func NewServer(h string) *Server {
+	server := &Server{Host: h}
 	server.OnConnect = func(*Client) {}
 	server.OnMessage = func(*Client, *Data) {}
 	server.OnDisconnect = func(*Client) {}
 	server.BeforeAccept = func() bool { return true }
-
-	server.clients = make(map[string]*Client)
-	server.packetChan = make(chan *Message)
-	server.connChan = make(chan *Client)
-	server.disconnChan = make(chan *Client)
+	server.Clients = make(map[string]*Client)
+	server.PacketChan = make(chan *Message)
+	server.ConnChan = make(chan *Client)
+	server.DisConnChan = make(chan *Client)
 	return server
 }
 
 func (s *Server) onConnect(c *Client) {
 	key := c.RemoteAddr().String()
-	if client, ok := s.clients[key]; ok {
+	if client, ok := s.Clients[key]; ok {
 		client.Close()
 	}
-	s.clients[key] = c
+	s.Clients[key] = c
 	c.Handle()
-
 	s.OnConnect(c)
 }
 
 func (s *Server) onDisconnect(c *Client) {
 	s.OnDisconnect(c)
-	delete(s.clients, c.RemoteAddr().String())
+	delete(s.Clients, c.RemoteAddr().String())
 	c.Close()
 }
 
-func (s *Server) onMessage(c *Client, data *Data) {
-	s.OnMessage(c, data)
+func (s *Server) onMessage(c *Client, d *Data) {
+	s.OnMessage(c, d)
 }
 
 func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
-	fork := NewServer(s.host)
+	fork := NewServer(s.Host)
 	fork.OnMessage = s.OnMessage
 	fork.OnConnect = s.OnConnect
 	fork.OnDisconnect = s.OnDisconnect
@@ -82,19 +79,19 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			token := r.URL.Query().Get("token")
-			fork.connChan <- NewClient(conn, fork, token)
+			fork.ConnChan <- NewClient(conn, fork, token)
 			wg.Wait()
 		}
 	}()
 
 	for {
 		select {
-		case conn := <-fork.connChan:
+		case conn := <-fork.ConnChan:
 			fork.onConnect(conn)
 			defer wg.Done()
-		case disconn := <-fork.disconnChan:
+		case disconn := <-fork.DisConnChan:
 			fork.onDisconnect(disconn)
-		case packet := <-fork.packetChan:
+		case packet := <-fork.PacketChan:
 			fork.onMessage(packet.Client, packet.Data)
 		}
 	}
