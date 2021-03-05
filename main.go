@@ -9,10 +9,9 @@ import (
 	"runtime"
 	"sync"
 
-	_ "godori.com/game/shop"
-	user "godori.com/game/user"
+	"godori.com/game"
 	"godori.com/getty"
-	toserver "godori.com/packet/toserver"
+	toServer "godori.com/packet/toServer"
 )
 
 const maxAcceptCnt = 3
@@ -77,8 +76,8 @@ func BeforeAccept() bool {
 	return connections < maxAcceptCnt
 }
 
-func Login(u *user.User) {
-	//fmt.Println(u.GetUserdata().Name + "이라네~~~~ 로그인 성공이라네")
+func Login(u *game.User) {
+	fmt.Println(u.GetUserdata().Name + " 로그인 성공이라네")
 }
 
 func OnConnect(c *getty.Client) {
@@ -90,79 +89,81 @@ func OnConnect(c *getty.Client) {
 	} else {
 		uid, loginType = "110409668035092753325", 0
 	}
-	if u, ok := user.New(c, uid, loginType); ok {
+	if u, ok := game.NewUser(c, uid, loginType); ok {
 		data := u.GetUserdata()
-		//Login(u)
+		Login(u)
 		connections++
 		fmt.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
 func OnDisconnect(c *getty.Client) {
-	if ok := user.RemoveByClient(c); ok {
+	if ok := game.RemoveByClient(c); ok {
 		connections--
 		fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
 func OnMessage(c *getty.Client, d *getty.Data) {
-	u := user.Users[c]
+	u := game.Users[c]
 	switch d.Type {
-	case toserver.HELLO:
+	case toServer.HELLO:
 		Login(u)
-	case toserver.INPUT_ARROW:
+	case toServer.INPUT_ARROW:
+		var err error
 		var pos [2]int8
 		var dir [1]uint8
 		buf := bytes.NewBuffer(d.Buffers)
-		binary.Read(buf, binary.BigEndian, &pos)
-		binary.Read(buf, binary.BigEndian, &dir)
+		err = binary.Read(buf, binary.BigEndian, &pos)
+		err = binary.Read(buf, binary.BigEndian, &dir)
+		CheckError(err)
 		fmt.Println(pos[0], pos[1])
 		fmt.Println(dir[0])
-	case toserver.INPUT_HIT:
-	case toserver.ENTER_ROOM:
-		u.Entry()
-	case toserver.REWARD:
-	case toserver.ESCAPE:
-	case toserver.CHAT:
-	case toserver.CHANGE_USERNAME:
-	case toserver.CREATE_CLAN:
-	case toserver.GET_CLAN:
-	case toserver.LEAVE_CLAN:
-	case toserver.JOIN_CLAN:
-	case toserver.CANCEL_CLAN:
-	case toserver.KICK_CLAN:
-	case toserver.SET_OPTION_CLAN:
-	case toserver.PAY_CLAN:
-	case toserver.DONATE_CLAN:
-	case toserver.WITHDRAW_CLAN:
-	case toserver.LEVEL_UP_CLAN:
-	case toserver.MEMBER_INFO_CLAN:
-	case toserver.SET_UP_MEMBER_LEVEL_CLAN:
-	case toserver.SET_DOWN_MEMBER_LEVEL_CLAN:
-	case toserver.CHANGE_MASTER_CLAN:
-	case toserver.GET_BILLING:
-	case toserver.USE_BILLING:
-	case toserver.REFUND_BILLING:
-	case toserver.GET_SHOP:
-	case toserver.GET_INFO_ITEM:
-	case toserver.BUY_ITEM:
-	case toserver.GET_SKIN_LIST:
-	case toserver.SET_SKIN:
-	case toserver.GET_PAY_INFO_ITEM:
-	case toserver.GET_RANK:
-	case toserver.GET_USER_INFO_RANK:
-	case toserver.GET_USER_INFO_RANK_BY_USERNAME:
-	case toserver.GET_NOTICE_MESSAGE_COUNT:
-	case toserver.GET_NOTICE_MESSAGE:
-	case toserver.GET_INFO_NOTICE_MESSAGE:
-	case toserver.WITHDRAW_NOTICE_MESSAGE:
-	case toserver.DELETE_NOTICE_MESSAGE:
-	case toserver.RESTORE_NOTICE_MESSAGE:
-	case toserver.CLEAR_NOTICE_MESSAGE:
-	case toserver.ADD_NOTICE_MESSAGE:
-	case toserver.ADD_USER_REPORT:
-	case toserver.USE_ITEM:
-		//case toserver.ADD_USER_REPORT:
+	case toServer.INPUT_HIT:
+	case toServer.ENTER_ROOM:
+		u.Entry(0)
+	case toServer.REWARD:
+	case toServer.ESCAPE:
+	case toServer.CHAT:
+	case toServer.CHANGE_USERNAME:
+	case toServer.CREATE_CLAN:
+	case toServer.GET_CLAN:
+	case toServer.LEAVE_CLAN:
+	case toServer.JOIN_CLAN:
+	case toServer.CANCEL_CLAN:
+	case toServer.KICK_CLAN:
+	case toServer.SET_OPTION_CLAN:
+	case toServer.PAY_CLAN:
+	case toServer.DONATE_CLAN:
+	case toServer.WITHDRAW_CLAN:
+	case toServer.LEVEL_UP_CLAN:
+	case toServer.MEMBER_INFO_CLAN:
+	case toServer.SET_UP_MEMBER_LEVEL_CLAN:
+	case toServer.SET_DOWN_MEMBER_LEVEL_CLAN:
+	case toServer.CHANGE_MASTER_CLAN:
+	case toServer.GET_BILLING:
+	case toServer.USE_BILLING:
+	case toServer.REFUND_BILLING:
+	case toServer.GET_SHOP:
+	case toServer.GET_INFO_ITEM:
+	case toServer.BUY_ITEM:
+	case toServer.GET_SKIN_LIST:
+	case toServer.SET_SKIN:
+	case toServer.GET_PAY_INFO_ITEM:
+	case toServer.GET_RANK:
+	case toServer.GET_USER_INFO_RANK:
+	case toServer.GET_USER_INFO_RANK_BY_USERNAME:
+	case toServer.GET_NOTICE_MESSAGE_COUNT:
+	case toServer.GET_NOTICE_MESSAGE:
+	case toServer.GET_INFO_NOTICE_MESSAGE:
+	case toServer.WITHDRAW_NOTICE_MESSAGE:
+	case toServer.DELETE_NOTICE_MESSAGE:
+	case toServer.RESTORE_NOTICE_MESSAGE:
+	case toServer.CLEAR_NOTICE_MESSAGE:
+	case toServer.ADD_NOTICE_MESSAGE:
+	case toServer.ADD_USER_REPORT:
+	case toServer.USE_ITEM:
+		//case toServer.ADD_USER_REPORT:
 		//	b := []byte(string(d.Buffers))
 		//	var data map[string]interface{}
 		//	err := json.Unmarshal(b, &data)
@@ -170,7 +171,7 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 		//	num := int(data["number"].(float64))
 		//	fmt.Println(num)
 		//	fmt.Println(data["string"])
-		//case toserver.BUY_ITEM:
+		//case toServer.BUY_ITEM:
 		//	fmt.Println("하하 채팅이네")
 		//message, err := packet.ReadChat(d.Buffers)
 		//if err != nil {

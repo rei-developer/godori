@@ -1,8 +1,7 @@
-package user
+package game
 
 import (
 	db "godori.com/database"
-	"godori.com/game/character"
 	"godori.com/getty"
 	cMath "godori.com/util/math"
 )
@@ -17,7 +16,7 @@ type UserData struct {
 
 type User struct {
 	client    *getty.Client
-	character character.Character
+	character Character
 	room      int
 	place     int
 	userdata  *UserData
@@ -25,9 +24,9 @@ type User struct {
 
 var Users map[*getty.Client]*User = make(map[*getty.Client]*User)
 
-func New(client *getty.Client, uid string, loginType int) (*User, bool) {
+func NewUser(client *getty.Client, uid string, loginType int) (*User, bool) {
 	result, ok := db.GetUserByOAuth(uid, loginType)
-	return &User{
+	user := &User{
 		client: client,
 		userdata: &UserData{
 			result.Uuid.String,
@@ -36,7 +35,9 @@ func New(client *getty.Client, uid string, loginType int) (*User, bool) {
 			0,
 			0,
 		},
-	}, ok
+	}
+	Users[client] = user
+	return user, ok
 }
 
 func (u *User) GetUserdata() UserData {
@@ -70,7 +71,11 @@ func (u *User) Move(d int) {
 	u.character.Move(d)
 }
 
-func (u *User) Entry() {
+func (u *User) Entry(roomType int) {
+	if u.room > 0 {
+		return
+	}
+	// TODO : set state, send
 
 }
 
