@@ -76,13 +76,13 @@ func init() {
 	fmt.Println("맵 로딩 완료")
 }
 
-func (m *MapData) GetPortal(x int, y int) *Portal {
+func (m *MapData) GetPortal(x int, y int) (*Portal, bool){
 	for _, p := range m.Portals {
 		if p.X == x && p.Y == y {
-			return p
+			return p, true
 		}
 	}
-	return nil
+	return nil, false
 }
 
 func (m *MapData) RangePortal(x int, y int, rng int) bool {

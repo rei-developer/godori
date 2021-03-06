@@ -48,7 +48,9 @@ func AvailableRoom(rType int) (*Room, bool) {
 }
 
 func RemoveRoom(r *Room) {
-
+	r.Stop()
+	Rooms[r.Index] = &Room{} // TODO : 삭제해도 되나 테스트
+	delete(Rooms, r.Index)
 }
 
 func (r *Room) Setting() {
@@ -70,12 +72,12 @@ func (r *Room) RemoveEvent() {
 func (r *Room) AddUser(u *User) {
 	u.room = r.Index
 	r.Users[u.client] = u
-	// TODO : place add user
+	r.Places[u.place].AddUser(u)
 }
 
 func (r *Room) RemoveUser(u *User) {
 	delete(r.Users, u.client)
-	// TODO : place remove user
+	r.Places[u.place].RemoveUser(u)
 	u.room = 0
 }
 
@@ -127,12 +129,21 @@ func (r *Room) SameMapUsers(place int) map[*getty.Client]*User {
 }
 
 func (r *Room) Passable(place int, x int, y int, dir int, collider bool) bool {
-	// TODO : passable
-	return true
+	if collider {
+		// TODO : event
+		//r.GetPlace(place).Events
+	}
+	return Maps[place].Passable(x, y, dir)
 }
 
 func (r *Room) Portal(u *User) {
-	// TODO : portal
+	if p, ok := Maps[u.place].GetPortal(u.character.x, u.character.y); ok {
+		r.Teleport(u, p.NextPlace, p.NextX, p.NextY, p.NextDirX, p.NextDirY)
+		if p.Sound != "" {
+			// TODO : 사운드 재생
+			//r.PublishMap(u.place, )
+		}
+	}
 }
 
 func (r *Room) Teleport(u *User, place int, x int, y int, dirX int, dirY int) {
@@ -160,10 +171,15 @@ func (r *Room) Draw(u *User) {
 
 func (r *Room) Join(u *User) {
 	// TODO : join
+	r.AddUser(u)
 }
 
 func (r *Room) Leave(u *User) {
 	// TODO : leave
+	r.RemoveUser(u)
+	if len(r.Users) <= 0 {
+		RemoveRoom(r)
+	}
 }
 
 func (r *Room) Start() {
