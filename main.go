@@ -16,7 +16,7 @@ import (
 
 const maxAcceptCnt = 3
 
-var connections = 0
+var connections int
 
 //var randomData string = `{ "event": "Bye" }`
 //var sendData map[string]interface{}
@@ -98,7 +98,7 @@ func OnConnect(c *getty.Client) {
 }
 
 func OnDisconnect(c *getty.Client) {
-	if ok := game.RemoveByClient(c); ok {
+	if ok := game.RemoveUserByClient(c); ok {
 		connections--
 		fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 	}
