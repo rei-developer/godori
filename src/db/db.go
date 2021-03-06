@@ -138,8 +138,8 @@ func LoadConfig() (driverName string, dataSourceName string, connectionLimit int
 	return
 }
 
-func GetPortals() []Portal {
-	rows, err := database.Query("SELECT place, x, y, next_place, next_x, next_y, next_dir_x, next_dir_y, sound FROM portals")
+func GetPortals(place int) []Portal {
+	rows, err := database.Query("SELECT place, x, y, next_place, next_x, next_y, next_dir_x, next_dir_y, sound FROM portals WHERE place = ?", place)
 	CheckError(err)
 	defer rows.Close()
 	items := []Portal{}

@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"sync"
 
+	//"godori.com/db"
 	"godori.com/game"
 	"godori.com/getty"
 	toServer "godori.com/packet/toServer"
@@ -27,7 +28,7 @@ var connections int
 
 func main() {
 
-	//id, uuid := db.GetUser(1)
+	//id, uuid := db.GetUserById(1)
 	//fmt.Println(id, uuid, "입니다")
 
 	//item, _ := db.GetUserById(1)
