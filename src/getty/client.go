@@ -15,7 +15,7 @@ type Client struct {
 	conn     *websocket.Conn
 	server   *Server
 	token    string
-	sendChan chan string
+	sendChan chan []byte
 	done     chan struct{}
 }
 
@@ -24,7 +24,7 @@ func NewClient(c *websocket.Conn, s *Server, t string) *Client {
 		conn:     c,
 		server:   s,
 		token:    t,
-		sendChan: make(chan string),
+		sendChan: make(chan []byte),
 		done:     make(chan struct{}),
 	}
 }
@@ -48,7 +48,7 @@ func (c *Client) RemoteAddr() net.Addr {
 }
 
 func (c *Client) Send(d []byte) {
-	c.sendChan <- string(d)
+	c.sendChan <- d
 }
 
 func (c *Client) Broadcast(d []byte) {
@@ -81,6 +81,7 @@ func (c *Client) Request() {
 	for {
 		select {
 		case <-c.done:
+			fmt.Println("끝")
 			return
 		default:
 			_, message, err := c.conn.ReadMessage()
@@ -103,6 +104,7 @@ func (c *Client) Request() {
 
 			//var data map[string]interface{}
 			//json.Unmarshal(message, &data)
+
 		}
 	}
 }
@@ -113,9 +115,8 @@ func (c *Client) Response() {
 		case <-c.done:
 			return
 		case data := <-c.sendChan:
-			log.Println(data, "Response입니다")
-			//c.writer.WriteString(data)
-			//c.writer.Flush()
+			log.Println(string(data))
+			c.conn.WriteMessage(websocket.TextMessage, data)
 		}
 	}
 }

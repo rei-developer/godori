@@ -3,6 +3,7 @@ package game
 import (
 	"godori.com/getty"
 	roomType "godori.com/util/constant/roomType"
+	"time"
 )
 
 type Room struct {
@@ -28,13 +29,11 @@ func NewRoom(rType int) *Room {
 		Max:      30,
 		Users:    make(map[*getty.Client]*User),
 		Places:   make(map[int]*Place),
+		Run:      true,
 	}
 	Rooms[nextRoomIndex] = room
+	go room.Update()
 	return room
-}
-
-func GetRoom(index int) *Room {
-	return Rooms[index]
 }
 
 func AvailableRoom(rType int) (*Room, bool) {
@@ -47,9 +46,7 @@ func AvailableRoom(rType int) (*Room, bool) {
 	return nil, false
 }
 
-func RemoveRoom(r *Room) {
-	r.Stop()
-	Rooms[r.Index] = &Room{} // TODO : 삭제해도 되나 테스트
+func (r *Room) Remove() {
 	delete(Rooms, r.Index)
 }
 
@@ -72,22 +69,21 @@ func (r *Room) RemoveEvent() {
 func (r *Room) AddUser(u *User) {
 	u.room = r.Index
 	r.Users[u.client] = u
-	r.Places[u.place].AddUser(u)
+	r.GetPlace(u.place).AddUser(u)
 }
 
 func (r *Room) RemoveUser(u *User) {
 	delete(r.Users, u.client)
-	r.Places[u.place].RemoveUser(u)
+	r.GetPlace(u.place).RemoveUser(u)
 	u.room = 0
 }
 
 func (r *Room) GetPlace(place int) *Place {
-	if p, ok := r.Places[place]; ok {
-		return p
-	} else {
-		r.Places[place] = NewPlace(place, r.Index)
-		return r.Places[place]
+	p, ok := r.Places[place]
+	if !ok {
+		p = NewPlace(place, r.Index)
 	}
+	return p
 }
 
 func (r *Room) ChangeGameMode(mode int) {
@@ -178,28 +174,12 @@ func (r *Room) Leave(u *User) {
 	// TODO : leave
 	r.RemoveUser(u)
 	if len(r.Users) <= 0 {
-		RemoveRoom(r)
+		r.Remove()
 	}
-}
-
-func (r *Room) Start() {
-	if r.Run {
-		return
-	}
-	r.Run = true
-}
-
-func (r *Room) Pause() {
-	r.Run = false
-}
-
-func (r *Room) Stop() {
-	if !r.Run {
-		return
-	}
-	r.Run = false
 }
 
 func (r *Room) Update() {
-	// TODO : update
+	for r.Run {
+		time.Sleep(100 * time.Millisecond)
+	}
 }

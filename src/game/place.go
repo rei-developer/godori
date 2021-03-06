@@ -1,6 +1,8 @@
 package game
 
-import "godori.com/getty"
+import (
+	"godori.com/getty"
+)
 
 type Place struct {
 	Index     int
@@ -14,6 +16,7 @@ func NewPlace(index int, rIndex int) *Place {
 	return &Place{
 		Index:     index,
 		RoomIndex: rIndex,
+		Users:     make(map[*getty.Client]*User),
 	}
 }
 

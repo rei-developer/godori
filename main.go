@@ -12,6 +12,7 @@ import (
 	//"godori.com/db"
 	"godori.com/game"
 	"godori.com/getty"
+	toClient "godori.com/packet/toClient"
 	toServer "godori.com/packet/toServer"
 )
 
@@ -19,15 +20,7 @@ const maxAcceptCnt = 3
 
 var connections int
 
-//var randomData string = `{ "event": "Bye" }`
-//var sendData map[string]interface{}
-//json.Unmarshal([]byte(randomData), &sendData)
-//fmt.Println(sendData["event"].(string))
-//refineSendData, err := json.Marshal(sendData)
-//err = c.WriteMessage(mt, refineSendData)
-
 func main() {
-
 	//id, uuid := db.GetUserById(1)
 	//fmt.Println(id, uuid, "입니다")
 
@@ -78,7 +71,9 @@ func BeforeAccept() bool {
 }
 
 func Login(u *game.User) {
-	fmt.Println(u.GetUserdata().Name + " 로그인 성공이라네")
+	uData := u.GetUserdata()
+	u.Send(toClient.UserData(uData.Name))
+	// TODO :
 }
 
 func OnConnect(c *getty.Client) {
@@ -92,96 +87,105 @@ func OnConnect(c *getty.Client) {
 	}
 	if u, ok := game.NewUser(c, uid, loginType); ok {
 		data := u.GetUserdata()
-		Login(u)
 		connections++
 		fmt.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
 func OnDisconnect(c *getty.Client) {
-	if ok := game.RemoveUserByClient(c); ok {
+	if u, ok := game.Users[c]; ok {
+		u.Disconnect()
 		connections--
 		fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
 func OnMessage(c *getty.Client, d *getty.Data) {
-	u := game.Users[c]
-	switch d.Type {
-	case toServer.HELLO:
-		Login(u)
-	case toServer.INPUT_ARROW:
-		var err error
-		var pos [2]int8
-		var dir [1]uint8
-		buf := bytes.NewBuffer(d.Buffers)
-		err = binary.Read(buf, binary.BigEndian, &pos)
-		err = binary.Read(buf, binary.BigEndian, &dir)
-		CheckError(err)
-		fmt.Println(pos[0], pos[1])
-		fmt.Println(dir[0])
-	case toServer.INPUT_HIT:
-	case toServer.ENTER_ROOM:
-		u.Entry(0)
-	case toServer.REWARD:
-	case toServer.ESCAPE:
-	case toServer.CHAT:
-	case toServer.CHANGE_USERNAME:
-	case toServer.CREATE_CLAN:
-	case toServer.GET_CLAN:
-	case toServer.LEAVE_CLAN:
-	case toServer.JOIN_CLAN:
-	case toServer.CANCEL_CLAN:
-	case toServer.KICK_CLAN:
-	case toServer.SET_OPTION_CLAN:
-	case toServer.PAY_CLAN:
-	case toServer.DONATE_CLAN:
-	case toServer.WITHDRAW_CLAN:
-	case toServer.LEVEL_UP_CLAN:
-	case toServer.MEMBER_INFO_CLAN:
-	case toServer.SET_UP_MEMBER_LEVEL_CLAN:
-	case toServer.SET_DOWN_MEMBER_LEVEL_CLAN:
-	case toServer.CHANGE_MASTER_CLAN:
-	case toServer.GET_BILLING:
-	case toServer.USE_BILLING:
-	case toServer.REFUND_BILLING:
-	case toServer.GET_SHOP:
-	case toServer.GET_INFO_ITEM:
-	case toServer.BUY_ITEM:
-	case toServer.GET_SKIN_LIST:
-	case toServer.SET_SKIN:
-	case toServer.GET_PAY_INFO_ITEM:
-	case toServer.GET_RANK:
-	case toServer.GET_USER_INFO_RANK:
-	case toServer.GET_USER_INFO_RANK_BY_USERNAME:
-	case toServer.GET_NOTICE_MESSAGE_COUNT:
-	case toServer.GET_NOTICE_MESSAGE:
-	case toServer.GET_INFO_NOTICE_MESSAGE:
-	case toServer.WITHDRAW_NOTICE_MESSAGE:
-	case toServer.DELETE_NOTICE_MESSAGE:
-	case toServer.RESTORE_NOTICE_MESSAGE:
-	case toServer.CLEAR_NOTICE_MESSAGE:
-	case toServer.ADD_NOTICE_MESSAGE:
-	case toServer.ADD_USER_REPORT:
-	case toServer.USE_ITEM:
-		//case toServer.ADD_USER_REPORT:
-		//	b := []byte(string(d.Buffers))
-		//	var data map[string]interface{}
-		//	err := json.Unmarshal(b, &data)
-		//	CheckError(err)
-		//	num := int(data["number"].(float64))
-		//	fmt.Println(num)
-		//	fmt.Println(data["string"])
-		//case toServer.BUY_ITEM:
-		//	fmt.Println("하하 채팅이네")
-		//message, err := packet.ReadChat(d.Buffers)
-		//if err != nil {
-		//	return
-		//}
-		//message = c.RemoteAddr().String() + ":" + message
-		//chat := packet.MakeChat(builder, 100, message)
-		//c.Broadcast(1, chat)
-		//fmt.Println(message)
+	if u, ok := game.Users[c]; ok {
+		switch d.Type {
+		case toServer.HELLO:
+			Login(u)
+		case toServer.INPUT_ARROW:
+			var err error
+			var pos [2]int8
+			var dir [1]uint8
+			buf := bytes.NewBuffer(d.Buffers)
+			err = binary.Read(buf, binary.BigEndian, &pos)
+			err = binary.Read(buf, binary.BigEndian, &dir)
+			CheckError(err)
+			x, y := int(pos[0]), int(pos[1])
+			if dir[0] == 0 {
+				u.Turn(x, y)
+			} else {
+				u.Move(x, y)
+			}
+		case toServer.INPUT_HIT:
+			u.Hit()
+		case toServer.ENTER_ROOM:
+			u.Entry(int(d.Buffers[0]))
+		case toServer.REWARD:
+
+		case toServer.ESCAPE:
+			u.Leave()
+		case toServer.CHAT:
+
+		case toServer.CHANGE_USERNAME:
+		case toServer.CREATE_CLAN:
+		case toServer.GET_CLAN:
+		case toServer.LEAVE_CLAN:
+		case toServer.JOIN_CLAN:
+		case toServer.CANCEL_CLAN:
+		case toServer.KICK_CLAN:
+		case toServer.SET_OPTION_CLAN:
+		case toServer.PAY_CLAN:
+		case toServer.DONATE_CLAN:
+		case toServer.WITHDRAW_CLAN:
+		case toServer.LEVEL_UP_CLAN:
+		case toServer.MEMBER_INFO_CLAN:
+		case toServer.SET_UP_MEMBER_LEVEL_CLAN:
+		case toServer.SET_DOWN_MEMBER_LEVEL_CLAN:
+		case toServer.CHANGE_MASTER_CLAN:
+		case toServer.GET_BILLING:
+		case toServer.USE_BILLING:
+		case toServer.REFUND_BILLING:
+		case toServer.GET_SHOP:
+		case toServer.GET_INFO_ITEM:
+		case toServer.BUY_ITEM:
+		case toServer.GET_SKIN_LIST:
+		case toServer.SET_SKIN:
+		case toServer.GET_PAY_INFO_ITEM:
+		case toServer.GET_RANK:
+		case toServer.GET_USER_INFO_RANK:
+		case toServer.GET_USER_INFO_RANK_BY_USERNAME:
+		case toServer.GET_NOTICE_MESSAGE_COUNT:
+		case toServer.GET_NOTICE_MESSAGE:
+		case toServer.GET_INFO_NOTICE_MESSAGE:
+		case toServer.WITHDRAW_NOTICE_MESSAGE:
+		case toServer.DELETE_NOTICE_MESSAGE:
+		case toServer.RESTORE_NOTICE_MESSAGE:
+		case toServer.CLEAR_NOTICE_MESSAGE:
+		case toServer.ADD_NOTICE_MESSAGE:
+		case toServer.ADD_USER_REPORT:
+		case toServer.USE_ITEM:
+			//case toServer.ADD_USER_REPORT:
+			//	b := []byte(string(d.Buffers))
+			//	var data map[string]interface{}
+			//	err := json.Unmarshal(b, &data)
+			//	CheckError(err)
+			//	num := int(data["number"].(float64))
+			//	fmt.Println(num)
+			//	fmt.Println(data["string"])
+			//case toServer.BUY_ITEM:
+			//	fmt.Println("하하 채팅이네")
+			//message, err := packet.ReadChat(d.Buffers)
+			//if err != nil {
+			//	return
+			//}
+			//message = c.RemoteAddr().String() + ":" + message
+			//chat := packet.MakeChat(builder, 100, message)
+			//c.Broadcast(1, chat)
+			//fmt.Println(message)
+		}
 	}
 }
 

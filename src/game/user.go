@@ -1,8 +1,11 @@
 package game
 
 import (
+	"fmt"
+
 	"godori.com/db"
 	"godori.com/getty"
+	toClient "godori.com/packet/toClient"
 	cMath "godori.com/util/math"
 )
 
@@ -40,7 +43,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 	return user, ok
 }
 
-func RemoveUser(u *User) bool {
+func (u *User) Remove() bool {
 	_, ok := Users[u.client]
 	if ok {
 		delete(Users, u.client)
@@ -48,16 +51,8 @@ func RemoveUser(u *User) bool {
 	return ok
 }
 
-func RemoveUserByClient(c *getty.Client) bool {
-	_, ok := Users[c]
-	if ok {
-		delete(Users, c)
-	}
-	return ok
-}
-
-func (u *User) GetUserdata() UserData {
-	return *u.userdata
+func (u *User) GetUserdata() *UserData {
+	return u.userdata
 }
 
 func (u *User) SetUpLevel(v int) {
@@ -94,14 +89,16 @@ func (u *User) Move(x int, y int) {
 	if u.room < 1 {
 		return
 	}
+	fmt.Println("Move: ", x, y)
 	u.character.Turn(x, -y)
 	dir := u.character.GetDirection(x, -y)
-	r := GetRoom(u.room)
-	if r.Passable(u.place, u.character.x, u.character.y, dir, false) && r.Passable(u.place, u.character.x+x, u.character.y+y, 10-dir, true) {
-		u.character.Move(x, y)
-		r.Portal(u)
-	} else {
-		u.Teleport(u.place, u.character.x, u.character.y)
+	if r, ok := Rooms[u.room]; ok {
+		if r.Passable(u.place, u.character.x, u.character.y, dir, false) && r.Passable(u.place, u.character.x+x, u.character.y+y, 10-dir, true) {
+			u.character.Move(x, y)
+			r.Portal(u)
+		} else {
+			u.Teleport(u.place, u.character.x, u.character.y)
+		}
 	}
 }
 
@@ -110,43 +107,55 @@ func (u *User) Entry(rType int) {
 		return
 	}
 	// TODO : set state, send
-	if r, ok := AvailableRoom(rType); ok {
-		r.Join(u)
-	} else {
-		r := NewRoom(rType)
-		r.Join(u)
+	r, ok := AvailableRoom(rType)
+	if !ok {
+		r = NewRoom(rType)
 	}
+	r.Join(u)
 }
 
 func (u *User) Leave() {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).Leave(u)
+	if r, ok := Rooms[u.room]; ok {
+		r.Leave(u)
+	}
 }
 
 func (u *User) Hit() {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).UseItem(u)
+	if r, ok := Rooms[u.room]; ok {
+		r.UseItem(u)
+	}
 }
 
 func (u *User) Portal(place int, x int, y int, dirX int, dirY int) {
 	// TODO : broadcast
+	//u.BroadcastMap(toClient.UserData("dd"))
 	u.place = place
 	u.character.SetPosition(x, y)
 	if !(dirX == dirY && dirX == 0) {
 		u.Turn(dirX, dirY)
 	}
-	// TODO : send
+	u.Send(toClient.Portal(place, x, y, u.character.dirX, u.character.dirY))
 }
 
 func (u *User) Teleport(place int, x int, y int) {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).Teleport(u, place, x, y, 0, 0)
+	if r, ok := Rooms[u.room]; ok {
+		r.Teleport(u, place, x, y, 0, 0)
+	}
+}
+
+func (u *User) Disconnect() {
+	u.Leave()
+	u.Remove()
+	// TODO : db 저장
 }
 
 func (u *User) Send(d []byte) {
@@ -159,26 +168,34 @@ func (u *User) Publish(d []byte) {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).Publish(d)
+	if r, ok := Rooms[u.room]; ok {
+		r.Publish(d)
+	}
 }
 
 func (u *User) PublishMap(d []byte) {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).PublishMap(u.place, d)
+	if r, ok := Rooms[u.room]; ok {
+		r.PublishMap(u.place, d)
+	}
 }
 
 func (u *User) Broadcast(d []byte) {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).Broadcast(u, d)
+	if r, ok := Rooms[u.room]; ok {
+		r.Broadcast(u, d)
+	}
 }
 
 func (u *User) BroadcastMap(d []byte) {
 	if u.room < 1 {
 		return
 	}
-	GetRoom(u.room).BroadcastMap(u, d)
+	if r, ok := Rooms[u.room]; ok {
+		r.BroadcastMap(u, d)
+	}
 }
