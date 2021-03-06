@@ -11,7 +11,7 @@ import (
 	cMath "godori.com/util/math"
 )
 
-type MapData struct {
+type GameMap struct {
 	Name       string  `json: "name"`
 	BGM        string  `json: "bgm"`
 	Width      int     `json: "width"`
@@ -36,7 +36,7 @@ type Portal struct {
 
 const maxMapCnt int = 257
 
-var Maps map[int]*MapData = make(map[int]*MapData)
+var GameMaps map[int]*GameMap = make(map[int]*GameMap)
 
 func init() {
 	fmt.Println("맵 로딩중...")
@@ -47,9 +47,9 @@ func init() {
 		}
 		defer jsonFile.Close()
 		byteValue, _ := ioutil.ReadAll(jsonFile)
-		var mapData MapData
+		var mapData GameMap
 		json.Unmarshal(byteValue, &mapData)
-		Maps[i] = &MapData{
+		GameMaps[i] = &GameMap{
 			Name:       mapData.Name,
 			BGM:        mapData.BGM,
 			Width:      mapData.Width,
@@ -60,7 +60,7 @@ func init() {
 		}
 		portals := db.GetPortals(i)
 		for _, p := range portals {
-			Maps[i].Portals = append(Maps[i].Portals, &Portal{
+			GameMaps[i].Portals = append(GameMaps[i].Portals, &Portal{
 				Place:     int(p.Place.Int32),
 				X:         int(p.X.Int32),
 				Y:         int(p.Y.Int32),
@@ -76,7 +76,7 @@ func init() {
 	fmt.Println("맵 로딩 완료")
 }
 
-func (m *MapData) GetPortal(x int, y int) (*Portal, bool){
+func (m *GameMap) GetPortal(x int, y int) (*Portal, bool) {
 	for _, p := range m.Portals {
 		if p.X == x && p.Y == y {
 			return p, true
@@ -85,7 +85,7 @@ func (m *MapData) GetPortal(x int, y int) (*Portal, bool){
 	return nil, false
 }
 
-func (m *MapData) RangePortal(x int, y int, rng int) bool {
+func (m *GameMap) RangePortal(x int, y int, rng int) bool {
 	for _, p := range m.Portals {
 		if cMath.Pow(cMath.Abs(p.X-x), 2)+cMath.Pow(cMath.Abs(p.Y-y), 2) <= rng*rng {
 			return true
@@ -94,7 +94,7 @@ func (m *MapData) RangePortal(x int, y int, rng int) bool {
 	return false
 }
 
-func (m *MapData) Passable(x int, y int, dir int) bool {
+func (m *GameMap) Passable(x int, y int, dir int) bool {
 	if !m.Valid(x, y) {
 		return false
 	}
@@ -117,6 +117,6 @@ func (m *MapData) Passable(x int, y int, dir int) bool {
 	return true
 }
 
-func (m *MapData) Valid(x int, y int) bool {
+func (m *GameMap) Valid(x int, y int) bool {
 	return x >= 0 && x < m.Width && y >= 0 && y < m.Height
 }

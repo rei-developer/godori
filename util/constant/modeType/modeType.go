@@ -1,0 +1,14 @@
+package constant
+
+const (
+	NONE = iota
+	RESCUE
+	INFECT
+	HIDE
+	ESCAPE
+	DEATH_MATCH
+	PROTECT
+	BLAST
+	TOUCH_DOWN
+	DEFENSE
+)

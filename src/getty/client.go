@@ -81,13 +81,12 @@ func (c *Client) Request() {
 	for {
 		select {
 		case <-c.done:
-			fmt.Println("끝")
 			return
 		default:
 			_, message, err := c.conn.ReadMessage()
 			if e, ok := err.(*websocket.CloseError); ok {
 				switch e.Code {
-				case 1001, 1005:
+				case 1001, 1005, 1006:
 					return
 				default:
 					fmt.Println(e)

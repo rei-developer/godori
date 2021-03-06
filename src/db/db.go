@@ -389,7 +389,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 	}
 	cond := strings.Join(keys, " AND ")
 	item := User{}
-	err := database.QueryRow("SELECT uuid, name FROM users WHERE "+cond, values...).Scan(&item.Uuid, &item.Name)
+	err := database.QueryRow("SELECT id, uuid, name FROM users WHERE "+cond, values...).Scan(&item.Id, &item.Uuid, &item.Name)
 	ok := CheckError(err)
 	return item, ok
 }

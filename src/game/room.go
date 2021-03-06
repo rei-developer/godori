@@ -1,16 +1,16 @@
 package game
 
 import (
-	"godori.com/getty"
-	roomType "godori.com/util/constant/roomType"
 	"time"
+
+	"godori.com/getty"
 )
 
 type Room struct {
 	Index          int
 	RoomType       int
 	Max            int
-	Mode           int
+	Mode           *GameMode
 	NextEventIndex int
 	Users          map[*getty.Client]*User
 	Places         map[int]*Place
@@ -32,30 +32,22 @@ func NewRoom(rType int) *Room {
 		Run:      true,
 	}
 	Rooms[nextRoomIndex] = room
+	room.Mode = NewMode(room)
 	go room.Update()
 	return room
 }
 
-func AvailableRoom(rType int) (*Room, bool) {
+func AvailableRoom(rType int) *Room {
 	for index := range Rooms {
-		var r = Rooms[index]
-		if r.RoomType == rType && r.CheckJoin() {
-			return r, true
+		if r, ok := Rooms[index]; ok && r.RoomType == rType && r.CheckJoin() {
+			return r
 		}
 	}
-	return nil, false
+	return NewRoom(rType)
 }
 
 func (r *Room) Remove() {
 	delete(Rooms, r.Index)
-}
-
-func (r *Room) Setting() {
-	switch r.RoomType {
-	case roomType.GAME:
-		// TODO : r.mode = new GameMode
-	case roomType.PLAYGROUND:
-	}
 }
 
 func (r *Room) AddEvent() {
@@ -81,13 +73,10 @@ func (r *Room) RemoveUser(u *User) {
 func (r *Room) GetPlace(place int) *Place {
 	p, ok := r.Places[place]
 	if !ok {
-		p = NewPlace(place, r.Index)
+		r.Places[place] = NewPlace(place, r.Index)
+		return r.Places[place]
 	}
 	return p
-}
-
-func (r *Room) ChangeGameMode(mode int) {
-	// TODO : change mode
 }
 
 func (r *Room) Publish(d []byte) {
@@ -129,11 +118,11 @@ func (r *Room) Passable(place int, x int, y int, dir int, collider bool) bool {
 		// TODO : event
 		//r.GetPlace(place).Events
 	}
-	return Maps[place].Passable(x, y, dir)
+	return GameMaps[place].Passable(x, y, dir)
 }
 
 func (r *Room) Portal(u *User) {
-	if p, ok := Maps[u.place].GetPortal(u.character.x, u.character.y); ok {
+	if p, ok := GameMaps[u.place].GetPortal(u.character.x, u.character.y); ok {
 		r.Teleport(u, p.NextPlace, p.NextX, p.NextY, p.NextDirX, p.NextDirY)
 		if p.Sound != "" {
 			// TODO : 사운드 재생
@@ -145,16 +134,18 @@ func (r *Room) Portal(u *User) {
 func (r *Room) Teleport(u *User, place int, x int, y int, dirX int, dirY int) {
 	r.GetPlace(u.place).RemoveUser(u)
 	u.Portal(place, x, y, dirX, dirY)
-	r.GetPlace(u.place).AddUser(u)
-	r.Draw(u)
+	r.GetPlace(place).AddUser(u)
+	//r.Draw(u)
 }
 
 func (r *Room) Hit(u *User) {
 	// TODO : hit
+	r.Mode.Hit(u)
 }
 
 func (r *Room) UseItem(u *User) {
 	// TODO : use item
+	r.Mode.UseItem(u)
 }
 
 func (r *Room) CheckJoin() bool {
@@ -163,15 +154,18 @@ func (r *Room) CheckJoin() bool {
 
 func (r *Room) Draw(u *User) {
 	// TODO : draw
+	r.Mode.DrawUsers(u)
 }
 
 func (r *Room) Join(u *User) {
 	// TODO : join
 	r.AddUser(u)
+	r.Mode.Join(u)
 }
 
 func (r *Room) Leave(u *User) {
 	// TODO : leave
+	r.Mode.Leave(u)
 	r.RemoveUser(u)
 	if len(r.Users) <= 0 {
 		r.Remove()
@@ -180,6 +174,7 @@ func (r *Room) Leave(u *User) {
 
 func (r *Room) Update() {
 	for r.Run {
-		time.Sleep(100 * time.Millisecond)
+		r.Mode.Update()
+		time.Sleep(1000 * time.Millisecond)
 	}
 }

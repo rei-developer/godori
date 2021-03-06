@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 )
 
-func UserData(name string) []byte {
+func UserData(index int, id int, name string) []byte {
 	type Packet struct {
 		Header int
+		Index  int
+		Id     int
 		Name   string
 	}
-	packet := Packet{
-		USER_DATA,
-		name,
-	}
+	packet := Packet{USER_DATA, index, id, name}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes
@@ -28,6 +27,41 @@ func Portal(place int, x int, y int, dirX int, dirY int) []byte {
 		DirY   int
 	}
 	packet := Packet{PORTAL, place, x, y, dirX, dirY}
+	bytes, err := json.Marshal(packet)
+	CheckError(err)
+	return bytes
+}
+
+func CreateGameObject(model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) []byte {
+	type Packet struct {
+		Header   int
+		Model    int
+		Index    int
+		Name     string
+		ClanName string
+		Team     int
+		Level    int
+		Image    string
+		X        int
+		Y        int
+		DirX     int
+		DirY     int
+		Collider bool
+	}
+	packet := Packet{CREATE_GAME_OBJECT, model, index, name, clanName, team, level, image, x, y, dirX, dirY, collider}
+	bytes, err := json.Marshal(packet)
+	CheckError(err)
+	return bytes
+}
+
+func SetGraphics(model int, index int, image string) []byte {
+	type Packet struct {
+		Header int
+		Model  int
+		Index  int
+		Image  string
+	}
+	packet := Packet{SET_GRAPHICS, model, index, image}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes

@@ -40,4 +40,5 @@ func (c *Character) Turn(dirX int, dirY int) {
 func (c *Character) Move(x int, y int) {
 	c.CharacterPos.x += x
 	c.CharacterPos.y += y
+	c.Dirty = true
 }

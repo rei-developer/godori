@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"runtime"
+	"strconv"
 	"sync"
 
 	//"godori.com/db"
@@ -16,7 +17,10 @@ import (
 	toServer "godori.com/packet/toServer"
 )
 
-const maxAcceptCnt = 3
+const (
+	port         = "50000"
+	maxAcceptCnt = 3
+)
 
 var connections int
 
@@ -47,10 +51,8 @@ func main() {
 	//	}
 	//}
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
-	fmt.Println(runtime.GOMAXPROCS(0))
-
 	var wg sync.WaitGroup
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	server := getty.NewServer("")
 	server.OnConnect = OnConnect
 	server.OnMessage = OnMessage
@@ -60,9 +62,9 @@ func main() {
 	go func() {
 		defer wg.Done()
 		http.HandleFunc("/", server.Listen)
-		log.Fatal(http.ListenAndServe(":50000", nil))
+		log.Fatal(http.ListenAndServe(":"+port, nil))
 	}()
-	fmt.Println("슈퍼호옹호옹이서버를 실행합니다.")
+	log.Println("PORT: " + port + ", GOMAXPROCS: " + strconv.Itoa(runtime.GOMAXPROCS(0)) + " - 서버를 실행합니다.")
 	wg.Wait()
 }
 
@@ -72,7 +74,7 @@ func BeforeAccept() bool {
 
 func Login(u *game.User) {
 	uData := u.GetUserdata()
-	u.Send(toClient.UserData(uData.Name))
+	u.Send(toClient.UserData(u.Index, uData.Id, uData.Name))
 	// TODO :
 }
 
