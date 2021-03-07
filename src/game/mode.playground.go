@@ -1,7 +1,6 @@
 package game
 
 type PlaygroundMode struct {
-	Name string
 	Room *Room
 }
 

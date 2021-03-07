@@ -47,6 +47,7 @@ func AvailableRoom(rType int) *Room {
 }
 
 func (r *Room) Remove() {
+	r.Run = false
 	delete(Rooms, r.Index)
 }
 
@@ -73,8 +74,8 @@ func (r *Room) RemoveUser(u *User) {
 func (r *Room) GetPlace(place int) *Place {
 	p, ok := r.Places[place]
 	if !ok {
-		r.Places[place] = NewPlace(place, r.Index)
-		return r.Places[place]
+		r.Places[place] = NewPlace(place, r)
+		p = r.Places[place]
 	}
 	return p
 }
@@ -174,7 +175,10 @@ func (r *Room) Leave(u *User) {
 
 func (r *Room) Update() {
 	for r.Run {
+		for _, p := range r.Places {
+			p.Update()
+		}
 		r.Mode.Update()
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 }

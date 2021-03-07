@@ -5,7 +5,6 @@ import (
 )
 
 type NoneMode struct {
-	Name string
 	Room *Room
 }
 

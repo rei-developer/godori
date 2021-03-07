@@ -23,26 +23,20 @@ type IGameMode interface {
 
 func NewMode(r *Room) *GameMode {
 	mode := &GameMode{Room: r}
-	mode.ChangeMode(r.RoomType, modeType.NONE)
+	mode.ChangeMode(modeType.NONE)
 	return mode
 }
 
-func (m *GameMode) ChangeMode(rType int, mType int) {
+func (m *GameMode) ChangeMode(mType int) {
+	rType := m.Room.RoomType
 	if rType == roomType.PLAYGROUND {
-		m.Mode = &PlaygroundMode{
-			Name: "플레이그라운드",
-			Room: m.Room,
-		}
+		m.Mode = &PlaygroundMode{Room: m.Room}
 	} else if rType == roomType.GAME {
 		switch mType {
 		case modeType.NONE:
-			m.Mode = &NoneMode{
-				Name: "없다네",
-			}
+			m.Mode = &NoneMode{Room: m.Room}
 		case modeType.RESCUE:
-			m.Mode = &RescueMode{
-				Name: "dd",
-			}
+			m.Mode = &RescueMode{Room: m.Room}
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package game
 
 type RescueMode struct {
-	Name string
 	Room *Room
 }
 

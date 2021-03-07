@@ -1,22 +1,23 @@
 package game
 
 import (
+	"fmt"
 	"godori.com/getty"
 )
 
 type Place struct {
-	Index     int
-	RoomIndex int
-	Users     map[*getty.Client]*User
-	Events    []string
-	Light     bool
+	Index  int
+	Room   *Room
+	Users  map[*getty.Client]*User
+	Events []string
+	Light  bool
 }
 
-func NewPlace(index int, rIndex int) *Place {
+func NewPlace(index int, r *Room) *Place {
 	return &Place{
-		Index:     index,
-		RoomIndex: rIndex,
-		Users:     make(map[*getty.Client]*User),
+		Index: index,
+		Room:  r,
+		Users: make(map[*getty.Client]*User),
 	}
 }
 
@@ -45,9 +46,9 @@ func (p *Place) RemoveAllEvent() {
 }
 
 func (p *Place) Update() {
+	fmt.Println("루룰랄라")
+	
 	if len(p.Users) < 1 {
 		return
 	}
-
-	// TODO : 동기화
 }
