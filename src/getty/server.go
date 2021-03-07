@@ -51,9 +51,10 @@ func (s *Server) onConnect(c *Client) {
 }
 
 func (s *Server) onDisconnect(c *Client) {
-	close(c.done)
+	c.Run = false
 	s.OnDisconnect(c)
 	delete(s.Clients, c.RemoteAddr().String())
+	c.Close()
 }
 
 func (s *Server) onMessage(c *Client, d *Data) {

@@ -15,7 +15,7 @@ type Client struct {
 	server   *Server
 	token    string
 	sendChan chan []byte
-	done     chan struct{}
+	Run      bool
 }
 
 func NewClient(c *websocket.Conn, s *Server, t string) *Client {
@@ -24,7 +24,7 @@ func NewClient(c *websocket.Conn, s *Server, t string) *Client {
 		server:   s,
 		token:    t,
 		sendChan: make(chan []byte),
-		done:     make(chan struct{}),
+		Run:      true,
 	}
 }
 
@@ -47,7 +47,9 @@ func (c *Client) RemoteAddr() net.Addr {
 }
 
 func (c *Client) Send(d []byte) {
-	c.sendChan <- d
+	if c.Run {
+		c.sendChan <- d
+	}
 }
 
 func (c *Client) Broadcast(d []byte) {
@@ -75,38 +77,29 @@ func (c *Client) Request() {
 	defer func() {
 		c.server.DisConnChan <- c
 	}()
-	for {
-		select {
-		case <-c.done:
-			return
-		default:
-			_, message, err := c.conn.ReadMessage()
-			if e, ok := err.(*websocket.CloseError); ok {
-				switch e.Code {
-				case 1001, 1005, 1006:
-					return
-				default:
-					log.Println(e)
-				}
-				time.Sleep(100 * time.Millisecond)
-				continue
+	for c.Run {
+		_, message, err := c.conn.ReadMessage()
+		if e, ok := err.(*websocket.CloseError); ok {
+			switch e.Code {
+			case 1001, 1005, 1006:
+				return
+			default:
+				log.Println(e)
 			}
-			pSize := len(message)
-			pType := BytesToInt(message[:HEADER_SIZE])
-			c.server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			time.Sleep(100 * time.Millisecond)
+			continue
 		}
+		pSize := len(message)
+		pType := BytesToInt(message[:HEADER_SIZE])
+		c.server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 	}
 }
 
 func (c *Client) Response() {
-	for {
-		select {
-		case <-c.done:
-			return
-		case data := <-c.sendChan:
-			log.Println(string(data))
-			c.conn.WriteMessage(websocket.TextMessage, data)
-		}
+	for c.Run {
+		data := <-c.sendChan
+		log.Println(string(data))
+		c.conn.WriteMessage(websocket.TextMessage, data)
 	}
 }
 
