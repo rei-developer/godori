@@ -17,6 +17,17 @@ func UserData(index int, id int, name string) []byte {
 	return bytes
 }
 
+func NoticeMessage(text string) []byte {
+	type Packet struct {
+		Header int
+		Text   string
+	}
+	packet := Packet{NOTICE_MESSAGE, text}
+	bytes, err := json.Marshal(packet)
+	CheckError(err)
+	return bytes
+}
+
 func Portal(place int, x int, y int, dirX int, dirY int) []byte {
 	type Packet struct {
 		Header int

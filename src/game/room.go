@@ -140,12 +140,11 @@ func (r *Room) Teleport(u *User, place int, x int, y int, dirX int, dirY int) {
 }
 
 func (r *Room) Hit(u *User) {
-	// TODO : hit
-	r.Mode.Hit(u)
+	// TODO
+	r.Mode.Hit(u, u)
 }
 
 func (r *Room) UseItem(u *User) {
-	// TODO : use item
 	r.Mode.UseItem(u)
 }
 

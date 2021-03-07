@@ -1,7 +1,8 @@
 package game
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/binary"
 	"godori.com/getty"
 )
 
@@ -46,9 +47,45 @@ func (p *Place) RemoveAllEvent() {
 }
 
 func (p *Place) Update() {
-	fmt.Println("루룰랄라")
-	
 	if len(p.Users) < 1 {
 		return
+	}
+	var users map[*getty.Client]*User = make(map[*getty.Client]*User)
+	for c, u := range p.Users {
+		if u.character.Dirty {
+			users[c] = u
+		}
+	}
+	if len(users) <= 0 {
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	var data = []interface{}{
+		uint8(0),
+		uint8(len(users)),
+	}
+	for _, u := range users {
+		u.character.Dirty = false
+		data = append(data, int8(u.character.Model))
+		data = append(data, int32(u.Index))
+		data = append(data, int16(u.character.CharacterPos.x))
+		data = append(data, int16(u.character.CharacterPos.y))
+		data = append(data, int8(u.character.CharacterPos.dirX))
+		data = append(data, int8(u.character.CharacterPos.dirY))
+	}
+	for _, v := range data {
+		err := binary.Write(buf, binary.LittleEndian, v)
+		CheckError(err)
+	}
+	//fmt.Println(buf.Bytes())
+	for _, u := range p.Users {
+		u.Send(buf.Bytes())
+	}
+}
+
+func CheckError(err error) {
+	if err != nil {
+		panic(err)
 	}
 }

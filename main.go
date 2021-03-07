@@ -169,6 +169,7 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 		case toServer.ADD_NOTICE_MESSAGE:
 		case toServer.ADD_USER_REPORT:
 		case toServer.USE_ITEM:
+			u.UseItem()
 			//case toServer.ADD_USER_REPORT:
 			//	b := []byte(string(d.Buffers))
 			//	var data map[string]interface{}

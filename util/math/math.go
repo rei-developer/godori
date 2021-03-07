@@ -1,6 +1,10 @@
 package math
 
-import "math"
+import (
+	"math"
+	"math/rand"
+	"time"
+)
 
 func Max(x, y int) int {
 	if x > y {
@@ -18,4 +22,10 @@ func Abs(x int) int {
 
 func Pow(x, y int) int {
 	return int(math.Pow(float64(x), float64(y)))
+}
+
+func Rand(val int) int {
+	rs := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(rs)
+	return r.Intn(val)
 }

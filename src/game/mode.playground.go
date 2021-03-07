@@ -24,11 +24,15 @@ func (m *PlaygroundMode) DrawUsers(self *User) {
 
 }
 
-func (m *PlaygroundMode) Hit(u *User) {
-
+func (m *PlaygroundMode) Hit(self *User, target *User) bool {
+	return true
 }
 
 func (m *PlaygroundMode) UseItem(u *User) {
+
+}
+
+func (m *PlaygroundMode) Result(winner int) {
 
 }
 

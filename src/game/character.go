@@ -7,12 +7,17 @@ type CharacterPos struct {
 	dirY int
 }
 
-type Graphics string
+type Graphics struct {
+	Image     string
+	RedImage  string
+	BlueImage string
+}
 
 type Character struct {
+	Model int
 	CharacterPos
-	Graphics
-	Dirty bool
+	Graphics Graphics
+	Dirty    bool
 }
 
 var dirTable = [3][3]int{
@@ -23,6 +28,12 @@ var dirTable = [3][3]int{
 
 func (c *Character) GetDirection(x int, y int) int {
 	return dirTable[x+1][y+1]
+}
+
+func (c *Character) Setting(model int, redImage string, blueImage string) {
+	c.Model = model
+	c.SetPosition(0, -1)
+	c.Graphics = Graphics{Image: blueImage, RedImage: redImage, BlueImage: blueImage}
 }
 
 func (c *Character) SetPosition(x int, y int) {

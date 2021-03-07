@@ -23,7 +23,8 @@ type User struct {
 	character Character
 	room      int
 	place     int
-	userdata  *UserData
+	UserData  *UserData
+	GameData  map[string]interface{}
 }
 
 var nextUserIndex int
@@ -37,7 +38,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 			client: c,
 			room:   0,
 			place:  0,
-			userdata: &UserData{
+			UserData: &UserData{
 				int(result.Id.Int32),
 				result.Uuid.String,
 				result.Name.String,
@@ -48,8 +49,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 			},
 		}
 		Users[c] = user
-		user.character.SetPosition(0, -1)
-		user.character.Graphics = "Yuzuha"
+		user.character.Setting(1, "ao", "Yuzuha")
 		return user, true
 	}
 	return nil, false
@@ -64,36 +64,41 @@ func (u *User) Remove() bool {
 }
 
 func (u *User) GetUserdata() *UserData {
-	return u.userdata
+	return u.UserData
 }
 
-func (u *User) GetCreateGameObject() (model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) {
+func (u *User) GetCreateGameObject(hide bool) (model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) {
 	model = 1
 	index = u.Index
-	name = u.userdata.Name
+	name = u.UserData.Name
 	clanName = ""
-	team = u.userdata.Team
-	level = u.userdata.Level
-	image = string(u.character.Graphics)
+	team = u.UserData.Team
+	level = u.UserData.Level
+	image = u.character.Graphics.Image
 	x = u.character.x
 	y = u.character.y
 	dirX = u.character.dirX
 	dirY = u.character.dirY
 	collider = false
+	if hide {
+		name = ""
+		clanName = ""
+		level = 0
+	}
 	return
 }
 
 func (u *User) SetUpLevel(v int) {
-	u.userdata.Level += v
+	u.UserData.Level += v
 }
 
 func (u *User) SetUpExp(v int) {
-	if u.userdata.Level > 200 {
+	if u.UserData.Level > 200 {
 		return
 	}
-	u.userdata.Exp = cMath.Max(u.userdata.Exp+v, 0)
-	for u.userdata.Exp >= u.userdata.MaxExp {
-		u.userdata.Exp -= u.userdata.MaxExp
+	u.UserData.Exp = cMath.Max(u.UserData.Exp+v, 0)
+	for u.UserData.Exp >= u.UserData.MaxExp {
+		u.UserData.Exp -= u.UserData.MaxExp
 		u.SetUpLevel(1)
 	}
 }
@@ -107,7 +112,7 @@ func (u *User) GetMaxExp(v int) int {
 }
 
 func (u *User) SetGraphics(image string) {
-	u.character.Graphics = Graphics(image)
+	u.character.Graphics.Image = image
 	u.PublishMap(toClient.SetGraphics(1, u.Index, image))
 }
 
@@ -153,6 +158,15 @@ func (u *User) Leave() {
 }
 
 func (u *User) Hit() {
+	if u.room < 1 {
+		return
+	}
+	if r, ok := Rooms[u.room]; ok {
+		r.Hit(u)
+	}
+}
+
+func (u *User) UseItem() {
 	if u.room < 1 {
 		return
 	}
