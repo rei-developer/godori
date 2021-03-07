@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"godori.com/db"
 	"godori.com/getty"
 	toClient "godori.com/packet/toClient"
@@ -123,19 +122,13 @@ func (u *User) Move(x int, y int) {
 	if u.room < 1 {
 		return
 	}
-	u.character.Turn(x, -y)
-	dir := u.character.GetDirection(x, -y)
-	fmt.Println(u.character.x, u.character.y, u.character.dirX, u.character.dirY, dir)
+	u.character.Turn(x, y)
+	dir := u.character.GetDirection(x, y)
 	if r, ok := Rooms[u.room]; ok {
-
-		fmt.Println(r.Passable(u.place, u.character.x, u.character.y, dir, false))
-		fmt.Println(r.Passable(u.place, u.character.x+x, u.character.y+y, 10-dir, true))
-
-		if r.Passable(u.place, u.character.x, u.character.y, dir, false) && r.Passable(u.place, u.character.x+x, u.character.y+y, 10-dir, true) {
-			u.character.Move(x, y)
-			//r.Portal(u)
+		if r.Passable(u.place, u.character.x, u.character.y, dir, false) && r.Passable(u.place, u.character.x+x, u.character.y-y, 10-dir, true) {
+			u.character.Move(x, -y)
+			r.Portal(u)
 		} else {
-			fmt.Println("음.... 재시작")
 			u.Teleport(u.place, u.character.x, u.character.y)
 		}
 	}
