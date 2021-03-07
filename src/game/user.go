@@ -11,7 +11,6 @@ type UserData struct {
 	Id     int
 	Uuid   string
 	Name   string
-	Team   int
 	Level  int
 	Exp    int
 	MaxExp int
@@ -45,7 +44,6 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 				0,
 				0,
 				0,
-				0,
 			},
 		}
 		Users[c] = user
@@ -72,7 +70,10 @@ func (u *User) GetCreateGameObject(hide bool) (model int, index int, name string
 	index = u.Index
 	name = u.UserData.Name
 	clanName = ""
-	team = u.UserData.Team
+	team = 0
+	if t, ok := u.GameData["team"]; ok {
+		team = t.(int)
+	}
 	level = u.UserData.Level
 	image = u.character.Graphics.Image
 	x = u.character.x

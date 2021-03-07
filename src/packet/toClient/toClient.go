@@ -5,46 +5,63 @@ import (
 )
 
 func UserData(index int, id int, name string) []byte {
-	type Packet struct {
+	packet := struct {
 		Header int
 		Index  int
 		Id     int
 		Name   string
-	}
-	packet := Packet{USER_DATA, index, id, name}
+	}{USER_DATA, index, id, name}
+	bytes, err := json.Marshal(packet)
+	CheckError(err)
+	return bytes
+}
+
+func SystemMessage(text string) []byte {
+	packet := struct {
+		Header int
+		Text   string
+	}{SYSTEM_MESSAGE, text}
+	bytes, err := json.Marshal(packet)
+	CheckError(err)
+	return bytes
+}
+
+func InformMessage(text string) []byte {
+	packet := struct {
+		Header int
+		Text   string
+	}{INFORM_MESSAGE, text}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes
 }
 
 func NoticeMessage(text string) []byte {
-	type Packet struct {
+	packet := struct {
 		Header int
 		Text   string
-	}
-	packet := Packet{NOTICE_MESSAGE, text}
+	}{NOTICE_MESSAGE, text}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes
 }
 
 func Portal(place int, x int, y int, dirX int, dirY int) []byte {
-	type Packet struct {
+	packet := struct {
 		Header int
 		Place  int
 		X      int
 		Y      int
 		DirX   int
 		DirY   int
-	}
-	packet := Packet{PORTAL, place, x, y, dirX, dirY}
+	}{PORTAL, place, x, y, dirX, dirY}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes
 }
 
 func CreateGameObject(model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) []byte {
-	type Packet struct {
+	packet := struct {
 		Header   int
 		Model    int
 		Index    int
@@ -58,21 +75,29 @@ func CreateGameObject(model int, index int, name string, clanName string, team i
 		DirX     int
 		DirY     int
 		Collider bool
-	}
-	packet := Packet{CREATE_GAME_OBJECT, model, index, name, clanName, team, level, image, x, y, dirX, dirY, collider}
+	}{CREATE_GAME_OBJECT, model, index, name, clanName, team, level, image, x, y, dirX, dirY, collider}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes
 }
 
 func SetGraphics(model int, index int, image string) []byte {
-	type Packet struct {
+	packet := struct {
 		Header int
 		Model  int
 		Index  int
 		Image  string
-	}
-	packet := Packet{SET_GRAPHICS, model, index, image}
+	}{SET_GRAPHICS, model, index, image}
+	bytes, err := json.Marshal(packet)
+	CheckError(err)
+	return bytes
+}
+
+func PlaySound(name string) []byte {
+	packet := struct {
+		Header int
+		Name   string
+	}{PLAY_SOUND, name}
 	bytes, err := json.Marshal(packet)
 	CheckError(err)
 	return bytes
