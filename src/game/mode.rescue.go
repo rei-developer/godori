@@ -8,7 +8,6 @@ import (
 	toClient "godori.com/packet/toClient"
 	mapType "godori.com/util/constant/mapType"
 	teamType "godori.com/util/constant/teamType"
-	cMath "godori.com/util/math"
 	pix "godori.com/util/pix"
 )
 
@@ -185,8 +184,9 @@ func (m *RescueMode) Join(u *User) {
 
 func (m *RescueMode) Leave(u *User) {
 	m.RemoveUser(u)
-	if u.GameData["caught"] == true {
+	if caught, ok := u.GameData["caught"]; ok && caught.(bool) {
 		m.RedScore--
+		fmt.Println("레드 스코어 삭감") // TODO : 테스트를 위한 로깅
 	}
 	u.SetGraphics(u.character.Graphics.BlueImage)
 	// TODO : score publish
@@ -257,31 +257,6 @@ func (m *RescueMode) Result(winner int) {
 	//} TODO : 점수 가산
 }
 
-func (m *RescueMode) Sample(target map[*getty.Client]*User, count int) map[*getty.Client]*User {
-	users := make(map[*getty.Client]*User)
-	pickers := make(map[*getty.Client]*User)
-	for _, u := range target {
-		users[u.client] = u
-	}
-	for count > 0 {
-		c := 0
-		pick := cMath.Rand(len(users))
-		for _, u := range users {
-			if c == pick {
-				if _, ok := pickers[u.client]; !ok {
-					pickers[u.client] = u
-					delete(users, u.client)
-					break
-				}
-			}
-			c++
-		}
-		count--
-	}
-
-	return pickers
-}
-
 func (m *RescueMode) Update() {
 	m.Tick++
 	if m.Tick%10 != 0 {
@@ -298,7 +273,7 @@ func (m *RescueMode) Update() {
 		} else if m.Count == 200 {
 			m.Room.Lock = true
 			m.State = STATE_GAME
-			for _, u := range m.Sample(m.BlueUsers, (len(m.BlueUsers)/5)+1) {
+			for _, u := range m.Room.Mode.Sample(m.BlueUsers, (len(m.BlueUsers)/5)+1) {
 				m.RemoveUser(u)
 				u.GameData["team"] = teamType.RED
 				m.AddUser(u)

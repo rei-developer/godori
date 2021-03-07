@@ -1,6 +1,7 @@
 package game
 
 import (
+	"godori.com/getty"
 	mapType "godori.com/util/constant/mapType"
 	modeType "godori.com/util/constant/modeType"
 	roomType "godori.com/util/constant/roomType"
@@ -81,6 +82,30 @@ func (m *GameMode) Hit(self *User, target *User) {
 
 func (m *GameMode) UseItem(u *User) {
 	m.Mode.UseItem(u)
+}
+
+func (m *GameMode) Sample(target map[*getty.Client]*User, count int) map[*getty.Client]*User {
+	users := make(map[*getty.Client]*User)
+	pickers := make(map[*getty.Client]*User)
+	for _, u := range target {
+		users[u.client] = u
+	}
+	for count > 0 {
+		c := 0
+		pick := cMath.Rand(len(users))
+		for _, u := range users {
+			if c == pick {
+				if _, ok := pickers[u.client]; !ok {
+					pickers[u.client] = u
+					delete(users, u.client)
+					break
+				}
+			}
+			c++
+		}
+		count--
+	}
+	return pickers
 }
 
 func (m *GameMode) Update() {

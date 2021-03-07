@@ -2,13 +2,16 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"runtime"
 	"strconv"
-	"sync"
+	"syscall"
+	"time"
 
 	//"godori.com/db"
 	"godori.com/game"
@@ -25,6 +28,7 @@ const (
 var connections int
 
 func main() {
+
 	//id, uuid := db.GetUserById(1)
 	//fmt.Println(id, uuid, "입니다")
 
@@ -51,21 +55,35 @@ func main() {
 	//	}
 	//}
 
-	var wg sync.WaitGroup
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	server := getty.NewServer("")
 	server.OnConnect = OnConnect
 	server.OnMessage = OnMessage
 	server.OnDisconnect = OnDisconnect
 	server.BeforeAccept = BeforeAccept
-	wg.Add(1)
+	srv := &http.Server{Addr: ":" + port, Handler: nil}
 	go func() {
-		defer wg.Done()
 		http.HandleFunc("/", server.Listen)
-		log.Fatal(http.ListenAndServe(":"+port, nil))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Listen: %s\n", err)
+		}
 	}()
-	log.Println("PORT: " + port + ", GOMAXPROCS: " + strconv.Itoa(runtime.GOMAXPROCS(0)) + " - 서버를 실행합니다.")
-	wg.Wait()
+	log.Println("PORT: " + port + ", GOMAXPROCS: " + strconv.Itoa(runtime.GOMAXPROCS(0)) + " - Run the Godori server.")
+	sig := <-sigChan
+	switch sig {
+	case os.Interrupt:
+		log.Println("The Godori server has been shut down.")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer func() {
+			cancel()
+		}()
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatalf("Server Shutdown Failed: %+v", err)
+		}
+		log.Print("Server Exited Properly.")
+	}
 }
 
 func BeforeAccept() bool {
@@ -90,7 +108,7 @@ func OnConnect(c *getty.Client) {
 	if u, ok := game.NewUser(c, uid, loginType); ok {
 		data := u.GetUserdata()
 		connections++
-		fmt.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
+		log.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
@@ -98,7 +116,7 @@ func OnDisconnect(c *getty.Client) {
 	if u, ok := game.Users[c]; ok {
 		u.Disconnect()
 		connections--
-		fmt.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
+		log.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 

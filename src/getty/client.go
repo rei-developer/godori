@@ -1,7 +1,6 @@
 package getty
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"time"
@@ -67,7 +66,6 @@ func (c *Client) BroadcastAnother(d []byte) {
 }
 
 func (c *Client) Close() {
-	close(c.done)
 	c.server = nil
 	c.conn.Close()
 	c.conn = nil
@@ -77,7 +75,6 @@ func (c *Client) Request() {
 	defer func() {
 		c.server.DisConnChan <- c
 	}()
-
 	for {
 		select {
 		case <-c.done:
@@ -89,7 +86,7 @@ func (c *Client) Request() {
 				case 1001, 1005, 1006:
 					return
 				default:
-					fmt.Println(e)
+					log.Println(e)
 				}
 				time.Sleep(100 * time.Millisecond)
 				continue
@@ -97,13 +94,6 @@ func (c *Client) Request() {
 			pSize := len(message)
 			pType := BytesToInt(message[:HEADER_SIZE])
 			c.server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
-			//far := []byte{2,166}
-			//fmt.Println(far)
-			//fmt.Println(BytesToInt(far))
-
-			//var data map[string]interface{}
-			//json.Unmarshal(message, &data)
-
 		}
 	}
 }

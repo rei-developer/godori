@@ -51,9 +51,9 @@ func (s *Server) onConnect(c *Client) {
 }
 
 func (s *Server) onDisconnect(c *Client) {
+	close(c.done)
 	s.OnDisconnect(c)
 	delete(s.Clients, c.RemoteAddr().String())
-	c.Close()
 }
 
 func (s *Server) onMessage(c *Client, d *Data) {
@@ -65,13 +65,10 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	fork.OnMessage = s.OnMessage
 	fork.OnConnect = s.OnConnect
 	fork.OnDisconnect = s.OnDisconnect
-
 	conn, err := upgrader.Upgrade(w, r, nil)
 	CheckError(err)
-
 	defer conn.Close()
 	var wg sync.WaitGroup
-
 	go func() {
 		for {
 			wg.Add(1)
@@ -83,7 +80,6 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 			wg.Wait()
 		}
 	}()
-
 	for {
 		select {
 		case conn := <-fork.ConnChan:
