@@ -59,7 +59,6 @@ func (p *Place) Update() {
 	if len(users) <= 0 {
 		return
 	}
-
 	buf := new(bytes.Buffer)
 	var data = []interface{}{
 		uint8(0),

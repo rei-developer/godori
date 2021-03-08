@@ -7,6 +7,7 @@ import (
 	"godori.com/getty"
 	toClient "godori.com/packet/toClient"
 	mapType "godori.com/util/constant/mapType"
+	modeType "godori.com/util/constant/modeType"
 	teamType "godori.com/util/constant/teamType"
 	pix "godori.com/util/pix"
 )
@@ -14,6 +15,7 @@ import (
 type RescueMode struct {
 	Room      *Room
 	MapType   int
+	ModeType  int
 	RedScore  int
 	BlueScore int
 	RedUsers  map[*getty.Client]*User
@@ -28,6 +30,7 @@ func NewRescueMode(r *Room, pType int) *RescueMode {
 	return &RescueMode{
 		Room:      r,
 		MapType:   pType,
+		ModeType:  modeType.RESCUE,
 		RedScore:  0,
 		BlueScore: 0,
 		RedUsers:  make(map[*getty.Client]*User),
@@ -179,17 +182,19 @@ func (m *RescueMode) Join(u *User) {
 		m.RedScore++
 		u.Send(toClient.NoticeMessage("감옥에 갇힌 인질을 전원 구출하라."))
 	}
-	//u.PublishMap(toClient.SetGameTeam()) TODO :
+	u.PublishMap(toClient.SetGameTeam(u.Index, u.GameData["team"].(int)))
+	u.Publish(toClient.ModeData(m.ModeType))
 }
 
 func (m *RescueMode) Leave(u *User) {
 	m.RemoveUser(u)
 	if caught, ok := u.GameData["caught"]; ok && caught.(bool) {
 		m.RedScore--
-		fmt.Println("레드 스코어 삭감") // TODO : 테스트를 위한 로깅
+		fmt.Println("레드 스코어 삭감") // 테스트 로그
 	}
+	u.GameData = nil
 	u.SetGraphics(u.character.Graphics.BlueImage)
-	// TODO : score publish
+	u.Publish(toClient.UpdateModeCount(m.RedScore))
 }
 
 func (m *RescueMode) DrawEvents(u *User) {
@@ -203,10 +208,17 @@ func (m *RescueMode) DrawUsers(self *User) {
 			return
 		}
 		userHide := false
-		if self.GameData["team"] != u.GameData["team"] {
-			selfHide = true
-			userHide = true
-		} // TODO
+		if u.GameData["team"] != self.GameData["team"] {
+			if !(self.UserData.Admin > 1 && u.UserData.Admin > 1) {
+				if self.UserData.Admin > 1 {
+					selfHide = true
+				} else if u.UserData.Admin > 1 {
+					userHide = true
+				} else {
+					selfHide, userHide = true, true
+				}
+			}
+		}
 		u.Send(toClient.CreateGameObject(self.GetCreateGameObject(userHide)))
 		self.Send(toClient.CreateGameObject(u.GetCreateGameObject(selfHide)))
 	}
@@ -224,7 +236,7 @@ func (m *RescueMode) Hit(self *User, target *User) bool {
 	}
 	m.MoveToPrison(target)
 	target.GameData["caught"] = true
-	// TODO : dead animation
+	target.Send(toClient.DeadAnimation())
 	self.Send(toClient.NoticeMessage(pix.Maker(target.UserData.Name, "를", "을") + " 인질로 붙잡았다."))
 	self.Send(toClient.PlaySound("Eat"))
 	self.Broadcast(toClient.NoticeMessage(pix.Maker(target.UserData.Name, "가", "이") + " 인질로 붙잡혔다!"))
