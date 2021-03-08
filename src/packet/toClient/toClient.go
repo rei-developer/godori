@@ -1,16 +1,50 @@
 package packet
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
-func UserData(index int, id int, name string) []byte {
+func UserData(index int, id int, name string, clanName string, rank int, sex int, level int, exp int, maxExp int, coin int, cash int, point int, win int, lose int, kill int, death int, assist int, blast int, rescue int, survive int, escape int, grphics string, redGraphics string, blueGraphics string, memo string, admin int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header       int
+		Index        int
+		Id           int
+		Name         string
+		ClanName     string
+		Rank         int
+		Sex          int
+		Level        int
+		Exp          int
+		MaxExpt      int
+		Coin         int
+		Cash         int
+		Point        int
+		Win          int
+		Lose         int
+		Kill         int
+		Death        int
+		Assist       int
+		Blast        int
+		Rescue       int
+		Survive      int
+		Escape       int
+		Graphics     string
+		RedGraphics  string
+		BlueGraphics string
+		Memo         string
+		Admin        int
+	}{USER_DATA, index, id, name, clanName, rank, sex, level, exp, maxExp, coin, cash, point, win, lose, kill, death, assist, blast, rescue, survive, escape, grphics, redGraphics, blueGraphics, memo, admin}))
+}
+
+func Vibrate() []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
-		Index  int
-		Id     int
-		Name   string
-	}{USER_DATA, index, id, name}))
+	}{VIBRATE}))
+}
+
+func ConnectionCount(count int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Count  int
+	}{CONNECTION_COUNT, count}))
 }
 
 func SystemMessage(text string) []byte {
@@ -34,6 +68,23 @@ func NoticeMessage(text string) []byte {
 	}{NOTICE_MESSAGE, text}))
 }
 
+func ComboMessage(text string) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Text   string
+	}{COMBO_MESSAGE, text}))
+}
+
+func ChatMessage(model int, index int, name string, text string) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Model  int
+		Index  int
+		Name   string
+		Text   string
+	}{CHAT_MESSAGE, model, index, name, text}))
+}
+
 func Portal(place int, x int, y int, dirX int, dirY int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
@@ -43,6 +94,14 @@ func Portal(place int, x int, y int, dirX int, dirY int) []byte {
 		DirX   int
 		DirY   int
 	}{PORTAL, place, x, y, dirX, dirY}))
+}
+
+func RemoveGameObject(model int, index int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Model  int
+		Index  int
+	}{REMOVE_GAME_OBJECT, model, index}))
 }
 
 func CreateGameObject(model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) []byte {
@@ -77,6 +136,257 @@ func PlaySound(name string) []byte {
 		Header int
 		Name   string
 	}{PLAY_SOUND, name}))
+}
+
+func UpdateRoomUserCount(count int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Count  int
+	}{UPDATE_ROOM_USER_COUNT, count}))
+}
+
+func UpdateModeCount(count int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Count  int
+	}{UPDATE_MODE_COUNT, count}))
+}
+
+func UpdateGameItem(name string, num int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Name   string
+		Num    int
+	}{UPDATE_GAME_ITEM, name, num}))
+}
+
+func RemoveGameItem() []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+	}{REMOVE_GAME_ITEM}))
+}
+
+func SetGameTeam(index int, team int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Index  int
+		Team   int
+	}{SET_GAME_TEAM, index, team}))
+}
+
+func ModeData(mode int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Mode   int
+	}{MODE_DATA, mode}))
+}
+
+// TODO : get clan ~ invite clan
+
+func MemberInfoClan(memberId int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header   int
+		MemberId int
+	}{MEMBER_INFO_CLAN, memberId}))
+}
+
+func UpdateClan(level int, coin int, cash int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Level  int
+		Coin   int
+		Cash   int
+	}{UPDATE_CLAN, level, coin, cash}))
+}
+
+func MessageClan(state int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		State  int
+	}{MESSAGE_CLAN, state}))
+}
+
+func DeadAnimation() []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+	}{DEAD_ANIMATION}))
+}
+
+func ResultGame(winnder int, rank int, persons int, mission string, exp int, coin int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header  int
+		Winner  int
+		Rank    int
+		Persons int
+		Mission string
+		Exp     int
+		Coin    int
+	}{RESULT_GAME, winnder, rank, persons, mission, exp, coin}))
+}
+
+func EnterWardrobe() []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+	}{ENTER_WARDROBE}))
+}
+
+func LeaveWardrobe() []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+	}{LEAVE_WARDROBE}))
+}
+
+func SwitchLight(flag bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Flag   bool
+	}{SWITCH_LIGHT, flag}))
+}
+
+func QuitGame() []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+	}{QUIT_GAME}))
+}
+
+// TODO : get billing
+
+func UpdateBilling(id int, use bool, refund bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Id     int
+		Use    bool
+		Refund bool
+	}{UPDATE_BILLING, id, use, refund}))
+}
+
+func GetPayInfoItem(id int, cash int, memo string, purchaseDate string, use bool, refund bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header  int
+		Id      int
+		Cash    int
+		Memo    string
+		Regdate string
+		Use     bool
+		Refund  bool
+	}{GET_PAY_INFO_ITEM, id, cash, memo, purchaseDate, use, refund}))
+}
+
+// TODO : get shop
+
+func GetSkinItem(model int, id int, icon string, name string, creator string, desc string, cost int, pay bool, expiry string) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header  int
+		Model   int
+		Id      int
+		Icon    string
+		Name    string
+		Creator string
+		Desc    string
+		Cost    int
+		Pay     bool
+		Expiry  string
+	}{GET_SKIN_ITEM, model, id, icon, name, creator, desc, cost, pay, expiry}))
+}
+
+func MessageShop(state bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		State  bool
+	}{MESSAGE_SHOP, state}))
+}
+
+func MessageLobby(state bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		State  bool
+	}{MESSAGE_LOBBY, state}))
+}
+
+// TODO : get skin list
+
+func UpdateCoinAndCash(coin int, cash int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Coin   int
+		Cash   int
+	}{UPDATE_COIN_AND_CASH, coin, cash}))
+}
+
+// TODO : get rank
+
+func GetUserInfoRank(name string, clanName string, rank int, level int, exp int, maxExp int, kill int, death int, assist int, likes int, memo string, avatar string) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header   int
+		Name     string
+		ClanName string
+		Rank     int
+		Level    int
+		Exp      int
+		MaxExpt  int
+		Kill     int
+		Death    int
+		Assist   int
+		Likes    int
+		Memo     string
+		Avatar   string
+	}{GET_USER_INFO_RANK, name, clanName, rank, level, exp, maxExp, kill, death, assist, likes, memo, avatar}))
+}
+
+func MessageRank(state bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		State  bool
+	}{MESSAGE_RANK, state}))
+}
+
+func GetNoticeMessageCount(count int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Count  int
+	}{GET_NOTICE_MESSAGE_COUNT, count}))
+}
+
+// TODO : get notice message
+
+func GetInfoNoticeMessage(id int, avatar string, author string, title string, content string, coin int, cash int, created string, deleted bool, rewarded bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header   int
+		Id       int
+		Avatar   string
+		Author   string
+		Title    string
+		Content  string
+		Coin     int
+		Cash     int
+		Created  string
+		Deleted  bool
+		Rewarded bool
+	}{GET_INFO_NOTICE_MESSAGE, id, avatar, author, title, content, coin, cash, created, deleted, rewarded}))
+}
+
+func DeleteNoticeMessage(id int) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Id     int
+	}{DELETE_NOTICE_MESSAGE, id}))
+}
+
+func MessageGame(state bool) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		State  bool
+	}{MESSAGE_GAME, state}))
+}
+
+func SetAnimation(model int, index int, anim string, sound string) []byte {
+	return PakcetWrapper(json.Marshal(struct {
+		Header int
+		Model  int
+		Index  int
+		Anim   string
+		Sound  string
+	}{MESSAGE_GAME, model, index, anim, sound}))
 }
 
 func PakcetWrapper(d []byte, err error) []byte {
@@ -129,7 +439,7 @@ const (
 	MESSAGE_SHOP
 	MESSAGE_LOBBY
 	GET_SKIN_LIST
-	UPDATE_CASH_AND_COIN
+	UPDATE_COIN_AND_CASH
 	GET_PAY_INFO_ITEM
 	GET_RANK
 	GET_USER_INFO_RANK
