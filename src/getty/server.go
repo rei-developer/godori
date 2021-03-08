@@ -73,7 +73,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		for {
 			wg.Add(1)
-			if s.BeforeAccept() == false {
+			if !s.BeforeAccept() {
 				continue
 			}
 			token := r.URL.Query().Get("token")

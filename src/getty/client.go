@@ -96,10 +96,23 @@ func (c *Client) Request() {
 }
 
 func (c *Client) Response() {
+	ticker := time.NewTicker(3 * time.Second)
+	defer func() {
+		ticker.Stop()
+	}()
 	for c.Run {
-		data := <-c.sendChan
-		log.Println(string(data))
-		c.conn.WriteMessage(websocket.TextMessage, data)
+		select {
+		case data, ok := <-c.sendChan:
+			if !ok {
+				log.Println(string(data))
+				err := c.conn.WriteMessage(websocket.TextMessage, data)
+				CheckError(err)
+			}
+		case tick := <-ticker.C:
+			log.Println("ping:", c.RemoteAddr(), tick.Second())
+			err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
+			CheckError(err)
+		}
 	}
 }
 

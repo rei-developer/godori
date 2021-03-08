@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +29,6 @@ const (
 var connections int
 
 func main() {
-
 	//id, uuid := db.GetUserById(1)
 	//fmt.Println(id, uuid, "입니다")
 
@@ -68,6 +68,12 @@ func main() {
 		http.HandleFunc("/", server.Listen)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Listen: %s\n", err)
+		}
+	}()
+	go func() {
+		for {
+			fmt.Println(runtime.NumGoroutine())
+			time.Sleep(2 * time.Second)
 		}
 	}()
 	log.Println("PORT: " + port + ", GOMAXPROCS: " + strconv.Itoa(runtime.GOMAXPROCS(0)) + " - Run the Godori server.")
