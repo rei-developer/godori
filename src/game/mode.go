@@ -77,8 +77,8 @@ func (m *GameMode) DrawUsers(u *User) {
 	m.Mode.DrawUsers(u)
 }
 
-func (m *GameMode) Hit(self *User, target *User) {
-	m.Mode.Hit(self, target)
+func (m *GameMode) Hit(self *User, target *User) bool {
+	return m.Mode.Hit(self, target)
 }
 
 func (m *GameMode) UseItem(u *User) {

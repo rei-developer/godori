@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"godori.com/getty"
+	toClient "godori.com/packet/toClient"
 )
 
 type Room struct {
@@ -126,8 +127,7 @@ func (r *Room) Portal(u *User) {
 	if p, ok := GameMaps[u.place].GetPortal(u.character.x, u.character.y); ok {
 		r.Teleport(u, p.NextPlace, p.NextX, p.NextY, p.NextDirX, p.NextDirY)
 		if p.Sound != "" {
-			// TODO : 사운드 재생
-			//r.PublishMap(u.place, )
+			r.PublishMap(u.place, toClient.PlaySound(p.Sound))
 		}
 	}
 }
@@ -136,12 +136,19 @@ func (r *Room) Teleport(u *User, place int, x int, y int, dirX int, dirY int) {
 	r.GetPlace(u.place).RemoveUser(u)
 	u.Portal(place, x, y, dirX, dirY)
 	r.GetPlace(place).AddUser(u)
-	//r.Draw(u)
+	r.Draw(u)
 }
 
-func (r *Room) Hit(u *User) {
-	// TODO
-	r.Mode.Hit(u, u)
+func (r *Room) Hit(self *User) {
+	for _, u := range r.GetPlace(self.place).Users {
+		if !(self.character.x == u.character.x && self.character.y == u.character.y || self.character.x+self.character.dirX == u.character.x && self.character.y-self.character.dirY == u.character.y) {
+			continue
+		}
+		if r.Mode.Hit(self, u) {
+			break
+		}
+	}
+	// TODO : event
 }
 
 func (r *Room) UseItem(u *User) {
@@ -158,15 +165,16 @@ func (r *Room) Draw(u *User) {
 }
 
 func (r *Room) Join(u *User) {
-	// TODO : join
 	r.AddUser(u)
 	r.Mode.Join(u)
+	r.Publish(toClient.UpdateRoomUserCount(len(r.Users)))
 }
 
 func (r *Room) Leave(u *User) {
-	// TODO : leave
 	r.Mode.Leave(u)
 	r.RemoveUser(u)
+	r.PublishMap(u.place, toClient.RemoveGameObject(u.Model, u.Index))
+	r.Publish(toClient.UpdateRoomUserCount(len(r.Users)))
 	if len(r.Users) <= 0 {
 		r.Remove()
 	}
