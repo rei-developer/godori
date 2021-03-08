@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-
 	toClient "godori.com/packet/toClient"
 	cMath "godori.com/util/math"
 )
@@ -45,7 +43,6 @@ func (m *NoneMode) DrawUsers(self *User) {
 }
 
 func (m *NoneMode) Hit(self *User, target *User) bool {
-	fmt.Println("째ㅑㅂ쨉!")
 	return true
 }
 

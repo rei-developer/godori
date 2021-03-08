@@ -1,8 +1,6 @@
 package game
 
-import (
-	toClient "godori.com/packet/toClient"
-)
+import toClient "godori.com/packet/toClient"
 
 type PlaygroundMode struct {
 	Room *Room

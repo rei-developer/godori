@@ -16,7 +16,7 @@ type Graphics struct {
 type Character struct {
 	Model int
 	CharacterPos
-	Graphics Graphics
+	Graphics
 	Dirty    bool
 }
 

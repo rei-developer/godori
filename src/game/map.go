@@ -100,7 +100,6 @@ func (m *GameMap) Passable(x int, y int, dir int) bool {
 	}
 	var bit int = int((1 << (int(dir/2) - 1)) & 0x0f)
 	for layer := len(m.Data) - 1; layer >= 0; layer-- {
-		// TODO : --layer 확인해야 함.
 		var tileId = m.Data[layer][x+y*m.Width]
 		if tileId == 0 {
 			continue
