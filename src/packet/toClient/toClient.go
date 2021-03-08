@@ -5,63 +5,48 @@ import (
 )
 
 func UserData(index int, id int, name string) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Index  int
 		Id     int
 		Name   string
-	}{USER_DATA, index, id, name}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{USER_DATA, index, id, name}))
 }
 
 func SystemMessage(text string) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Text   string
-	}{SYSTEM_MESSAGE, text}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{SYSTEM_MESSAGE, text}))
 }
 
 func InformMessage(text string) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Text   string
-	}{INFORM_MESSAGE, text}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{INFORM_MESSAGE, text}))
 }
 
 func NoticeMessage(text string) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Text   string
-	}{NOTICE_MESSAGE, text}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{NOTICE_MESSAGE, text}))
 }
 
 func Portal(place int, x int, y int, dirX int, dirY int) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Place  int
 		X      int
 		Y      int
 		DirX   int
 		DirY   int
-	}{PORTAL, place, x, y, dirX, dirY}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{PORTAL, place, x, y, dirX, dirY}))
 }
 
 func CreateGameObject(model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header   int
 		Model    int
 		Index    int
@@ -75,32 +60,28 @@ func CreateGameObject(model int, index int, name string, clanName string, team i
 		DirX     int
 		DirY     int
 		Collider bool
-	}{CREATE_GAME_OBJECT, model, index, name, clanName, team, level, image, x, y, dirX, dirY, collider}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{CREATE_GAME_OBJECT, model, index, name, clanName, team, level, image, x, y, dirX, dirY, collider}))
 }
 
 func SetGraphics(model int, index int, image string) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Model  int
 		Index  int
 		Image  string
-	}{SET_GRAPHICS, model, index, image}
-	bytes, err := json.Marshal(packet)
-	CheckError(err)
-	return bytes
+	}{SET_GRAPHICS, model, index, image}))
 }
 
 func PlaySound(name string) []byte {
-	packet := struct {
+	return PakcetWrapper(json.Marshal(struct {
 		Header int
 		Name   string
-	}{PLAY_SOUND, name}
-	bytes, err := json.Marshal(packet)
+	}{PLAY_SOUND, name}))
+}
+
+func PakcetWrapper(d []byte, err error) []byte {
 	CheckError(err)
-	return bytes
+	return d
 }
 
 func CheckError(err error) {
