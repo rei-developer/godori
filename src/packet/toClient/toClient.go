@@ -13,7 +13,7 @@ func UserData(index int, id int, name string, clanName string, rank int, sex int
 		Sex          int
 		Level        int
 		Exp          int
-		MaxExpt      int
+		MaxExp       int
 		Coin         int
 		Cash         int
 		Point        int
@@ -199,10 +199,10 @@ func UpdateClan(level int, coin int, cash int) []byte {
 	}{UPDATE_CLAN, level, coin, cash}))
 }
 
-func MessageClan(state int) []byte {
+func MessageClan(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
-		State  int
+		State  string
 	}{MESSAGE_CLAN, state}))
 }
 
@@ -289,17 +289,17 @@ func GetSkinItem(model int, id int, icon string, name string, creator string, de
 	}{GET_SKIN_ITEM, model, id, icon, name, creator, desc, cost, pay, expiry}))
 }
 
-func MessageShop(state bool) []byte {
+func MessageShop(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
-		State  bool
+		State  string
 	}{MESSAGE_SHOP, state}))
 }
 
-func MessageLobby(state bool) []byte {
+func MessageLobby(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
-		State  bool
+		State  string
 	}{MESSAGE_LOBBY, state}))
 }
 
@@ -323,20 +323,20 @@ func GetUserInfoRank(name string, clanName string, rank int, level int, exp int,
 		Rank     int
 		Level    int
 		Exp      int
-		MaxExpt  int
+		MaxExp   int
 		Kill     int
 		Death    int
 		Assist   int
 		Likes    int
 		Memo     string
 		Avatar   string
-	}{GET_USER_INFO_RANK, name, clanName, rank, level, exp, maxExp, kill, death, assist, likes, memo, avatar}))
+	}{GET_USER_INFO_RANK, name, clanName, rank, level, exp, 100000, kill, death, assist, likes, memo, avatar}))
 }
 
-func MessageRank(state bool) []byte {
+func MessageRank(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
-		State  bool
+		State  string
 	}{MESSAGE_RANK, state}))
 }
 
@@ -349,7 +349,7 @@ func GetNoticeMessageCount(count int) []byte {
 
 // TODO : get notice message
 
-func GetInfoNoticeMessage(id int, avatar string, author string, title string, content string, coin int, cash int, created string, deleted bool, rewarded bool) []byte {
+func GetInfoNoticeMessage(id int, avatar string, author string, title string, content string, coin int, cash int, created string, deleted bool, rewarded int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header   int
 		Id       int
@@ -361,7 +361,7 @@ func GetInfoNoticeMessage(id int, avatar string, author string, title string, co
 		Cash     int
 		Created  string
 		Deleted  bool
-		Rewarded bool
+		Rewarded int
 	}{GET_INFO_NOTICE_MESSAGE, id, avatar, author, title, content, coin, cash, created, deleted, rewarded}))
 }
 
@@ -372,10 +372,10 @@ func DeleteNoticeMessage(id int) []byte {
 	}{DELETE_NOTICE_MESSAGE, id}))
 }
 
-func MessageGame(state bool) []byte {
+func MessageGame(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
 		Header int
-		State  bool
+		State  string
 	}{MESSAGE_GAME, state}))
 }
 

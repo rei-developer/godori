@@ -60,18 +60,18 @@ type NoticeMessage struct {
 }
 
 type Rank struct {
-	Id           sql.NullInt32
-	Name         sql.NullString
-	Level        sql.NullInt32
-	Exp          sql.NullInt32
-	Point        sql.NullInt32
-	Kill         sql.NullInt32
-	Death        sql.NullInt32
-	Assist       sql.NullInt32
-	BlueGraphics sql.NullString
-	Memo         sql.NullString
-	Admin        sql.NullInt32
-	Clanname     sql.NullString
+	Id       sql.NullInt32
+	Name     sql.NullString
+	Level    sql.NullInt32
+	Exp      sql.NullInt32
+	Point    sql.NullInt32
+	Kill     sql.NullInt32
+	Death    sql.NullInt32
+	Assist   sql.NullInt32
+	Avatar   sql.NullString
+	Memo     sql.NullString
+	Admin    sql.NullInt32
+	Clanname sql.NullString
 }
 
 type Clan struct {
@@ -93,20 +93,29 @@ type Clan struct {
 }
 
 type User struct {
-	Id       sql.NullInt32
-	Uid      sql.NullString
-	Uuid     sql.NullString
-	Name     sql.NullString
-	Level    sql.NullInt32
-	Exp      sql.NullInt32
-	Point    sql.NullInt32
-	Kill     sql.NullInt32
-	Death    sql.NullInt32
-	Assist   sql.NullInt32
-	Avatar   sql.NullString
-	Memo     sql.NullString
-	Admin    sql.NullInt32
-	Clanname sql.NullString
+	Id           sql.NullInt32
+	Uid          sql.NullString
+	Uuid         sql.NullString
+	Name         sql.NullString
+	Sex          sql.NullInt32
+	Level        sql.NullInt32
+	Exp          sql.NullInt32
+	Coin         sql.NullInt32
+	Cash         sql.NullInt32
+	Point        sql.NullInt32
+	Win          sql.NullInt32
+	Lose         sql.NullInt32
+	Kill         sql.NullInt32
+	Death        sql.NullInt32
+	Assist       sql.NullInt32
+	Blast        sql.NullInt32
+	Rescue       sql.NullInt32
+	Survive      sql.NullInt32
+	Escape       sql.NullInt32
+	RedGraphics  sql.NullString
+	BlueGraphics sql.NullString
+	Memo         sql.NullString
+	Admin        sql.NullInt32
 }
 
 func init() {
@@ -259,7 +268,7 @@ func GetNoticeMessages(id int, deleted bool) []NoticeMessage {
 	return items
 }
 
-func GetRanks() []User {
+func GetRanks() []Rank {
 	rows, err := database.Query(`
 		SELECT
 			u.id,
@@ -281,9 +290,9 @@ func GetRanks() []User {
 	`)
 	CheckError(err)
 	defer rows.Close()
-	items := []User{}
+	items := []Rank{}
 	for rows.Next() {
-		item := User{}
+		item := Rank{}
 		err = rows.Scan(
 			&item.Id,
 			&item.Name,
@@ -389,7 +398,56 @@ func GetUser(args map[string]interface{}) (User, bool) {
 	}
 	cond := strings.Join(keys, " AND ")
 	item := User{}
-	err := database.QueryRow("SELECT id, uuid, name FROM users WHERE "+cond, values...).Scan(&item.Id, &item.Uuid, &item.Name)
+	err := database.QueryRow(`
+		SELECT
+			id,
+			uid,
+			uuid,
+			name,
+			sex,
+			level,
+			exp,
+			coin,
+			cash,
+			point,
+			win,
+			lose,
+			death,
+			assist,
+			blast,
+			rescue,
+			survive,
+			escape,
+			red_graphics,
+			blue_graphics,
+			memo,
+			admin
+		FROM users
+		WHERE
+	`+cond, values...).Scan(
+		&item.Id,
+		&item.Uid,
+		&item.Uuid,
+		&item.Name,
+		&item.Sex,
+		&item.Level,
+		&item.Exp,
+		&item.Coin,
+		&item.Cash,
+		&item.Point,
+		&item.Win,
+		&item.Lose,
+		&item.Death,
+		&item.Assist,
+		&item.Blast,
+		&item.Rescue,
+		&item.Survive,
+		&item.Escape,
+		&item.RedGraphics,
+		&item.BlueGraphics,
+		&item.Memo,
+		&item.Admin,
+	)
 	ok := CheckError(err)
 	return item, ok
 }

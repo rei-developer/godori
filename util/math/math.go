@@ -13,6 +13,10 @@ func Max(x, y int) int {
 	return y
 }
 
+func GetMaxExp(x int) int {
+	return (Pow(x, 2) * (x * 5)) + 200
+}
+
 func Abs(x int) int {
 	if x < 0 {
 		return -x
@@ -24,8 +28,8 @@ func Pow(x, y int) int {
 	return int(math.Pow(float64(x), float64(y)))
 }
 
-func Rand(val int) int {
+func Rand(x int) int {
 	rs := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(rs)
-	return r.Intn(val)
+	return r.Intn(x)
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -70,12 +69,12 @@ func main() {
 			log.Fatalf("Listen: %s\n", err)
 		}
 	}()
-	go func() {
-		for {
-			fmt.Println(runtime.NumGoroutine())
-			time.Sleep(2 * time.Second)
-		}
-	}()
+	//go func() {
+	//	for {
+	//		fmt.Println(runtime.NumGoroutine())
+	//		time.Sleep(2 * time.Second)
+	//	}
+	//}()
 	log.Println("PORT: " + port + ", GOMAXPROCS: " + strconv.Itoa(runtime.GOMAXPROCS(0)) + " - Run the Godori server.")
 	sig := <-sigChan
 	switch sig {
@@ -98,7 +97,7 @@ func BeforeAccept() bool {
 
 func Login(u *game.User) {
 	uData := u.GetUserdata()
-	u.Send(toClient.UserData(u.Index, uData.Id, uData.Name))
+	u.Send(toClient.UserData(u.Index, uData.Id, uData.Name, uData.ClanName, uData.Rank, uData.Sex, uData.Level, uData.Exp, uData.MaxExp, uData.Coin, uData.Cash, uData.Point, uData.Win, uData.Lose, uData.Kill, uData.Death, uData.Assist, uData.Blast, uData.Rescue, uData.Survive, uData.Escape, uData.Graphics, uData.RedGraphics, uData.BlueGraphics, uData.Memo, uData.Admin))
 	// TODO :
 }
 
@@ -113,6 +112,7 @@ func OnConnect(c *getty.Client) {
 	}
 	if u, ok := game.NewUser(c, uid, loginType); ok {
 		data := u.GetUserdata()
+		//Login(u)
 		connections++
 		log.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}

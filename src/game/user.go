@@ -8,12 +8,33 @@ import (
 )
 
 type UserData struct {
-	Id     int
-	Uuid   string
-	Name   string
-	Level  int
-	Exp    int
-	MaxExp int
+	Id           int
+	Uid          string
+	Uuid         string
+	Name         string
+	ClanName     string
+	Rank         int
+	Sex          int
+	Level        int
+	Exp          int
+	MaxExp       int
+	Coin         int
+	Cash         int
+	Point        int
+	Win          int
+	Lose         int
+	Kill         int
+	Death        int
+	Assist       int
+	Blast        int
+	Rescue       int
+	Survive      int
+	Escape       int
+	Graphics     string
+	RedGraphics  string
+	BlueGraphics string
+	Memo         string
+	Admin        int
 }
 
 type User struct {
@@ -39,15 +60,37 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 			place:  0,
 			UserData: &UserData{
 				int(result.Id.Int32),
+				result.Uid.String,
 				result.Uuid.String,
 				result.Name.String,
+				"",
+				1,
+				int(result.Sex.Int32),
+				int(result.Level.Int32),
+				int(result.Exp.Int32),
 				0,
-				0,
-				0,
+				int(result.Coin.Int32),
+				int(result.Cash.Int32),
+				int(result.Point.Int32),
+				int(result.Win.Int32),
+				int(result.Lose.Int32),
+				0, //int(result.Kill.Int32),
+				int(result.Death.Int32),
+				int(result.Assist.Int32),
+				int(result.Blast.Int32),
+				int(result.Rescue.Int32),
+				int(result.Survive.Int32),
+				int(result.Escape.Int32),
+				"",
+				result.RedGraphics.String,
+				result.BlueGraphics.String,
+				result.Memo.String,
+				int(result.Admin.Int32),
 			},
 		}
 		Users[c] = user
-		user.character.Setting(1, "ao", "Yuzuha")
+		user.character.Setting(1, user.UserData.RedGraphics, user.UserData.BlueGraphics)
+		user.UserData.MaxExp = cMath.GetMaxExp(user.UserData.Level)
 		return user, true
 	}
 	return nil, false
@@ -105,6 +148,7 @@ func (u *User) SetUpExp(v int) {
 }
 
 func (u *User) SetUpCash(v int) {
+	u.UserData.Cash += v
 	// TODO : 개발중
 }
 
