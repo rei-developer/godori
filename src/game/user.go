@@ -1,9 +1,15 @@
 package game
 
 import (
+	"fmt"
+	"regexp"
+	"unicode/utf8"
+
 	"godori.com/db"
 	"godori.com/getty"
 	toClient "godori.com/packet/toClient"
+	roomType "godori.com/util/constant/roomType"
+	teamType "godori.com/util/constant/teamType"
 	cMath "godori.com/util/math"
 )
 
@@ -38,11 +44,13 @@ type UserData struct {
 }
 
 type User struct {
+	Model     int
 	Index     int
 	client    *getty.Client
 	character Character
 	room      int
 	place     int
+	Alert     int
 	UserData  *UserData
 	GameData  map[string]interface{}
 }
@@ -54,10 +62,12 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 	if result, ok := db.GetUserByOAuth(uid, loginType); ok {
 		nextUserIndex++
 		user := &User{
+			Model:  1,
 			Index:  nextUserIndex,
 			client: c,
 			room:   0,
 			place:  0,
+			Alert:  0,
 			UserData: &UserData{
 				int(result.Id.Int32),
 				result.Uid.String,
@@ -104,8 +114,13 @@ func (u *User) Remove() bool {
 	return ok
 }
 
-func (u *User) GetUserdata() *UserData {
-	return u.UserData
+func (u *User) GetUserdata() (int, int, string, string, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, string, string, string, string, int) {
+	return u.Index, u.UserData.Id, u.UserData.Name, u.UserData.ClanName,
+		u.UserData.Rank, u.UserData.Sex, u.UserData.Level, u.UserData.Exp, u.UserData.MaxExp,
+		u.UserData.Coin, u.UserData.Cash, u.UserData.Point,
+		u.UserData.Win, u.UserData.Lose, u.UserData.Kill, u.UserData.Death, u.UserData.Assist,
+		u.UserData.Blast, u.UserData.Rescue, u.UserData.Survive, u.UserData.Escape,
+		u.UserData.Graphics, u.UserData.RedGraphics, u.UserData.BlueGraphics, u.UserData.Memo, u.UserData.Admin
 }
 
 func (u *User) GetCreateGameObject(hide bool) (model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) {
@@ -152,13 +167,189 @@ func (u *User) SetUpCash(v int) {
 	// TODO : 개발중
 }
 
-func (u *User) GetMaxExp(v int) int {
-	return (cMath.Pow(v, 2) * (v * 5)) + 200
-}
-
 func (u *User) SetGraphics(image string) {
 	u.character.Graphics.Image = image
 	u.PublishMap(toClient.SetGraphics(1, u.Index, image))
+}
+
+func (u *User) ChangeName(name string) {
+	if u.UserData.Cash < 500 {
+		u.Send(toClient.MessageLobby("NOT_ENOUGH_CASH"))
+		return
+	}
+	nameLen := utf8.RuneCountInString(name)
+	if nameLen < 1 || nameLen > 6 {
+		u.Send(toClient.MessageLobby("AN_IMPOSSIBLE_LENGTH"))
+		return
+	}
+	if match, _ := regexp.MatchString("[^가-힣]", name); match {
+		u.Send(toClient.MessageLobby("AN_IMPOSSIBLE_WORD"))
+		return
+	}
+	// TODO : filtering
+	// TODO : find user by name
+	// TODO : update user name
+	// TODO : rank change
+	u.UserData.Name = name
+	u.SetUpCash(-500)
+	u.Send(toClient.MessageLobby("CHANGE_USERNAME_SUCCESS"))
+	u.Send(toClient.UserData(u.GetUserdata()))
+}
+
+func (u *User) CreateClan(name string) {
+	// TODO
+}
+
+func (u *User) InviteClan(name string) {
+	// TODO
+}
+
+func (u *User) JoinClan(id int) {
+	// TODO
+}
+
+func (u *User) CancelClan(id int) {
+	// TODO
+}
+
+func (u *User) KickClan(id int) {
+	// TODO
+}
+
+func (u *User) GetClan() {
+	// TODO
+}
+
+func (u *User) LeaveClan() {
+	// TODO
+}
+
+func (u *User) SetOptionClan(d []byte) {
+	// TODO
+}
+
+func (u *User) PayClan(d []byte) {
+	// TODO
+}
+
+func (u *User) DonateClan(cash int) {
+	// TODO
+}
+
+func (u *User) WithdrawClan(d []byte) {
+	// TODO
+}
+
+func (u *User) LevelUpClan() {
+	// TODO
+}
+
+func (u *User) SetUpMemberLevelClan(d []byte) {
+	// TODO
+}
+
+func (u *User) SetDownMemberLevelClan(d []byte) {
+	// TODO
+}
+
+func (u *User) ChangeMasterClan(d []byte) {
+	// TODO
+}
+
+func (u *User) GetBilling() {
+	// TODO
+}
+
+func (u *User) GetPayInfoItem(id int) {
+	// TODO
+}
+
+func (u *User) UseBilling(id int) {
+	// TODO
+}
+
+func (u *User) RefundBilling(id int) {
+	// TODO
+}
+
+func (u *User) GetShop(page int) {
+	// TODO
+}
+
+func (u *User) GetInfoItem(id int) {
+	// TODO
+}
+
+func (u *User) BuyItem(d []byte) {
+	// TODO
+}
+
+func (u *User) AddItem(id int, num int, expiry int) {
+	// TODO
+}
+
+func (u *User) CheckSkinExpiry() {
+	// TODO
+}
+
+func (u *User) GetSkinList() {
+	// TODO
+}
+
+func (u *User) GetRank(page int) {
+	// TODO
+}
+
+func (u *User) GetUserInfoRank(id int) {
+	// TODO
+}
+
+func (u *User) GetUserInfoRankByUserName(name string) {
+	// TODO
+}
+
+func (u *User) GetNoticeMessageCount() {
+	// TODO
+}
+
+func (u *User) GetNoticeMessage(deleted bool) {
+	// TODO
+}
+
+func (u *User) GetInfoNoticeMessage(id int) {
+	// TODO
+}
+
+func (u *User) WithdrawNoticeMessage(id int) {
+	// TODO
+}
+
+func (u *User) DeleteNoticeMessage(id int) {
+	// TODO
+}
+
+func (u *User) RestoreNoticeMessage(id int) {
+	// TODO
+}
+
+func (u *User) ClearNoticeMessage() {
+	// TODO
+}
+
+func (u *User) AddNoticeMessage(d []byte) {
+	// TODO
+}
+
+func (u *User) AddUserReport(d []byte) {
+	// TODO
+}
+
+func (u *User) SetSkin(id int) {
+	// TODO
+}
+
+func (u *User) SetState(state int) {
+	// TODO
 }
 
 func (u *User) Turn(dirX int, dirY int) {
@@ -182,6 +373,60 @@ func (u *User) Move(x int, y int) {
 			u.Teleport(u.place, u.character.x, u.character.y)
 		}
 	}
+}
+
+func (u *User) Chat(text string) {
+	if u.room < 1 {
+		return
+	}
+	if r, ok := Rooms[u.room]; ok {
+		text = text[:35]
+		// TODO : 채팅 금지
+		// TODO : filtering
+		if u.Command(text) {
+			return
+		}
+		fmt.Println(string(u.UserData.Name) + "(#" + string(u.room) + "@" + string(u.place) + "): " + text)
+		switch r.RoomType {
+		case roomType.PLAYGROUND:
+			u.Publish(toClient.ChatMessage(u.Model, u.Index, u.UserData.Name, text))
+		case roomType.GAME:
+			if team, ok := u.GameData["team"]; ok {
+				if team.(int) == teamType.RED {
+					u.ChatToRedTeam(text)
+				} else {
+					u.ChatToBlueTeam(text)
+				}
+			}
+		}
+	}
+}
+
+func (u *User) Command(text string) bool {
+	return true
+}
+
+func (u *User) ChatToRedTeam(text string) {
+	u.Publish(toClient.ChatMessage(u.Model, u.Index, "<color=#00A2E8>"+u.UserData.Name+"</color>", text))
+}
+
+func (u *User) ChatToBlueTeam(text string) {
+	if caught, ok := u.GameData["caught"]; ok {
+		if caught.(bool) {
+			u.PublishMap(toClient.ChatMessage(u.Model, u.Index, "<color=#808080>"+u.UserData.Name+"</color>", text))
+			return
+		}
+	}
+	u.Publish(toClient.ChatMessage(u.Model, u.Index, "<color=#00A2E8>"+u.UserData.Name+"</color>", text))
+}
+
+func (u *User) Ban(target *User, name string, description string, days int) {
+	if target == nil {
+		// find
+	} else {
+		// send
+	}
+	// TODO
 }
 
 func (u *User) Entry(rType int) {
@@ -237,6 +482,24 @@ func (u *User) Teleport(place int, x int, y int) {
 	if r, ok := Rooms[u.room]; ok {
 		r.Teleport(u, place, x, y, 0, -1)
 	}
+}
+
+func (u *User) Result(ad int) {
+	if u.GameData == nil {
+		return
+	}
+	if result, ok := u.GameData["result"]; ok {
+		if result.(bool) {
+			switch ad {
+			case 1:
+				u.Entry(roomType.GAME)
+			case 2:
+				// TODO
+			}
+		}
+	}
+	// TODO
+	u.GameData = nil
 }
 
 func (u *User) Disconnect() {

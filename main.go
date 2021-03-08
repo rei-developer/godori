@@ -96,9 +96,8 @@ func BeforeAccept() bool {
 }
 
 func Login(u *game.User) {
-	uData := u.GetUserdata()
-	u.Send(toClient.UserData(u.Index, uData.Id, uData.Name, uData.ClanName, uData.Rank, uData.Sex, uData.Level, uData.Exp, uData.MaxExp, uData.Coin, uData.Cash, uData.Point, uData.Win, uData.Lose, uData.Kill, uData.Death, uData.Assist, uData.Blast, uData.Rescue, uData.Survive, uData.Escape, uData.Graphics, uData.RedGraphics, uData.BlueGraphics, uData.Memo, uData.Admin))
-	// TODO :
+	u.Send(toClient.UserData(u.GetUserdata()))
+	// TODO
 }
 
 func OnConnect(c *getty.Client) {
@@ -111,18 +110,17 @@ func OnConnect(c *getty.Client) {
 		uid, loginType = "110409668035092753325", 0
 	}
 	if u, ok := game.NewUser(c, uid, loginType); ok {
-		data := u.GetUserdata()
-		//Login(u)
 		connections++
-		log.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", data.Name, c.RemoteAddr(), connections, maxAcceptCnt)
+		log.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", u.UserData.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
 func OnDisconnect(c *getty.Client) {
 	if u, ok := game.Users[c]; ok {
+		name := u.UserData.Name
 		u.Disconnect()
 		connections--
-		log.Printf("클라이언트 %s 종료 (동시접속자: %d/%d명)\n", c.RemoteAddr(), connections, maxAcceptCnt)
+		log.Printf("클라이언트 %s - %s 종료 (동시접속자: %d/%d명)\n", name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
 }
 
