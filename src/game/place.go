@@ -9,17 +9,30 @@ import (
 type Place struct {
 	Index  int
 	Room   *Room
+	Events map[int]*Event
 	Users  map[*getty.Client]*User
-	Events []string
 	Light  bool
 }
 
 func NewPlace(index int, r *Room) *Place {
 	return &Place{
-		Index: index,
-		Room:  r,
-		Users: make(map[*getty.Client]*User),
+		Index:  index,
+		Room:   r,
+		Events: make(map[int]*Event),
+		Users:  make(map[*getty.Client]*User),
 	}
+}
+
+func (p *Place) AddEvent(e *Event) {
+	p.Events[e.EventData.Id] = e
+}
+
+func (p *Place) RemoveEvent(e *Event) {
+	delete(p.Events, e.EventData.Id)
+}
+
+func (p *Place) RemoveAllEvent() {
+	p.Events = make(map[int]*Event)
 }
 
 func (p *Place) AddUser(u *User) {
@@ -32,18 +45,6 @@ func (p *Place) RemoveUser(u *User) {
 
 func (p *Place) RemoveAllUser() {
 	p.Users = make(map[*getty.Client]*User)
-}
-
-func (p *Place) AddEvent() {
-	// TODO
-}
-
-func (p *Place) RemoveEvent() {
-	// TODO
-}
-
-func (p *Place) RemoveAllEvent() {
-	// TODO
 }
 
 func (p *Place) Update() {

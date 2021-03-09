@@ -13,8 +13,9 @@ type Room struct {
 	Max            int
 	Mode           *GameMode
 	NextEventIndex int
-	Users          map[*getty.Client]*User
 	Places         map[int]*Place
+	Events         map[int]*Event
+	Users          map[*getty.Client]*User
 	Run            bool
 	Lock           bool
 }
@@ -28,8 +29,9 @@ func NewRoom(rType int) *Room {
 		Index:    nextRoomIndex,
 		RoomType: rType,
 		Max:      30,
-		Users:    make(map[*getty.Client]*User),
 		Places:   make(map[int]*Place),
+		Events:   make(map[int]*Event),
+		Users:    make(map[*getty.Client]*User),
 		Run:      true,
 	}
 	Rooms[nextRoomIndex] = room
@@ -48,16 +50,23 @@ func AvailableRoom(rType int) *Room {
 }
 
 func (r *Room) Remove() {
+	r.Places = make(map[int]*Place)
+	r.Events = make(map[int]*Event)
+	r.Users = make(map[*getty.Client]*User)
 	r.Run = false
 	delete(Rooms, r.Index)
 }
 
-func (r *Room) AddEvent() {
-	// TODO : add event
+func (r *Room) AddEvent(e *Event) {
+	e.Room = r
+	r.Events[e.EventData.Id] = e
+	r.GetPlace(e.Place).AddEvent(e)
 }
 
-func (r *Room) RemoveEvent() {
-	// TODO : remove event
+func (r *Room) RemoveEvent(e *Event) {
+	delete(r.Events, e.EventData.Id)
+	r.GetPlace(e.Place).RemoveEvent(e)
+	e.Room = nil
 }
 
 func (r *Room) AddUser(u *User) {
@@ -117,8 +126,11 @@ func (r *Room) SameMapUsers(place int) map[*getty.Client]*User {
 
 func (r *Room) Passable(place int, x int, y int, dir int, collider bool) bool {
 	if collider {
-		// TODO : event
-		//r.GetPlace(place).Events
+		for _, e := range r.GetPlace(place).Events {
+			if e.EventData.Collider && e.CharacterPos.x == x && e.CharacterPos.y == y {
+				return false
+			}
+		}
 	}
 	return GameMaps[place].Passable(x, y, dir)
 }
@@ -148,7 +160,12 @@ func (r *Room) Hit(self *User) {
 			break
 		}
 	}
-	// TODO : event
+	for _, e := range r.GetPlace(self.place).Events {
+		if !(self.character.x == e.Character.x && self.character.y == e.Character.y || self.character.x+self.character.dirX == e.Character.x && self.character.y-self.character.dirY == e.Character.y) {
+			continue
+		}
+		// TODO : event do action
+	}
 }
 
 func (r *Room) UseItem(u *User) {
@@ -160,7 +177,7 @@ func (r *Room) CheckJoin() bool {
 }
 
 func (r *Room) Draw(u *User) {
-	// TODO : draw
+	r.Mode.DrawEvents(u)
 	r.Mode.DrawUsers(u)
 }
 

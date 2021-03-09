@@ -6,6 +6,10 @@ type PlaygroundMode struct {
 	Room *Room
 }
 
+func (m *PlaygroundMode) InitEvent() {
+
+}
+
 func (m *PlaygroundMode) MoveToBase(u *User) {
 	u.Teleport(79, 36, 24)
 }

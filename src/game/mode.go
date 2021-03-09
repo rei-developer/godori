@@ -15,6 +15,7 @@ type GameMode struct {
 }
 
 type IGameMode interface {
+	InitEvent()
 	MoveToBase(*User)
 	Join(*User)
 	Leave(*User)
@@ -50,6 +51,7 @@ func (m *GameMode) ChangeMode(mType int, join bool) {
 			m.Mode = NewRescueMode(m.Room, pType)
 		}
 	}
+	m.Mode.InitEvent()
 	if join {
 		for _, u := range m.Room.Users {
 			m.Mode.Join(u)

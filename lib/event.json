@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "name": "구출",
+      "pureHp": 100,
+      "image": "kinkob",
+      "command": "Rescue",
+      "collider": true
+    }
+  ]
+}
