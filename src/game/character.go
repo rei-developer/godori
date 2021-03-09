@@ -17,7 +17,7 @@ type Character struct {
 	Model int
 	CharacterPos
 	Graphics
-	Dirty    bool
+	Dirty bool
 }
 
 var dirTable = [3][3]int{
@@ -32,7 +32,8 @@ func (c *Character) GetDirection(x int, y int) int {
 
 func (c *Character) Setting(model int, redImage string, blueImage string) {
 	c.Model = model
-	c.SetPosition(0, -1)
+	c.SetPosition(0, 0)
+	c.Turn(0, -1)
 	c.Graphics = Graphics{Image: blueImage, RedImage: redImage, BlueImage: blueImage}
 }
 

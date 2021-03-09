@@ -32,7 +32,7 @@ type RescueMode struct {
 func NewRescueMode(r *Room, pType int) *RescueMode {
 	return &RescueMode{
 		Room:      r,
-		MapType:   pType,
+		MapType:   mapType.TATAMI, //pType,
 		ModeType:  modeType.RESCUE,
 		RedScore:  0,
 		BlueScore: 0,
@@ -56,7 +56,7 @@ func (m *RescueMode) InitEvent() {
 		Events []ED `json: "events"`
 	}
 	var events map[int]ED = make(map[int]ED)
-	jsonFile, _ := os.Open("./lib/event.json")
+	jsonFile, _ := os.Open("./lib/events/rescue.json")
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var eventPureData EPD
@@ -71,6 +71,7 @@ func (m *RescueMode) InitEvent() {
 		}
 	}
 	for _, e := range events {
+		fmt.Println(e)
 		m.Room.AddEvent(NewEvent(m.Room, e.Id, e.Place, e.X, e.Y))
 	}
 }
@@ -231,7 +232,11 @@ func (m *RescueMode) Leave(u *User) {
 }
 
 func (m *RescueMode) DrawEvents(u *User) {
-
+	fmt.Println("호출 1")
+	for _, e := range m.Room.GetPlace(u.place).Events {
+		fmt.Println(e)
+		u.Send(toClient.CreateGameObject(e.GetCreateGameObject()))
+	}
 }
 
 func (m *RescueMode) DrawUsers(self *User) {

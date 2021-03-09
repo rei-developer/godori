@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"time"
 
 	"godori.com/getty"
@@ -61,6 +62,7 @@ func (r *Room) AddEvent(e *Event) {
 	e.Room = r
 	r.Events[e.EventData.Id] = e
 	r.GetPlace(e.Place).AddEvent(e)
+	fmt.Println(r.Events)
 }
 
 func (r *Room) RemoveEvent(e *Event) {
@@ -164,7 +166,9 @@ func (r *Room) Hit(self *User) {
 		if !(self.character.x == e.Character.x && self.character.y == e.Character.y || self.character.x+self.character.dirX == e.Character.x && self.character.y-self.character.dirY == e.Character.y) {
 			continue
 		}
-		// TODO : event do action
+		if e.Do(r, self) {
+			break
+		}
 	}
 }
 

@@ -72,7 +72,8 @@ func NewEvent(r *Room, id int, place int, x int, y int) *Event {
 		EventData: eventData,
 	}
 	Events[nextEventIndex] = event
-	event.Character.SetPosition(x, y)
+	event.Character.Setting(event.Model, event.EventData.Image, event.EventData.Image)
+	event.SetPosition(x, y)
 	return event
 }
 
@@ -82,4 +83,24 @@ func (e *Event) Remove() bool {
 		delete(Events, e.Index)
 	}
 	return ok
+}
+
+func (e *Event) GetCreateGameObject() (model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) {
+	model = e.Model
+	index = e.Index
+	name = e.Name
+	clanName = ""
+	team = 0
+	level = 0
+	image = e.Graphics.Image
+	x = e.x
+	y = e.y
+	dirX = e.CharacterPos.dirX
+	dirY = e.CharacterPos.dirY
+	collider = e.EventData.Collider
+	return
+}
+
+func (e *Event) Do(r *Room, u *User) bool {
+	return CallFuncByName(&Action{}, e.EventData.Command, r, u, e) != nil
 }
