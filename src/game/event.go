@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	modelType "godori.com/util/constant/modelType"
 )
 
 type EventPureData struct {
@@ -63,7 +65,7 @@ func NewEvent(r *Room, id int, place int, x int, y int) *Event {
 	nextEventIndex++
 	eventData := EventDatas[id]
 	event := &Event{
-		Model:     2,
+		Model:     modelType.EVENT,
 		Index:     nextEventIndex,
 		Name:      eventData.Name,
 		Room:      r,
@@ -72,7 +74,7 @@ func NewEvent(r *Room, id int, place int, x int, y int) *Event {
 		EventData: eventData,
 	}
 	Events[nextEventIndex] = event
-	event.Character.Setting(event.Model, event.EventData.Image, event.EventData.Image)
+	event.Setting(event.Model, event.EventData.Image, event.EventData.Image)
 	event.SetPosition(x, y)
 	return event
 }
@@ -92,11 +94,11 @@ func (e *Event) GetCreateGameObject() (model int, index int, name string, clanNa
 	clanName = ""
 	team = 0
 	level = 0
-	image = e.Graphics.Image
-	x = e.x
-	y = e.y
-	dirX = e.CharacterPos.dirX
-	dirY = e.CharacterPos.dirY
+	image = e.Image
+	x = e.X
+	y = e.Y
+	dirX = e.DirX
+	dirY = e.DirY
 	collider = e.EventData.Collider
 	return
 }

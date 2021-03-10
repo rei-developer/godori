@@ -15,7 +15,7 @@ func (m *PlaygroundMode) MoveToBase(u *User) {
 }
 
 func (m *PlaygroundMode) Join(u *User) {
-	u.SetGraphics(u.character.Graphics.BlueImage)
+	u.SetGraphics(u.BlueImage)
 	m.MoveToBase(u)
 }
 
@@ -28,7 +28,7 @@ func (m *PlaygroundMode) DrawEvents(u *User) {
 }
 
 func (m *PlaygroundMode) DrawUsers(self *User) {
-	for _, u := range m.Room.SameMapUsers(self.place) {
+	for _, u := range m.Room.SameMapUsers(self.Place) {
 		if u == self {
 			return
 		}

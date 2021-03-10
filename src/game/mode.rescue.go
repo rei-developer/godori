@@ -79,9 +79,9 @@ func (m *RescueMode) InitEvent() {
 func (m *RescueMode) AddUser(u *User) {
 	if tType, ok := u.GameData["team"]; ok {
 		if tType == teamType.RED {
-			m.RedUsers[u.client] = u
+			m.RedUsers[u.Client] = u
 		} else if tType == teamType.BLUE {
-			m.BlueUsers[u.client] = u
+			m.BlueUsers[u.Client] = u
 		}
 	}
 }
@@ -89,9 +89,9 @@ func (m *RescueMode) AddUser(u *User) {
 func (m *RescueMode) RemoveUser(u *User) {
 	if tType, ok := u.GameData["team"]; ok {
 		if tType == teamType.RED {
-			delete(m.RedUsers, u.client)
+			delete(m.RedUsers, u.Client)
 		} else if tType == teamType.BLUE {
-			delete(m.BlueUsers, u.client)
+			delete(m.BlueUsers, u.Client)
 		}
 	}
 }
@@ -205,12 +205,12 @@ func (m *RescueMode) Join(u *User) {
 	m.SetUserGameData(u)
 	switch m.State {
 	case STATE_READY:
-		u.SetGraphics(u.character.Graphics.BlueImage)
+		u.SetGraphics(u.BlueImage)
 		m.AddUser(u)
 		m.MoveToBase(u)
 	case STATE_GAME:
 		u.GameData["caught"] = true
-		u.SetGraphics(u.character.Graphics.BlueImage)
+		u.SetGraphics(u.BlueImage)
 		m.AddUser(u)
 		m.MoveToPrison(u)
 		m.RedScore++
@@ -227,13 +227,13 @@ func (m *RescueMode) Leave(u *User) {
 		fmt.Println("레드 스코어 삭감") // 테스트 로그
 	}
 	u.GameData = nil
-	u.SetGraphics(u.character.Graphics.BlueImage)
+	u.SetGraphics(u.BlueImage)
 	u.Publish(toClient.UpdateModeCount(m.RedScore))
 }
 
 func (m *RescueMode) DrawEvents(u *User) {
 	fmt.Println("호출 1")
-	for _, e := range m.Room.GetPlace(u.place).Events {
+	for _, e := range m.Room.GetPlace(u.Place).Events {
 		fmt.Println(e)
 		u.Send(toClient.CreateGameObject(e.GetCreateGameObject()))
 	}
@@ -241,7 +241,7 @@ func (m *RescueMode) DrawEvents(u *User) {
 
 func (m *RescueMode) DrawUsers(self *User) {
 	selfHide := false
-	for _, u := range m.Room.SameMapUsers(self.place) {
+	for _, u := range m.Room.SameMapUsers(self.Place) {
 		if u == self {
 			return
 		}
@@ -298,7 +298,7 @@ func (m *RescueMode) Result(winner int) {
 	fmt.Println("끝", winner)
 	m.State = STATE_RESULT
 	for _, u := range m.Room.Users {
-		u.room = 0
+		u.Room = nil
 		u.GameData["result"] = true
 	}
 	m.Room.Remove()
@@ -327,7 +327,7 @@ func (m *RescueMode) Update() {
 				m.RemoveUser(u)
 				u.GameData["team"] = teamType.RED
 				m.AddUser(u)
-				u.SetGraphics(u.character.Graphics.RedImage)
+				u.SetGraphics(u.RedImage)
 				// TODO : 장농
 				//u.Send()
 			}
@@ -341,7 +341,7 @@ func (m *RescueMode) Update() {
 		}
 	case STATE_GAME:
 		for _, u := range m.RedUsers {
-			if GameMaps[u.place].RangePortal(u.character.x, u.character.y, 2) {
+			if GameMaps[u.Place].RangePortal(u.X, u.Y, 2) {
 				if count, ok := u.GameData["count"]; ok {
 					u.GameData["count"] = count.(int) + 1
 					count = u.GameData["count"]

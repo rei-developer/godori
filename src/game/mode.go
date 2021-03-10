@@ -91,7 +91,7 @@ func (m *GameMode) Sample(target map[*getty.Client]*User, count int) map[*getty.
 	users := make(map[*getty.Client]*User)
 	pickers := make(map[*getty.Client]*User)
 	for _, u := range target {
-		users[u.client] = u
+		users[u.Client] = u
 	}
 	for count > 0 {
 		c := 0
@@ -99,9 +99,9 @@ func (m *GameMode) Sample(target map[*getty.Client]*User, count int) map[*getty.
 		pick := cMath.Rand(len(users) + 1)
 		for _, u := range users {
 			if c == pick {
-				if _, ok := pickers[u.client]; !ok {
-					pickers[u.client] = u
-					delete(users, u.client)
+				if _, ok := pickers[u.Client]; !ok {
+					pickers[u.Client] = u
+					delete(users, u.Client)
 					break
 				}
 			}

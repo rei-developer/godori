@@ -1,10 +1,10 @@
 package game
 
 type CharacterPos struct {
-	x    int
-	y    int
-	dirX int
-	dirY int
+	X    int
+	Y    int
+	DirX int
+	DirY int
 }
 
 type Graphics struct {
@@ -38,19 +38,19 @@ func (c *Character) Setting(model int, redImage string, blueImage string) {
 }
 
 func (c *Character) SetPosition(x int, y int) {
-	c.CharacterPos.x = x
-	c.CharacterPos.y = y
+	c.X = x
+	c.Y = y
 	c.Dirty = true
 }
 
 func (c *Character) Turn(dirX int, dirY int) {
-	c.CharacterPos.dirX = dirX
-	c.CharacterPos.dirY = dirY
+	c.DirX = dirX
+	c.DirY = dirY
 	c.Dirty = true
 }
 
 func (c *Character) Move(x int, y int) {
-	c.CharacterPos.x += x
-	c.CharacterPos.y += y
+	c.X += x
+	c.Y += y
 	c.Dirty = true
 }

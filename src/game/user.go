@@ -8,6 +8,7 @@ import (
 	"godori.com/db"
 	"godori.com/getty"
 	toClient "godori.com/packet/toClient"
+	modelType "godori.com/util/constant/modelType"
 	roomType "godori.com/util/constant/roomType"
 	teamType "godori.com/util/constant/teamType"
 	cMath "godori.com/util/math"
@@ -44,15 +45,15 @@ type UserData struct {
 }
 
 type User struct {
-	Model     int
-	Index     int
-	client    *getty.Client
-	character Character
-	room      int
-	place     int
-	Alert     int
-	UserData  *UserData
-	GameData  map[string]interface{}
+	Model  int
+	Index  int
+	Client *getty.Client
+	Room   *Room
+	Place  int
+	Alert  int
+	Character
+	UserData *UserData
+	GameData map[string]interface{}
 }
 
 var nextUserIndex int
@@ -62,11 +63,10 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 	if result, ok := db.GetUserByOAuth(uid, loginType); ok {
 		nextUserIndex++
 		user := &User{
-			Model:  1,
+			Model:  modelType.USER,
 			Index:  nextUserIndex,
-			client: c,
-			room:   0,
-			place:  0,
+			Client: c,
+			Place:  0,
 			Alert:  0,
 			UserData: &UserData{
 				int(result.Id.Int32),
@@ -99,7 +99,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 			},
 		}
 		Users[c] = user
-		user.character.Setting(user.Model, user.UserData.RedGraphics, user.UserData.BlueGraphics)
+		user.Setting(user.Model, user.UserData.RedGraphics, user.UserData.BlueGraphics)
 		user.UserData.MaxExp = cMath.GetMaxExp(user.UserData.Level)
 		return user, true
 	}
@@ -107,9 +107,9 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 }
 
 func (u *User) Remove() bool {
-	_, ok := Users[u.client]
+	_, ok := Users[u.Client]
 	if ok {
-		delete(Users, u.client)
+		delete(Users, u.Client)
 	}
 	return ok
 }
@@ -133,11 +133,11 @@ func (u *User) GetCreateGameObject(hide bool) (model int, index int, name string
 		team = t.(int)
 	}
 	level = u.UserData.Level
-	image = u.character.Graphics.Image
-	x = u.character.x
-	y = u.character.y
-	dirX = u.character.dirX
-	dirY = u.character.dirY
+	image = u.Image
+	x = u.X
+	y = u.Y
+	dirX = u.DirX
+	dirY = u.DirY
 	collider = false
 	if hide {
 		name = ""
@@ -168,7 +168,7 @@ func (u *User) SetUpCash(v int) {
 }
 
 func (u *User) SetGraphics(image string) {
-	u.character.Graphics.Image = image
+	u.Image = image
 	u.PublishMap(toClient.SetGraphics(1, u.Index, image))
 }
 
@@ -353,50 +353,48 @@ func (u *User) SetState(state int) {
 }
 
 func (u *User) Turn(dirX int, dirY int) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	u.character.Turn(dirX, dirY)
+	u.Turn(dirX, dirY)
 }
 
 func (u *User) Move(x int, y int) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	u.character.Turn(x, y)
-	dir := u.character.GetDirection(x, y)
-	if r, ok := Rooms[u.room]; ok {
-		if r.Passable(u.place, u.character.x, u.character.y, dir, false) && r.Passable(u.place, u.character.x+x, u.character.y-y, 10-dir, true) {
-			u.character.Move(x, -y)
-			r.Portal(u)
-		} else {
-			u.Teleport(u.place, u.character.x, u.character.y)
-		}
+	u.Turn(x, y)
+	dir := u.GetDirection(x, y)
+	r := u.Room
+	if r.Passable(u.Place, u.X, u.Y, dir, false) && r.Passable(u.Place, u.X+x, u.Y-y, 10-dir, true) {
+		u.Move(x, -y)
+		r.Portal(u)
+	} else {
+		u.Teleport(u.Place, u.X, u.Y)
 	}
 }
 
 func (u *User) Chat(text string) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		text = text[:35]
-		// TODO : 채팅 금지
-		// TODO : filtering
-		if u.Command(text) {
-			return
-		}
-		fmt.Println(string(u.UserData.Name) + "(#" + string(u.room) + "@" + string(u.place) + "): " + text)
-		switch r.RoomType {
-		case roomType.PLAYGROUND:
-			u.Publish(toClient.ChatMessage(u.Model, u.Index, u.UserData.Name, text))
-		case roomType.GAME:
-			if team, ok := u.GameData["team"]; ok {
-				if team.(int) == teamType.RED {
-					u.ChatToRedTeam(text)
-				} else {
-					u.ChatToBlueTeam(text)
-				}
+	r := u.Room
+	text = text[:35]
+	// TODO : 채팅 금지
+	// TODO : filtering
+	if u.Command(text) {
+		return
+	}
+	fmt.Println(string(u.UserData.Name) + "(#" + string(r.Index) + "@" + string(u.Place) + "): " + text)
+	switch r.RoomType {
+	case roomType.PLAYGROUND:
+		u.Publish(toClient.ChatMessage(u.Model, u.Index, u.UserData.Name, text))
+	case roomType.GAME:
+		if team, ok := u.GameData["team"]; ok {
+			if team.(int) == teamType.RED {
+				u.ChatToRedTeam(text)
+			} else {
+				u.ChatToBlueTeam(text)
 			}
 		}
 	}
@@ -430,7 +428,7 @@ func (u *User) Ban(target *User, name string, description string, days int) {
 }
 
 func (u *User) Entry(rType int) {
-	if u.room > 0 {
+	if u.Room != nil {
 		return
 	}
 	// TODO : set state, send
@@ -439,49 +437,41 @@ func (u *User) Entry(rType int) {
 }
 
 func (u *User) Leave() {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.Leave(u)
-	}
+	u.Room.Leave(u)
 }
 
 func (u *User) Hit() {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.Hit(u)
-	}
+	u.Room.Hit(u)
 }
 
 func (u *User) UseItem() {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.UseItem(u)
-	}
+	u.Room.UseItem(u)
 }
 
 func (u *User) Portal(place int, x int, y int, dirX int, dirY int) {
 	// TODO : broadcast
-	u.place = place
-	u.character.SetPosition(x, y)
+	u.Place = place
+	u.SetPosition(x, y)
 	if !(dirX == dirY && dirX == 0) {
 		u.Turn(dirX, dirY)
 	}
-	u.Send(toClient.Portal(place, x, y, u.character.dirX, u.character.dirY))
+	u.Send(toClient.Portal(place, x, y, u.DirX, u.DirY))
 }
 
 func (u *User) Teleport(place int, x int, y int) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.Teleport(u, place, x, y, 0, -1)
-	}
+	u.Room.Teleport(u, place, x, y, 0, -1)
 }
 
 func (u *User) Result(ad int) {
@@ -509,43 +499,35 @@ func (u *User) Disconnect() {
 }
 
 func (u *User) Send(d []byte) {
-	u.client.Send(d)
+	u.Client.Send(d)
 }
 
 // TODO : notice는 clients의 broadcast 사용할 것.
 
 func (u *User) Publish(d []byte) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.Publish(d)
-	}
+	u.Room.Publish(d)
 }
 
 func (u *User) PublishMap(d []byte) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.PublishMap(u.place, d)
-	}
+	u.Room.PublishMap(u.Place, d)
 }
 
 func (u *User) Broadcast(d []byte) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.Broadcast(u, d)
-	}
+	u.Room.Broadcast(u, d)
 }
 
 func (u *User) BroadcastMap(d []byte) {
-	if u.room < 1 {
+	if u.Room == nil {
 		return
 	}
-	if r, ok := Rooms[u.room]; ok {
-		r.BroadcastMap(u, d)
-	}
+	u.Room.BroadcastMap(u, d)
 }

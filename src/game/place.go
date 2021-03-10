@@ -36,11 +36,11 @@ func (p *Place) RemoveAllEvent() {
 }
 
 func (p *Place) AddUser(u *User) {
-	p.Users[u.client] = u
+	p.Users[u.Client] = u
 }
 
 func (p *Place) RemoveUser(u *User) {
-	delete(p.Users, u.client)
+	delete(p.Users, u.Client)
 }
 
 func (p *Place) RemoveAllUser() {
@@ -53,7 +53,7 @@ func (p *Place) Update() {
 	}
 	var users map[*getty.Client]*User = make(map[*getty.Client]*User)
 	for c, u := range p.Users {
-		if u.character.Dirty {
+		if u.Dirty {
 			users[c] = u
 		}
 	}
@@ -66,13 +66,13 @@ func (p *Place) Update() {
 		uint8(len(users)),
 	}
 	for _, u := range users {
-		u.character.Dirty = false
-		data = append(data, int8(u.character.Model))
+		u.Dirty = false
+		data = append(data, int8(u.Model))
 		data = append(data, int32(u.Index))
-		data = append(data, int16(u.character.CharacterPos.x))
-		data = append(data, int16(u.character.CharacterPos.y))
-		data = append(data, int8(u.character.CharacterPos.dirX))
-		data = append(data, int8(u.character.CharacterPos.dirY))
+		data = append(data, int16(u.X))
+		data = append(data, int16(u.Y))
+		data = append(data, int8(u.DirX))
+		data = append(data, int8(u.DirY))
 	}
 	for _, v := range data {
 		err := binary.Write(buf, binary.LittleEndian, v)

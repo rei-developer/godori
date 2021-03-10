@@ -72,15 +72,15 @@ func (r *Room) RemoveEvent(e *Event) {
 }
 
 func (r *Room) AddUser(u *User) {
-	u.room = r.Index
-	r.Users[u.client] = u
-	r.GetPlace(u.place).AddUser(u)
+	u.Room = r
+	r.Users[u.Client] = u
+	r.GetPlace(u.Place).AddUser(u)
 }
 
 func (r *Room) RemoveUser(u *User) {
-	delete(r.Users, u.client)
-	r.GetPlace(u.place).RemoveUser(u)
-	u.room = 0
+	delete(r.Users, u.Client)
+	r.GetPlace(u.Place).RemoveUser(u)
+	u.Room = nil
 }
 
 func (r *Room) GetPlace(place int) *Place {
@@ -114,7 +114,7 @@ func (r *Room) Broadcast(self *User, d []byte) {
 }
 
 func (r *Room) BroadcastMap(self *User, d []byte) {
-	for _, u := range r.GetPlace(self.place).Users {
+	for _, u := range r.GetPlace(self.Place).Users {
 		if u == self {
 			continue
 		}
@@ -129,7 +129,7 @@ func (r *Room) SameMapUsers(place int) map[*getty.Client]*User {
 func (r *Room) Passable(place int, x int, y int, dir int, collider bool) bool {
 	if collider {
 		for _, e := range r.GetPlace(place).Events {
-			if e.EventData.Collider && e.CharacterPos.x == x && e.CharacterPos.y == y {
+			if e.EventData.Collider && e.X == x && e.Y == y {
 				return false
 			}
 		}
@@ -138,32 +138,32 @@ func (r *Room) Passable(place int, x int, y int, dir int, collider bool) bool {
 }
 
 func (r *Room) Portal(u *User) {
-	if p, ok := GameMaps[u.place].GetPortal(u.character.x, u.character.y); ok {
+	if p, ok := GameMaps[u.Place].GetPortal(u.X, u.Y); ok {
 		r.Teleport(u, p.NextPlace, p.NextX, p.NextY, p.NextDirX, p.NextDirY)
 		if p.Sound != "" {
-			r.PublishMap(u.place, toClient.PlaySound(p.Sound))
+			r.PublishMap(u.Place, toClient.PlaySound(p.Sound))
 		}
 	}
 }
 
 func (r *Room) Teleport(u *User, place int, x int, y int, dirX int, dirY int) {
-	r.GetPlace(u.place).RemoveUser(u)
+	r.GetPlace(u.Place).RemoveUser(u)
 	u.Portal(place, x, y, dirX, dirY)
 	r.GetPlace(place).AddUser(u)
 	r.Draw(u)
 }
 
 func (r *Room) Hit(self *User) {
-	for _, u := range r.GetPlace(self.place).Users {
-		if !(self.character.x == u.character.x && self.character.y == u.character.y || self.character.x+self.character.dirX == u.character.x && self.character.y-self.character.dirY == u.character.y) {
+	for _, u := range r.GetPlace(self.Place).Users {
+		if !(self.X == u.X && self.Y == u.Y || self.X+self.DirX == u.X && self.Y-self.DirY == u.Y) {
 			continue
 		}
 		if r.Mode.Hit(self, u) {
 			break
 		}
 	}
-	for _, e := range r.GetPlace(self.place).Events {
-		if !(self.character.x == e.Character.x && self.character.y == e.Character.y || self.character.x+self.character.dirX == e.Character.x && self.character.y-self.character.dirY == e.Character.y) {
+	for _, e := range r.GetPlace(self.Place).Events {
+		if !(self.X == e.X && self.Y == e.Y || self.X+self.DirX == e.X && self.Y-self.DirY == e.Y) {
 			continue
 		}
 		if e.Do(r, self) {
@@ -194,7 +194,7 @@ func (r *Room) Join(u *User) {
 func (r *Room) Leave(u *User) {
 	r.Mode.Leave(u)
 	r.RemoveUser(u)
-	r.PublishMap(u.place, toClient.RemoveGameObject(u.Model, u.Index))
+	r.PublishMap(u.Place, toClient.RemoveGameObject(u.Model, u.Index))
 	r.Publish(toClient.UpdateRoomUserCount(len(r.Users)))
 	if len(r.Users) <= 0 {
 		r.Remove()
