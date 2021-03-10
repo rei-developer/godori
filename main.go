@@ -84,7 +84,7 @@ func main() {
 		defer func() {
 			cancel()
 		}()
-		if err := srv.Shutdown(ctx); err != nil {
+		if err := handle.Shutdown(ctx); err != nil {
 			log.Fatalf("Server Shutdown Failed: %+v", err)
 		}
 		log.Print("Server Exited Properly.")
