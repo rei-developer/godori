@@ -12,9 +12,9 @@ func (a *Action) Rescue(r *Room, self *User, target *Event) {
 	fmt.Println("ㅁㄴㅇㄻㄴㅇㄹ")
 }
 
-func CallFuncByName(class interface{}, funcName string, params ...interface{}) []reflect.Value {
-	myClassValue := reflect.ValueOf(class)
-	m := myClassValue.MethodByName(funcName)
+func CallFuncByName(funcName string, params ...interface{}) []reflect.Value {
+	class := &Action{}
+	m := reflect.ValueOf(class).MethodByName(funcName)
 	if !m.IsValid() {
 		log.Println("Method not found", funcName)
 		return nil

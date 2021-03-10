@@ -104,5 +104,5 @@ func (e *Event) GetCreateGameObject() (model int, index int, name string, clanNa
 }
 
 func (e *Event) Do(r *Room, u *User) bool {
-	return CallFuncByName(&Action{}, e.EventData.Command, r, u, e) != nil
+	return CallFuncByName(e.EventData.Command, r, u, e) != nil
 }

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"godori.com/getty"
 	mapType "godori.com/util/constant/mapType"
 	modeType "godori.com/util/constant/modeType"
@@ -95,7 +94,6 @@ func (m *GameMode) Sample(target map[*getty.Client]*User, count int) map[*getty.
 	}
 	for count > 0 {
 		c := 0
-		fmt.Println(len(users))
 		pick := cMath.Rand(len(users) + 1)
 		for _, u := range users {
 			if c == pick {
