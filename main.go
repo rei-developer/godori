@@ -62,10 +62,10 @@ func main() {
 	server.OnMessage = OnMessage
 	server.OnDisconnect = OnDisconnect
 	server.BeforeAccept = BeforeAccept
-	srv := &http.Server{Addr: ":" + port, Handler: nil}
+	handle := &http.Server{Addr: ":" + port, Handler: nil}
 	go func() {
 		http.HandleFunc("/", server.Listen)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := handle.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Listen: %s\n", err)
 		}
 	}()

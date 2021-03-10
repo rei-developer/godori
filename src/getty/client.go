@@ -11,19 +11,19 @@ import (
 const HEADER_SIZE = 2
 
 type Client struct {
-	conn     *websocket.Conn
-	server   *Server
-	token    string
-	sendChan chan []byte
+	Conn     *websocket.Conn
+	Server   *Server
+	Token    string
+	SendChan chan []byte
 	Run      bool
 }
 
 func NewClient(c *websocket.Conn, s *Server, t string) *Client {
 	return &Client{
-		conn:     c,
-		server:   s,
-		token:    t,
-		sendChan: make(chan []byte),
+		Conn:     c,
+		Server:   s,
+		Token:    t,
+		SendChan: make(chan []byte),
 		Run:      true,
 	}
 }
@@ -39,27 +39,27 @@ func BytesToInt(b []byte) int {
 }
 
 func (c *Client) GetToken() string {
-	return c.token
+	return c.Token
 }
 
 func (c *Client) RemoteAddr() net.Addr {
-	return c.conn.RemoteAddr()
+	return c.Conn.RemoteAddr()
 }
 
 func (c *Client) Send(d []byte) {
 	if c.Run {
-		c.sendChan <- d
+		c.SendChan <- d
 	}
 }
 
 func (c *Client) Broadcast(d []byte) {
-	for _, ic := range c.server.Clients {
+	for _, ic := range c.Server.Clients {
 		ic.Send(d)
 	}
 }
 
 func (c *Client) BroadcastAnother(d []byte) {
-	for _, ic := range c.server.Clients {
+	for _, ic := range c.Server.Clients {
 		if c == ic {
 			continue
 		}
@@ -68,17 +68,17 @@ func (c *Client) BroadcastAnother(d []byte) {
 }
 
 func (c *Client) Close() {
-	c.server = nil
-	c.conn.Close()
-	c.conn = nil
+	c.Server = nil
+	c.Conn.Close()
+	c.Conn = nil
 }
 
 func (c *Client) Request() {
 	defer func() {
-		c.server.DisConnChan <- c
+		c.Server.DisConnChan <- c
 	}()
 	for c.Run {
-		_, message, err := c.conn.ReadMessage()
+		_, message, err := c.Conn.ReadMessage()
 		if e, ok := err.(*websocket.CloseError); ok {
 			switch e.Code {
 			case 1001, 1005, 1006:
@@ -91,7 +91,7 @@ func (c *Client) Request() {
 		}
 		pSize := len(message)
 		pType := BytesToInt(message[:HEADER_SIZE])
-		c.server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+		c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 	}
 }
 
@@ -101,9 +101,9 @@ func (c *Client) Response() {
 	//	ticker.Stop()
 	//}()
 	for c.Run {
-		data := <-c.sendChan
+		data := <-c.SendChan
 		log.Println(string(data))
-		err := c.conn.WriteMessage(websocket.TextMessage, data)
+		err := c.Conn.WriteMessage(websocket.TextMessage, data)
 		CheckError(err)
 		//case tick := <-ticker.C:
 		//	log.Println("ping:", c.RemoteAddr(), tick.Second())

@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"unicode/utf8"
 
 	"godori.com/db"
@@ -400,10 +401,6 @@ func (u *User) Chat(text string) {
 	}
 }
 
-func (u *User) Command(text string) bool {
-	return true
-}
-
 func (u *User) ChatToRedTeam(text string) {
 	u.Publish(toClient.ChatMessage(u.Model, u.Index, "<color=#00A2E8>"+u.UserData.Name+"</color>", text))
 }
@@ -416,6 +413,26 @@ func (u *User) ChatToBlueTeam(text string) {
 		}
 	}
 	u.Publish(toClient.ChatMessage(u.Model, u.Index, "<color=#00A2E8>"+u.UserData.Name+"</color>", text))
+}
+
+func (u *User) Command(text string) bool {
+	if text[:1] == "#" {
+		if u.UserData.Admin < 1 {
+			if u.UserData.Cash < 20 {
+				u.Send(toClient.SystemMessage("<color=red>보석이 부족합니다. 보석 20개가 필요합니다.</color>"))
+			} else {
+				u.Client.Broadcast(toClient.SystemMessage("<color=#1DDB16>" + u.UserData.Name + "#" + strconv.Itoa(u.Room.Index) + ": " + text[1:] + "</color>")) // TODO : 확인 필요
+				u.SetUpCash(-20)
+			}
+		} else {
+			u.Client.Broadcast(toClient.SystemMessage("<color=#EFE4B0>@[운영진] " + u.UserData.Name + ": " + text[1:] + "</color>"))
+		}
+	}
+	if u.UserData.Admin < 1 {
+		return false
+	}
+	// TODO
+	return true
 }
 
 func (u *User) Ban(target *User, name string, description string, days int) {
