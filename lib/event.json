@@ -7,6 +7,14 @@
       "image": "kinkob",
       "command": "Rescue",
       "collider": true
+    },
+    {
+      "id": 2,
+      "name": "",
+      "pureHp": 100,
+      "image": "iron",
+      "command": "Door",
+      "collider": true
     }
   ]
 }

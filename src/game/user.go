@@ -357,18 +357,18 @@ func (u *User) Turn(dirX int, dirY int) {
 	if u.Room == nil {
 		return
 	}
-	u.Turn(dirX, dirY)
+	u.Character.Turn(dirX, dirY)
 }
 
 func (u *User) Move(x int, y int) {
 	if u.Room == nil {
 		return
 	}
-	u.Turn(x, y)
+	u.Character.Turn(x, y)
 	dir := u.GetDirection(x, y)
 	r := u.Room
 	if r.Passable(u.Place, u.X, u.Y, dir, false) && r.Passable(u.Place, u.X+x, u.Y-y, 10-dir, true) {
-		u.Move(x, -y)
+		u.Character.Move(x, -y)
 		r.Portal(u)
 	} else {
 		u.Teleport(u.Place, u.X, u.Y)
@@ -479,7 +479,7 @@ func (u *User) Portal(place int, x int, y int, dirX int, dirY int) {
 	u.Place = place
 	u.SetPosition(x, y)
 	if !(dirX == dirY && dirX == 0) {
-		u.Turn(dirX, dirY)
+		u.Character.Turn(dirX, dirY)
 	}
 	u.Send(toClient.Portal(place, x, y, u.DirX, u.DirY))
 }
@@ -518,8 +518,6 @@ func (u *User) Disconnect() {
 func (u *User) Send(d []byte) {
 	u.Client.Send(d)
 }
-
-// TODO : notice는 clients의 broadcast 사용할 것.
 
 func (u *User) Publish(d []byte) {
 	if u.Room == nil {

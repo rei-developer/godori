@@ -31,6 +31,7 @@ type Event struct {
 	Hp    int
 	Character
 	EventData *EventData
+	GameData  map[string]interface{}
 }
 
 var nextEventIndex int
@@ -72,6 +73,7 @@ func NewEvent(r *Room, id int, place int, x int, y int) *Event {
 		Place:     place,
 		Hp:        eventData.PureHp,
 		EventData: eventData,
+		GameData:  make(map[string]interface{}),
 	}
 	Events[nextEventIndex] = event
 	event.Setting(event.Model, event.EventData.Image, event.EventData.Image)
@@ -105,4 +107,34 @@ func (e *Event) GetCreateGameObject() (model int, index int, name string, clanNa
 
 func (e *Event) Do(r *Room, u *User) bool {
 	return CallFuncByName(e.EventData.Command, r, u, e) != nil
+}
+
+func (e *Event) SetUpHp(v int) {
+	e.Hp += v
+}
+
+func (e *Event) Turn(dirX int, dirY int) {
+	e.Character.Turn(dirX, dirY)
+}
+
+func (e *Event) Move(x int, y int) {
+	e.Character.Turn(x, y)
+	e.Character.Move(x, y)
+}
+
+func (e *Event) Publish(d []byte) {
+	if e.Room == nil {
+		return
+	}
+	e.Room.Publish(d)
+}
+
+func (e *Event) PublishMap(d []byte) {
+	if e.Room == nil {
+		return
+	}
+	e.Room.PublishMap(e.Place, d)
+}
+
+func (e *Event) Update() {
 }
