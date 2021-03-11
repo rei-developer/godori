@@ -96,8 +96,9 @@ func BeforeAccept() bool {
 }
 
 func Login(u *game.User) {
+	u.CheckSkinExpiry()
 	u.Send(toClient.UserData(u.GetUserdata()))
-	// TODO
+	u.Send(toClient.ConnectionCount(len(game.Users)))
 }
 
 func OnConnect(c *getty.Client) {

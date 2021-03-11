@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"time"
@@ -15,6 +16,7 @@ import (
 	teamType "godori.com/util/constant/teamType"
 	cFilter "godori.com/util/filter"
 	cMath "godori.com/util/math"
+	pix "godori.com/util/pix"
 )
 
 type UserData struct {
@@ -469,11 +471,18 @@ func (u *User) Command(text string) bool {
 
 func (u *User) Ban(target *User, name string, description string, days int) {
 	if target == nil {
-		// find
+		var findUser string
+		if findUser == "" {
+			return
+		}
+		// TODO : INSERT DB
 	} else {
-		// send
+		// TODO : INSERT DB
+		target.Send(toClient.QuitGame())
 	}
-	// TODO
+	text := pix.Maker(name, "를", "을") + " " + string(days) + "일 동안 접속을 차단함. (" + description + ")"
+	u.Publish(toClient.SystemMessage("<color=red>" + text + "</color>"))
+	log.Println(text)
 }
 
 func (u *User) Entry(rType int) {
