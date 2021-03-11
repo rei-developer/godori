@@ -52,6 +52,8 @@ type User struct {
 	Room   *Room
 	Place  int
 	Alert  int
+	Score  *Score
+	Reward *Reward
 	Character
 	UserData *UserData
 	GameData map[string]interface{}
@@ -69,6 +71,8 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 			Client: c,
 			Place:  0,
 			Alert:  0,
+			Score:  NewScore(),
+			Reward: NewReward(),
 			UserData: &UserData{
 				int(result.Id.Int32),
 				result.Uid.String,
@@ -475,7 +479,7 @@ func (u *User) UseItem() {
 }
 
 func (u *User) Portal(place int, x int, y int, dirX int, dirY int) {
-	// TODO : broadcast
+	u.BroadcastMap(toClient.RemoveGameObject(u.Model, u.Index))
 	u.Place = place
 	u.SetPosition(x, y)
 	if !(dirX == dirY && dirX == 0) {
@@ -501,11 +505,12 @@ func (u *User) Result(ad int) {
 			case 1:
 				u.Entry(roomType.GAME)
 			case 2:
-				// TODO
+				u.Reward.Cash += 10
 			}
 		}
 	}
-	// TODO
+	u.Score.Send(u)
+	u.Reward.Send(u)
 	u.GameData = nil
 }
 

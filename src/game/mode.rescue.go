@@ -27,6 +27,7 @@ type RescueMode struct {
 	Tick      int
 	Count     int
 	MaxCount  int
+	Caught    bool
 }
 
 func NewRescueMode(r *Room, pType int) *RescueMode {
@@ -42,6 +43,7 @@ func NewRescueMode(r *Room, pType int) *RescueMode {
 		Tick:      0,
 		Count:     201,
 		MaxCount:  230,
+		Caught:    false,
 	}
 }
 
@@ -232,9 +234,7 @@ func (m *RescueMode) Leave(u *User) {
 }
 
 func (m *RescueMode) DrawEvents(u *User) {
-	fmt.Println("호출 1")
 	for _, e := range m.Room.GetPlace(u.Place).Events {
-		fmt.Println(e)
 		u.Send(toClient.CreateGameObject(e.GetCreateGameObject()))
 	}
 }
@@ -281,12 +281,15 @@ func (m *RescueMode) Hit(self *User, target *User) bool {
 	self.Broadcast(toClient.PlaySound("Shock"))
 	switch target.GameData["state"] {
 	case 1:
+		self.Score.KillForWardrobe++
+		target.Score.DeathForWardrobe++
 		// TODO : 장농
 	default:
-		// TODO : 기본
+		self.Score.Kill++
+		target.Score.Death++
 	}
 	m.RedScore++
-	//self.Publish()
+	self.Publish(toClient.UpdateModeCount(m.RedScore))
 	return true
 }
 
@@ -367,6 +370,7 @@ func (m *RescueMode) Update() {
 		if m.Count == 15 || m.Count%40 == 5 {
 			m.Room.Publish(toClient.InformMessage("<color=#B5E61D>잠시 후 인질 구출이 가능해집니다...</color>"))
 		} else if m.Count == 10 || m.Count%40 == 0 {
+			m.Caught = true
 			m.Room.Publish(toClient.InformMessage("<color=#B5E61D>인질 구출이 가능합니다!</color>"))
 			m.Room.Publish(toClient.PlaySound("thump"))
 		}
