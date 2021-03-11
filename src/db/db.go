@@ -115,6 +115,7 @@ type User struct {
 	RedGraphics  sql.NullString
 	BlueGraphics sql.NullString
 	Memo         sql.NullString
+	LastChat     sql.NullInt32
 	Admin        sql.NullInt32
 }
 
@@ -421,6 +422,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 			red_graphics,
 			blue_graphics,
 			memo,
+			unix_timestamp(last_chat) last_chat,
 			admin
 		FROM users
 		WHERE
@@ -446,6 +448,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 		&item.RedGraphics,
 		&item.BlueGraphics,
 		&item.Memo,
+		&item.LastChat,
 		&item.Admin,
 	)
 	ok := CheckError(err)

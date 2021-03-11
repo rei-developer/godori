@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"time"
 	"unicode/utf8"
 
 	"godori.com/db"
@@ -43,6 +44,7 @@ type UserData struct {
 	RedGraphics  string
 	BlueGraphics string
 	Memo         string
+	LastChat     int
 	Admin        int
 }
 
@@ -101,6 +103,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 				result.RedGraphics.String,
 				result.BlueGraphics.String,
 				result.Memo.String,
+				int(result.LastChat.Int32),
 				int(result.Admin.Int32),
 			},
 		}
@@ -390,7 +393,10 @@ func (u *User) Chat(text string) {
 		size = 35
 	}
 	text = text[:size]
-	// TODO : 채팅 금지
+	if u.UserData.LastChat > int(time.Now().Unix()) {
+		u.Send(toClient.SystemMessage("<color=red>운영진에 의해 채팅이 금지되었습니다.</color> (" + time.Unix(int64(u.UserData.LastChat), 0).String() + ")"))
+		return
+	}
 	if cFilter.Check(text) {
 		u.Alert++
 		if u.Alert >= 3 {
