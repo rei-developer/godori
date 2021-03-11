@@ -13,6 +13,7 @@ require (
 	godori.com/util/constant/modelType v0.0.0
 	godori.com/util/constant/roomType v0.0.0
 	godori.com/util/constant/teamType v0.0.0
+	godori.com/util/filter v0.0.0
 	godori.com/util/math v0.0.0
 	godori.com/util/pix v0.0.0
 )
@@ -28,6 +29,7 @@ replace (
 	godori.com/util/constant/modeType v0.0.0 => ./util/constant/modeType
 	godori.com/util/constant/roomType v0.0.0 => ./util/constant/roomType
 	godori.com/util/constant/teamType v0.0.0 => ./util/constant/teamType
+	godori.com/util/filter v0.0.0 => ./util/filter
 	godori.com/util/math v0.0.0 => ./util/math
 	godori.com/util/pix v0.0.0 => ./util/pix
 )

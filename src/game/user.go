@@ -12,6 +12,7 @@ import (
 	modelType "godori.com/util/constant/modelType"
 	roomType "godori.com/util/constant/roomType"
 	teamType "godori.com/util/constant/teamType"
+	cFilter "godori.com/util/filter"
 	cMath "godori.com/util/math"
 )
 
@@ -384,13 +385,26 @@ func (u *User) Chat(text string) {
 		return
 	}
 	r := u.Room
-	text = text[:35]
+	size := len(text)
+	if size > 35 {
+		size = 35
+	}
+	text = text[:size]
 	// TODO : 채팅 금지
-	// TODO : filtering
-	if u.Command(text) {
+	if cFilter.Check(text) {
+		u.Alert++
+		if u.Alert >= 3 {
+			u.Send(toClient.QuitGame())
+		} else {
+			u.Send(toClient.Vibrate())
+			u.Send(toClient.SystemMessage("<color=red>금칙어를 언급하여 경고 " + strconv.Itoa(u.Alert) + "회를 받았습니다. 3회 이상시 자동 추방됩니다.</color>"))
+		}
 		return
 	}
-	fmt.Println(string(u.UserData.Name) + "(#" + string(r.Index) + "@" + string(u.Place) + "): " + text)
+	if u.Command(text) || u.Alert >= 3 {
+		return
+	}
+	fmt.Println(string(u.UserData.Name) + "(#" + strconv.Itoa(r.Index) + "@" + strconv.Itoa(u.Place) + "): " + text)
 	switch r.RoomType {
 	case roomType.PLAYGROUND:
 		u.Publish(toClient.ChatMessage(u.Model, u.Index, u.UserData.Name, text))
@@ -420,6 +434,9 @@ func (u *User) ChatToBlueTeam(text string) {
 }
 
 func (u *User) Command(text string) bool {
+	if len(text) < 1 {
+		return false
+	}
 	if text[:1] == "#" {
 		if u.UserData.Admin < 1 {
 			if u.UserData.Cash < 20 {
@@ -431,11 +448,16 @@ func (u *User) Command(text string) bool {
 		} else {
 			u.Client.Broadcast(toClient.SystemMessage("<color=#EFE4B0>@[운영진] " + u.UserData.Name + ": " + text[1:] + "</color>"))
 		}
+		return true
 	}
-	if u.UserData.Admin < 1 {
+	if len(text) < 3 || u.UserData.Admin < 1 {
 		return false
 	}
-	// TODO
+	//slice := strings.Split(text, ",")
+	switch text[:3] {
+	default:
+		return false
+	}
 	return true
 }
 
