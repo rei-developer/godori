@@ -233,7 +233,7 @@ func (u *User) SetOptionClan(d []byte) {
 	// TODO
 }
 
-func (u *User) PayClan(d []byte) {
+func (u *User) PayClan(coin int) {
 	// TODO
 }
 
@@ -241,7 +241,7 @@ func (u *User) DonateClan(cash int) {
 	// TODO
 }
 
-func (u *User) WithdrawClan(d []byte) {
+func (u *User) WithdrawClan(coin int) {
 	// TODO
 }
 
@@ -249,15 +249,15 @@ func (u *User) LevelUpClan() {
 	// TODO
 }
 
-func (u *User) SetUpMemberLevelClan(d []byte) {
+func (u *User) SetUpMemberLevelClan(id int) {
 	// TODO
 }
 
-func (u *User) SetDownMemberLevelClan(d []byte) {
+func (u *User) SetDownMemberLevelClan(id int) {
 	// TODO
 }
 
-func (u *User) ChangeMasterClan(d []byte) {
+func (u *User) ChangeMasterClan(id int) {
 	// TODO
 }
 
@@ -317,7 +317,7 @@ func (u *User) GetNoticeMessageCount() {
 	// TODO
 }
 
-func (u *User) GetNoticeMessage(deleted bool) {
+func (u *User) GetNoticeMessage(deleted int) {
 	// TODO
 }
 

@@ -124,6 +124,14 @@ func OnDisconnect(c *getty.Client) {
 	}
 }
 
+func DataToInt(d *getty.Data) int {
+	var val int32
+	buf := bytes.NewBuffer(d.Buffers)
+	err := binary.Read(buf, binary.BigEndian, &val)
+	CheckError(err)
+	return int(val)
+}
+
 func OnMessage(c *getty.Client, d *getty.Data) {
 	if u, ok := game.Users[c]; ok {
 		switch d.Type {
@@ -148,48 +156,87 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 		case toServer.ENTER_ROOM:
 			u.Entry(int(d.Buffers[0]))
 		case toServer.REWARD:
-
+			u.Result(int(d.Buffers[0]))
 		case toServer.ESCAPE:
 			u.Leave()
 		case toServer.CHAT:
-
+			u.Chat(string(d.Buffers))
 		case toServer.CHANGE_USERNAME:
+			u.ChangeName(string(d.Buffers))
 		case toServer.CREATE_CLAN:
+			u.CreateClan(string(d.Buffers))
 		case toServer.GET_CLAN:
+			u.GetClan()
 		case toServer.LEAVE_CLAN:
+			u.LeaveClan()
 		case toServer.JOIN_CLAN:
+			u.JoinClan(DataToInt(d))
 		case toServer.CANCEL_CLAN:
+			u.CancelClan(DataToInt(d))
+		case toServer.INVITE_CLAN:
+			u.InviteClan(string(d.Buffers))
 		case toServer.KICK_CLAN:
+			u.KickClan(DataToInt(d))
 		case toServer.SET_OPTION_CLAN:
+			u.SetOptionClan(d.Buffers)
 		case toServer.PAY_CLAN:
+			u.PayClan(DataToInt(d))
 		case toServer.DONATE_CLAN:
+			u.DonateClan(DataToInt(d))
 		case toServer.WITHDRAW_CLAN:
+			u.WithdrawClan(DataToInt(d))
 		case toServer.LEVEL_UP_CLAN:
+			u.LevelUpClan()
 		case toServer.MEMBER_INFO_CLAN:
+			u.Send(toClient.MemberInfoClan(DataToInt(d)))
 		case toServer.SET_UP_MEMBER_LEVEL_CLAN:
+			u.SetUpMemberLevelClan(DataToInt(d))
 		case toServer.SET_DOWN_MEMBER_LEVEL_CLAN:
+			u.SetDownMemberLevelClan(DataToInt(d))
 		case toServer.CHANGE_MASTER_CLAN:
+			u.ChangeMasterClan(DataToInt(d))
 		case toServer.GET_BILLING:
+			u.GetBilling()
 		case toServer.USE_BILLING:
+			u.UseBilling(DataToInt(d))
 		case toServer.REFUND_BILLING:
+			u.RefundBilling(DataToInt(d))
 		case toServer.GET_SHOP:
+			u.GetShop(DataToInt(d))
 		case toServer.GET_INFO_ITEM:
+			u.GetInfoItem(DataToInt(d))
 		case toServer.BUY_ITEM:
+			u.BuyItem(d.Buffers)
 		case toServer.GET_SKIN_LIST:
+			u.GetSkinList()
 		case toServer.SET_SKIN:
+			u.GetSkinList()
 		case toServer.GET_PAY_INFO_ITEM:
+			u.GetPayInfoItem(DataToInt(d))
 		case toServer.GET_RANK:
+			u.GetRank(DataToInt(d))
 		case toServer.GET_USER_INFO_RANK:
+			u.GetUserInfoRank(DataToInt(d))
 		case toServer.GET_USER_INFO_RANK_BY_USERNAME:
+			u.GetUserInfoRankByUserName(string(d.Buffers))
 		case toServer.GET_NOTICE_MESSAGE_COUNT:
+			u.GetNoticeMessageCount()
 		case toServer.GET_NOTICE_MESSAGE:
+			u.GetNoticeMessage(int(d.Buffers[0]))
 		case toServer.GET_INFO_NOTICE_MESSAGE:
+			u.GetInfoNoticeMessage(DataToInt(d))
 		case toServer.WITHDRAW_NOTICE_MESSAGE:
+			u.WithdrawNoticeMessage(DataToInt(d))
 		case toServer.DELETE_NOTICE_MESSAGE:
+			u.DeleteNoticeMessage(DataToInt(d))
 		case toServer.RESTORE_NOTICE_MESSAGE:
+			u.RestoreNoticeMessage(DataToInt(d))
 		case toServer.CLEAR_NOTICE_MESSAGE:
+			u.ClearNoticeMessage()
 		case toServer.ADD_NOTICE_MESSAGE:
+			u.AddNoticeMessage(d.Buffers)
 		case toServer.ADD_USER_REPORT:
+			u.AddUserReport(d.Buffers)
 		case toServer.USE_ITEM:
 			u.UseItem()
 			//case toServer.ADD_USER_REPORT:
