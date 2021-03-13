@@ -3,6 +3,7 @@ module server
 go 1.16
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.8.0
 	godori.com/game v0.0.0
 	godori.com/getty v0.0.0
