@@ -152,13 +152,7 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 			state = "LOGIN_SUCCESS"
 		}
 	}
-	jsonData, err := json.Marshal(struct {
-		State string
-		Token string
-	}{state, verify})
-	CheckError(err)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonData)
+	w.Write([]byte(state))
 }
 
 func (s *Server) GetEnvValue(key string) string {
