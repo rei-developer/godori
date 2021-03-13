@@ -117,6 +117,7 @@ type User struct {
 	Memo         sql.NullString
 	LastChat     sql.NullInt32
 	Admin        sql.NullInt32
+	Verify       sql.NullInt32
 }
 
 func init() {
@@ -423,7 +424,8 @@ func GetUser(args map[string]interface{}) (User, bool) {
 			blue_graphics,
 			memo,
 			unix_timestamp(last_chat) last_chat,
-			admin
+			admin,
+			verify
 		FROM users
 		WHERE
 	`+cond, values...).Scan(
@@ -450,6 +452,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 		&item.Memo,
 		&item.LastChat,
 		&item.Admin,
+		&item.Verify,
 	)
 	ok := CheckError(err)
 	return item, ok
@@ -478,6 +481,11 @@ func GetUserCount() (count int) {
 	err := database.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
 	CheckError(err)
 	return count
+}
+
+func UpdateUserVerify(name string, uid string, lType int) {
+	_, err := database.Exec("UPDATE users SET `name` = ?, verify = 1 WHERE uid = ? AND login_type = ?", name, uid, lType)
+	CheckError(err)
 }
 
 func CheckError(err error) bool {
