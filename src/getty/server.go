@@ -114,13 +114,13 @@ func GetJwtToken(token string) string {
 	return verifyString
 }
 
-func VerifyByGoogle(token string) string {
+func VerifyByGoogle(token string) []byte {
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token)
 	CheckError(err)
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	CheckError(err)
-	return string(data)
+	return body
 }
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
@@ -161,33 +161,14 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	//version := r.FormValue("version")
 	fmt.Println(token)
 
-	data := VerifyByGoogle(token)
-	fmt.Println(data)
-
-	tokenData, err := OAuthConf.Exchange(oauth2.NoContext, r.FormValue("token"))
-	fmt.Println("B", tokenData)
+	body := VerifyByGoogle(token)
+	var data map[string]interface{}
+	err := json.Unmarshal(body, &data)
 	CheckError(err)
-	fmt.Println("C")
-	client := OAuthConf.Client(oauth2.NoContext, tokenData)
-	fmt.Println("D")
-	// UserInfoAPIEndpoint는 유저 정보 API URL을 담고 있음
-	userInfoResp, err := client.Get(UserInfoAPIEndpoint)
-	fmt.Println("E")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	fmt.Println("F")
-	defer userInfoResp.Body.Close()
-	fmt.Println("G")
-	userInfo, err := ioutil.ReadAll(userInfoResp.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	fmt.Println("H")
-	fmt.Println(userInfo)
-	fmt.Println(string(userInfo))
+	fmt.Println(data)
+	fmt.Println(data["aud"])
+	fmt.Println(data["sub"])
+
 	//var authUser User
 	//json.Unmarshal(userInfo, &authUser)
 
