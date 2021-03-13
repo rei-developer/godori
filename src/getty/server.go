@@ -153,6 +153,9 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	body := make([]byte, r.ContentLength)
 	r.Body.Read(body)
 	var data map[string]interface{}
+
+	fmt.Println(body)
+
 	err := json.Unmarshal(body, &data)
 	CheckError(err)
 	// TODO : version check
