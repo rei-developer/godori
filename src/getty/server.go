@@ -126,18 +126,16 @@ func VerifyByGoogle(token string) []byte {
 }
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
-	body := make([]byte, r.ContentLength)
-	r.Body.Read(body)
-	var data map[string]interface{}
-	err := json.Unmarshal(body, &data)
-	CheckError(err)
-	verify := GetJwtToken(data["token"].(string))
+	r.ParseForm()
+	token := r.FormValue("token")
+	name := r.FormValue("name")
+	//recommend := r.FormValue("recommend")
+	verify := GetJwtToken(token)
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
 		if u.Verify.Int32 == 1 {
 			fmt.Fprint(w, "FAILED")
 			return
 		}
-		name := data["name"].(string)
 		nameLen := utf8.RuneCountInString(name)
 		if nameLen < 1 || nameLen > 6 {
 			fmt.Fprint(w, "FAILED")
@@ -172,40 +170,31 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	err := json.Unmarshal(body, &data)
 	CheckError(err)
 	var googleClientId = s.GetEnvValue("GOOGLE_CLIENT_ID")
-	if googleClientId != data["aud"] {
-		fmt.Println("틀려")
+	if googleClientId != data["aud"].(string) {
 		return
 	}
 	uid := data["sub"].(string)
 	loginType := 1
+	var state string
+	verify := GetJwtToken(uid)
 	if u, ok := db.GetUserByOAuth(uid, loginType); ok {
 		if u.Verify.Int32 == 1 {
-			fmt.Println("verify 1 로그인 성공")
-			fmt.Fprint(w, "LOGIN_SUCCESS")
+			state = "LOGIN_SUCCESS"
 		} else {
-			fmt.Println("verify 0 else 로그인 성공")
-			fmt.Fprint(w, "REGISTER_SUCCESS")
+			state = "REGISTER_SUCCESS"
 		}
 	} else {
 		go db.InsertUser(uid, loginType)
-		fmt.Println("else 로그인 성공")
-		fmt.Fprint(w, "REGISTER_SUCCESS")
+		state = "REGISTER_SUCCESS"
 	}
-
-	//var authUser User
-	//json.Unmarshal(userInfo, &authUser)
-
-	//token := data["token"]
-	//uuid := data["uuid"]
-	//version := int(data["version"].(float64))
-	//var jData []byte
-	//jData, err = json.Marshal(struct {
-	//	State int
-	//	Token string
-	//}{123, "sdafdsf"})
-	//CheckError(err)
-	//w.Header().Set("Content-Type", "application/json")
-	//w.Write(jData)
+	var jsonData []byte
+	jsonData, err = json.Marshal(struct {
+		State string
+		Token string
+	}{state, verify})
+	CheckError(err)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
 }
 
 func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
