@@ -132,6 +132,9 @@ func ParseJwtToken(receivedToken string) string {
 }
 
 func VerifyByGoogle(token string) []byte {
+
+	fmt.Println(token, " 이 왜 안나오지?")
+
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token)
 	CheckError(err)
 	defer resp.Body.Close()
@@ -178,6 +181,9 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	//uuid := r.FormValue("uuid")
 	//version := r.FormValue("version")
 	body := VerifyByGoogle(token)
+
+	fmt.Println(body, " d빈디ㅏ")
+
 	var data map[string]interface{}
 	err := json.Unmarshal(body, &data)
 	CheckError(err)
