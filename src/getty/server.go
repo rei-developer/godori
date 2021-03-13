@@ -150,24 +150,20 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
-	body := make([]byte, r.ContentLength)
-	r.Body.Read(body)
-	var data map[string]interface{}
+
+	r.ParseForm()
 
 	fmt.Println(r.FormValue("token"))
 	fmt.Println(r.FormValue("uuid"))
 	fmt.Println(r.FormValue("version"))
 
-	fmt.Println(body)
-	fmt.Println(body)
-	fmt.Println(body)
-	fmt.Println(string(body))
+	fmt.Println(r.PostFormValue("token"))
+	fmt.Println(r.PostFormValue("uuid"))
+	fmt.Println(r.PostFormValue("version"))
 
-	err := json.Unmarshal(body, &data)
-	CheckError(err)
-	// TODO : version check
-	// TODO : check block
-	token, err := OAuthConf.Exchange(oauth2.NoContext, data["token"].(string))
+	tokenData := r.FormValue("token")
+
+	token, err := OAuthConf.Exchange(oauth2.NoContext, tokenData)
 	CheckError(err)
 	client := OAuthConf.Client(oauth2.NoContext, token)
 	// UserInfoAPIEndpoint는 유저 정보 API URL을 담고 있음
