@@ -488,6 +488,11 @@ func UpdateUserVerify(name string, uid string, lType int) {
 	CheckError(err)
 }
 
+func InsertUser(uid string, lType int) {
+	_, err := database.Exec("INSERT INTO users (uid, login_type) VALUES (?, ?)", uid, lType)
+	CheckError(err)
+}
+
 func CheckError(err error) bool {
 	if err != nil {
 		if err == sql.ErrNoRows {

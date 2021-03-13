@@ -3,8 +3,10 @@ package getty
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/joho/godotenv"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"sync"
 	"time"
@@ -154,20 +156,41 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) GetEnvValue(key string) string {
+	err := godotenv.Load()
+	CheckError(err)
+	return os.Getenv(key)
+}
+
 func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	token := r.FormValue("token")
 	//uuid := r.FormValue("uuid")
 	//version := r.FormValue("version")
-	fmt.Println(token)
-
 	body := VerifyByGoogle(token)
 	var data map[string]interface{}
 	err := json.Unmarshal(body, &data)
 	CheckError(err)
-	fmt.Println(data)
-	fmt.Println(data["aud"])
-	fmt.Println(data["sub"])
+	var googleClientId = s.GetEnvValue("GOOGLE_CLIENT_ID")
+	if googleClientId != data["aud"] {
+		fmt.Println("틀려")
+		return
+	}
+	uid := data["sub"].(string)
+	loginType := 1
+	if u, ok := db.GetUserByOAuth(uid, loginType); ok {
+		if u.Verify.Int32 == 1 {
+			fmt.Println("verify 1 로그인 성공")
+			fmt.Fprint(w, "LOGIN_SUCCESS")
+		} else {
+			fmt.Println("verify 0 else 로그인 성공")
+			fmt.Fprint(w, "REGISTER_SUCCESS")
+		}
+	} else {
+		go db.InsertUser(uid, loginType)
+		fmt.Println("else 로그인 성공")
+		fmt.Fprint(w, "REGISTER_SUCCESS")
+	}
 
 	//var authUser User
 	//json.Unmarshal(userInfo, &authUser)
