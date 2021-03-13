@@ -3,6 +3,7 @@ package game
 import (
 	"bytes"
 	"encoding/binary"
+	"log"
 
 	"godori.com/getty"
 )

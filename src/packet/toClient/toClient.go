@@ -1,6 +1,9 @@
 package packet
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"log"
+)
 
 func UserData(index int, id int, name string, clanName string, rank int, sex int, level int, exp int, maxExp int, coin int, cash int, point int, win int, lose int, kill int, death int, assist int, blast int, rescue int, survive int, escape int, grphics string, redGraphics string, blueGraphics string, memo string, admin int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
