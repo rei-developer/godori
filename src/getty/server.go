@@ -150,34 +150,32 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
-
 	r.ParseForm()
-
-	fmt.Println(r.FormValue("token"))
-	fmt.Println(r.FormValue("uuid"))
-	fmt.Println(r.FormValue("version"))
-
-	fmt.Println(r.PostFormValue("token"))
-	fmt.Println(r.PostFormValue("uuid"))
-	fmt.Println(r.PostFormValue("version"))
-
-	tokenData := r.FormValue("token")
-
-	token, err := OAuthConf.Exchange(oauth2.NoContext, tokenData)
+	//uuid := r.FormValue("uuid")
+	//version := r.FormValue("version")
+	fmt.Println("A")
+	tokenData, err := OAuthConf.Exchange(oauth2.NoContext, r.FormValue("token"))
+	fmt.Println("B", tokenData)
 	CheckError(err)
-	client := OAuthConf.Client(oauth2.NoContext, token)
+	fmt.Println("C")
+	client := OAuthConf.Client(oauth2.NoContext, tokenData)
+	fmt.Println("D")
 	// UserInfoAPIEndpoint는 유저 정보 API URL을 담고 있음
 	userInfoResp, err := client.Get(UserInfoAPIEndpoint)
+	fmt.Println("E")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	fmt.Println("F")
 	defer userInfoResp.Body.Close()
+	fmt.Println("G")
 	userInfo, err := ioutil.ReadAll(userInfoResp.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	fmt.Println("H")
 	fmt.Println(userInfo)
 	fmt.Println(string(userInfo))
 	//var authUser User
