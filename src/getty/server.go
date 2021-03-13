@@ -127,13 +127,18 @@ func VerifyByGoogle(token string) []byte {
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	fmt.Println("234234423")
 	token := r.FormValue("token")
 	name := r.FormValue("name")
+	fmt.Println("zzzzzzzzzzz")
 	//recommend := r.FormValue("recommend")
 	var state string
 	verify := GetJwtToken(token)
+	fmt.Println("2342423")
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
+		fmt.Println("asdfas")
 		nameLen := utf8.RuneCountInString(name)
+		fmt.Println(name, "dddd")
 		if u.Verify.Int32 == 1 {
 			fmt.Println("A")
 			state = "FAILED"
@@ -152,6 +157,7 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 			state = "LOGIN_SUCCESS"
 		}
 	}
+	fmt.Println("29999999999999")
 	fmt.Fprint(w, state)
 }
 
