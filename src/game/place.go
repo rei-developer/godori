@@ -3,7 +3,7 @@ package game
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
+
 	"godori.com/getty"
 )
 
@@ -81,7 +81,6 @@ func (p *Place) Update() {
 		data = append(data, int16(e.Y))
 		data = append(data, int8(e.DirX))
 		data = append(data, int8(e.DirY))
-		fmt.Println(e.Name, e.Model, e.Image, e.X, e.Y, e.DirX, e.DirY)
 	}
 	for _, u := range users {
 		u.Dirty = false
@@ -96,10 +95,8 @@ func (p *Place) Update() {
 		err := binary.Write(buf, binary.LittleEndian, v)
 		CheckError(err)
 	}
-	//fmt.Println(buf.Bytes())
 	for _, u := range p.Users {
-		u.Send(buf.Bytes())
-		fmt.Println(buf.Bytes())
+		u.Client.Send(buf.Bytes())
 	}
 }
 

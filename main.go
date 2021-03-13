@@ -28,6 +28,22 @@ const (
 var connections int
 
 func main() {
+	//var names []interface{}
+	//names = append(names, struct {
+	//	Param int
+	//}{112})
+	//names = append(names, struct {
+	//	Param int
+	//}{42342})
+	//
+	//test, _ := json.Marshal(struct {
+	//	Head   int
+	//	Mode   int
+	//	Test   interface{}
+	//}{10, 10, names})
+	//fmt.Println(test)
+	//fmt.Println(string(test))
+
 	//id, uuid := db.GetUserById(1)
 	//fmt.Println(id, uuid, "입니다")
 
@@ -139,19 +155,7 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 		case toServer.HELLO:
 			Login(u)
 		case toServer.INPUT_ARROW:
-			var err error
-			var pos [2]int8
-			var dir [1]uint8
-			buf := bytes.NewBuffer(d.Buffers)
-			err = binary.Read(buf, binary.BigEndian, &pos)
-			err = binary.Read(buf, binary.BigEndian, &dir)
-			CheckError(err)
-			x, y := int(pos[0]), int(pos[1])
-			if dir[0] == 0 {
-				u.Turn(x, y)
-			} else {
-				u.Move(x, y)
-			}
+			u.InputArrow(d)
 		case toServer.INPUT_HIT:
 			u.Hit()
 		case toServer.ENTER_ROOM:

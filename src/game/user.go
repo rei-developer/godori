@@ -1,6 +1,8 @@
 package game
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"regexp"
@@ -228,7 +230,7 @@ func (u *User) KickClan(id int) {
 }
 
 func (u *User) GetClan() {
-	// TODO
+
 }
 
 func (u *User) LeaveClan() {
@@ -499,6 +501,23 @@ func (u *User) Leave() {
 		return
 	}
 	u.Room.Leave(u)
+}
+
+func (u *User) InputArrow(d *getty.Data) {
+	var err error
+	var pos [2]int8
+	var dir [1]uint8
+	buf := bytes.NewBuffer(d.Buffers)
+	err = binary.Read(buf, binary.BigEndian, &pos)
+	CheckError(err)
+	err = binary.Read(buf, binary.BigEndian, &dir)
+	CheckError(err)
+	x, y := int(pos[0]), int(pos[1])
+	if dir[0] == 0 {
+		u.Turn(x, y)
+	} else {
+		u.Move(x, y)
+	}
 }
 
 func (u *User) Hit() {

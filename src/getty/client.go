@@ -1,6 +1,8 @@
 package getty
 
 import (
+	"bytes"
+	"encoding/binary"
 	"log"
 	"net"
 	"time"
@@ -102,8 +104,17 @@ func (c *Client) Response() {
 	//}()
 	for c.Run {
 		data := <-c.SendChan
-		log.Println(string(data))
-		err := c.Conn.WriteMessage(websocket.TextMessage, data)
+		var err error
+		var head uint8
+		buf := bytes.NewBuffer(data)
+		err = binary.Read(buf, binary.BigEndian, &head)
+		CheckError(err)
+		if head == 0 {
+			err = c.Conn.WriteMessage(websocket.BinaryMessage, data)
+		} else {
+			log.Println(string(data))
+			err = c.Conn.WriteMessage(websocket.TextMessage, data)
+		}
 		CheckError(err)
 		//case tick := <-ticker.C:
 		//	log.Println("ping:", c.RemoteAddr(), tick.Second())
