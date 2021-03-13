@@ -39,8 +39,9 @@ const maxMapCnt int = 257
 var GameMaps map[int]*GameMap = make(map[int]*GameMap)
 
 func init() {
-	fmt.Println("맵 로딩중...")
+	//fmt.Println("맵 로딩중...")
 	for i := 1; i < maxMapCnt; i++ {
+		fmt.Println(strconv.Itoa(i)+"번 맵 로딩중...")
 		jsonFile, err := os.Open("./lib/maps/" + strconv.Itoa(i) + ".json")
 		if err != nil {
 			fmt.Println(err)

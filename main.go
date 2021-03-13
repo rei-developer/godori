@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	port         = "50000"
+	port         = "50001"
 	maxAcceptCnt = 3
 )
 
