@@ -80,7 +80,7 @@ func main() {
 	server.BeforeAccept = BeforeAccept
 	handle := &http.Server{Addr: ":" + port, Handler: nil}
 	go func() {
-		http.HandleFunc("/ws", server.Listen)
+		http.HandleFunc("/", server.Listen)
 		http.HandleFunc("/verify/google", server.HandleAuthByGoogle)
 		if err := handle.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Listen: %s\n", err)
