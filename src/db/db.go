@@ -416,7 +416,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 			death,
 			assist,
 			blast,
-			rescue,
+			1,
 			survive,
 			escape,
 			red_graphics,

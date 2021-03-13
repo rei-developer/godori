@@ -7,6 +7,7 @@ import (
 
 	toClient "godori.com/packet/toClient"
 	teamType "godori.com/util/constant/teamType"
+	cMath "godori.com/util/math"
 )
 
 type Action struct{}
@@ -15,25 +16,25 @@ func (a *Action) Door(r *Room, self *User, target *Event) {
 	if team, ok := self.GameData["team"]; ok {
 		if open, ok := target.GameData["open"]; ok {
 			const (
-				openSound  = "door03"
-				closeSound = "door04"
-				knockSound = "door06"
+				OPEN_SOUND  = "door03"
+				CLOSE_SOUND = "door04"
+				KNOCK_SOUND = "door06"
 			)
 			if open.(bool) {
-				//if team == teamType.RED {
-				//	return
-				//}
-				self.PublishMap(toClient.PlaySound(closeSound))
+				if team == teamType.RED {
+					return
+				}
+				self.PublishMap(toClient.PlaySound(CLOSE_SOUND))
 				target.Move(-1, 0)
 				target.GameData["open"] = false
 			} else {
-				rand := 0 // cMath.Rand(10)
+				rand := cMath.Rand(10)
 				if team == teamType.BLUE || rand == 0 {
-					self.PublishMap(toClient.PlaySound(openSound))
+					self.PublishMap(toClient.PlaySound(OPEN_SOUND))
 					target.Move(1, 0)
 					target.GameData["open"] = true
 				} else {
-					self.PublishMap(toClient.PlaySound(knockSound))
+					self.PublishMap(toClient.PlaySound(KNOCK_SOUND))
 				}
 			}
 		} else {

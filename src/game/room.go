@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"time"
 
 	"godori.com/getty"
@@ -62,7 +61,6 @@ func (r *Room) AddEvent(e *Event) {
 	e.Room = r
 	r.Events[e.EventData.Id] = e
 	r.GetPlace(e.Place).AddEvent(e)
-	fmt.Println(r.Events)
 }
 
 func (r *Room) RemoveEvent(e *Event) {

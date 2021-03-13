@@ -1,10 +1,7 @@
 package game
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strconv"
 
 	"godori.com/getty"
@@ -33,7 +30,7 @@ type RescueMode struct {
 func NewRescueMode(r *Room, pType int) *RescueMode {
 	return &RescueMode{
 		Room:      r,
-		MapType:   mapType.TATAMI, //pType,
+		MapType:   pType,
 		ModeType:  modeType.RESCUE,
 		RedScore:  0,
 		BlueScore: 0,
@@ -44,37 +41,6 @@ func NewRescueMode(r *Room, pType int) *RescueMode {
 		Count:     201,
 		MaxCount:  230,
 		Caught:    false,
-	}
-}
-
-func (m *RescueMode) InitEvent() {
-	type ED struct {
-		Id    int `json: "id"`
-		Place int `json: "place"`
-		X     int `json: "x"`
-		Y     int `json: "y"`
-	}
-	type EPD struct {
-		Events []ED `json: "events"`
-	}
-	var events map[int]ED = make(map[int]ED)
-	jsonFile, _ := os.Open("./lib/events/rescue.json")
-	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	var eventPureData EPD
-	json.Unmarshal(byteValue, &eventPureData)
-	for i := 0; i < len(eventPureData.Events); i++ {
-		id := eventPureData.Events[i].Id
-		events[id] = ED{
-			Id:    id,
-			Place: eventPureData.Events[i].Place,
-			X:     eventPureData.Events[i].X,
-			Y:     eventPureData.Events[i].Y,
-		}
-	}
-	for _, e := range events {
-		fmt.Println(e)
-		m.Room.AddEvent(NewEvent(m.Room, e.Id, e.Place, e.X, e.Y))
 	}
 }
 

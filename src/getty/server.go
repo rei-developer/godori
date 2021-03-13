@@ -1,6 +1,7 @@
 package getty
 
 import (
+	"encoding/json"
 	"net/http"
 	"sync"
 
@@ -59,6 +60,25 @@ func (s *Server) onDisconnect(c *Client) {
 
 func (s *Server) onMessage(c *Client, d *Data) {
 	s.OnMessage(c, d)
+}
+
+func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
+	body := make([]byte, r.ContentLength)
+	r.Body.Read(body)
+	var data map[string]interface{}
+	err := json.Unmarshal(body, &data)
+	CheckError(err)
+	//token := data["token"]
+	//uuid := data["uuid"]
+	//version := int(data["version"].(float64))
+	var jData []byte
+	jData, err = json.Marshal(struct {
+		State int
+		Token string
+	}{123, "sdafdsf"})
+	CheckError(err)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jData)
 }
 
 func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {

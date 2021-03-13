@@ -15,10 +15,6 @@ func (m *NoneMode) ChangeMode() {
 	m.Room.Mode.ChangeMode(rand, true)
 }
 
-func (m *NoneMode) InitEvent() {
-
-}
-
 func (m *NoneMode) MoveToBase(u *User) {
 	u.Teleport(42, 9, 7)
 }

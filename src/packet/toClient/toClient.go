@@ -4,7 +4,7 @@ import "encoding/json"
 
 func UserData(index int, id int, name string, clanName string, rank int, sex int, level int, exp int, maxExp int, coin int, cash int, point int, win int, lose int, kill int, death int, assist int, blast int, rescue int, survive int, escape int, grphics string, redGraphics string, blueGraphics string, memo string, admin int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD           int
+		H            int
 		Index        int
 		Id           int
 		Name         string
@@ -36,48 +36,48 @@ func UserData(index int, id int, name string, clanName string, rank int, sex int
 
 func Vibrate() []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H int
 	}{VIBRATE}))
 }
 
 func ConnectionCount(count int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Count int
 	}{CONNECTION_COUNT, count}))
 }
 
 func SystemMessage(text string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Text string
 	}{SYSTEM_MESSAGE, text}))
 }
 
 func InformMessage(text string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Text string
 	}{INFORM_MESSAGE, text}))
 }
 
 func NoticeMessage(text string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Text string
 	}{NOTICE_MESSAGE, text}))
 }
 
 func ComboMessage(text string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Text string
 	}{COMBO_MESSAGE, text}))
 }
 
 func ChatMessage(model int, index int, name string, text string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Model int
 		Index int
 		Name  string
@@ -87,7 +87,7 @@ func ChatMessage(model int, index int, name string, text string) []byte {
 
 func Portal(place int, x int, y int, dirX int, dirY int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Place int
 		X     int
 		Y     int
@@ -98,7 +98,7 @@ func Portal(place int, x int, y int, dirX int, dirY int) []byte {
 
 func RemoveGameObject(model int, index int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Model int
 		Index int
 	}{REMOVE_GAME_OBJECT, model, index}))
@@ -106,7 +106,7 @@ func RemoveGameObject(model int, index int) []byte {
 
 func CreateGameObject(model int, index int, name string, clanName string, team int, level int, image string, x int, y int, dirX int, dirY int, collider bool) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD       int
+		H        int
 		Model    int
 		Index    int
 		Name     string
@@ -124,7 +124,7 @@ func CreateGameObject(model int, index int, name string, clanName string, team i
 
 func SetGraphics(model int, index int, image string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Model int
 		Index int
 		Image string
@@ -133,28 +133,28 @@ func SetGraphics(model int, index int, image string) []byte {
 
 func PlaySound(name string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Name string
 	}{PLAY_SOUND, name}))
 }
 
 func UpdateRoomUserCount(count int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Count int
 	}{UPDATE_ROOM_USER_COUNT, count}))
 }
 
 func UpdateModeCount(count int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Count int
 	}{UPDATE_MODE_COUNT, count}))
 }
 
 func UpdateGameItem(name string, num int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Name string
 		Num  int
 	}{UPDATE_GAME_ITEM, name, num}))
@@ -162,13 +162,13 @@ func UpdateGameItem(name string, num int) []byte {
 
 func RemoveGameItem() []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H int
 	}{REMOVE_GAME_ITEM}))
 }
 
 func SetGameTeam(index int, team int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Index int
 		Team  int
 	}{SET_GAME_TEAM, index, team}))
@@ -176,7 +176,7 @@ func SetGameTeam(index int, team int) []byte {
 
 func ModeData(mode int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Mode int
 	}{MODE_DATA, mode}))
 }
@@ -185,14 +185,14 @@ func ModeData(mode int) []byte {
 
 func MemberInfoClan(memberId int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD       int
+		H        int
 		MemberId int
 	}{MEMBER_INFO_CLAN, memberId}))
 }
 
 func UpdateClan(level int, coin int, cash int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Level int
 		Coin  int
 		Cash  int
@@ -201,20 +201,20 @@ func UpdateClan(level int, coin int, cash int) []byte {
 
 func MessageClan(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		State string
 	}{MESSAGE_CLAN, state}))
 }
 
 func DeadAnimation() []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H int
 	}{DEAD_ANIMATION}))
 }
 
 func ResultGame(winnder int, rank int, persons int, mission string, exp int, coin int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD      int
+		H       int
 		Winner  int
 		Rank    int
 		Persons int
@@ -226,26 +226,26 @@ func ResultGame(winnder int, rank int, persons int, mission string, exp int, coi
 
 func EnterWardrobe() []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H int
 	}{ENTER_WARDROBE}))
 }
 
 func LeaveWardrobe() []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H int
 	}{LEAVE_WARDROBE}))
 }
 
 func SwitchLight(flag bool) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Flag bool
 	}{SWITCH_LIGHT, flag}))
 }
 
 func QuitGame() []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H int
 	}{QUIT_GAME}))
 }
 
@@ -253,7 +253,7 @@ func QuitGame() []byte {
 
 func UpdateBilling(id int, use bool, refund bool) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD     int
+		H      int
 		Id     int
 		Use    bool
 		Refund bool
@@ -262,7 +262,7 @@ func UpdateBilling(id int, use bool, refund bool) []byte {
 
 func GetPayInfoItem(id int, cash int, memo string, purchaseDate string, use bool, refund bool) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD      int
+		H       int
 		Id      int
 		Cash    int
 		Memo    string
@@ -276,7 +276,7 @@ func GetPayInfoItem(id int, cash int, memo string, purchaseDate string, use bool
 
 func GetSkinItem(model int, id int, icon string, name string, creator string, desc string, cost int, pay bool, expiry string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD      int
+		H       int
 		Model   int
 		Id      int
 		Icon    string
@@ -291,14 +291,14 @@ func GetSkinItem(model int, id int, icon string, name string, creator string, de
 
 func MessageShop(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		State string
 	}{MESSAGE_SHOP, state}))
 }
 
 func MessageLobby(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		State string
 	}{MESSAGE_LOBBY, state}))
 }
@@ -307,7 +307,7 @@ func MessageLobby(state string) []byte {
 
 func UpdateCoinAndCash(coin int, cash int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD   int
+		H    int
 		Coin int
 		Cash int
 	}{UPDATE_COIN_AND_CASH, coin, cash}))
@@ -317,7 +317,7 @@ func UpdateCoinAndCash(coin int, cash int) []byte {
 
 func GetUserInfoRank(name string, clanName string, rank int, level int, exp int, maxExp int, kill int, death int, assist int, likes int, memo string, avatar string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD       int
+		H        int
 		Name     string
 		ClanName string
 		Rank     int
@@ -335,14 +335,14 @@ func GetUserInfoRank(name string, clanName string, rank int, level int, exp int,
 
 func MessageRank(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		State string
 	}{MESSAGE_RANK, state}))
 }
 
 func GetNoticeMessageCount(count int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Count int
 	}{GET_NOTICE_MESSAGE_COUNT, count}))
 }
@@ -351,7 +351,7 @@ func GetNoticeMessageCount(count int) []byte {
 
 func GetInfoNoticeMessage(id int, avatar string, author string, title string, content string, coin int, cash int, created string, deleted bool, rewarded int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD       int
+		H        int
 		Id       int
 		Avatar   string
 		Author   string
@@ -367,21 +367,21 @@ func GetInfoNoticeMessage(id int, avatar string, author string, title string, co
 
 func DeleteNoticeMessage(id int) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD int
+		H  int
 		Id int
 	}{DELETE_NOTICE_MESSAGE, id}))
 }
 
 func MessageGame(state string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		State string
 	}{MESSAGE_GAME, state}))
 }
 
 func SetAnimation(model int, index int, anim string, sound string) []byte {
 	return PakcetWrapper(json.Marshal(struct {
-		HD    int
+		H     int
 		Model int
 		Index int
 		Anim  string

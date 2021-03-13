@@ -27,7 +27,7 @@ func (s *Score) Send(u *User) {
 	u.UserData.Assist += s.Assist
 	u.UserData.Blast += s.Blast
 	u.UserData.Rescue += s.Rescue
-	// rescue combo
+	// 1 combo
 	u.UserData.Escape += s.Escape
 	u.UserData.Survive += s.Survive + s.SurviveForWardrobe
 	s.Clear()
