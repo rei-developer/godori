@@ -134,7 +134,9 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	//recommend := r.FormValue("recommend")
 	var state string
 	verify := GetJwtToken(token)
-	fmt.Println("2342423")
+	fmt.Println("2342423", verify)
+	fmt.Println(verify)
+	fmt.Println(string(verify))
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
 		fmt.Println("asdfas")
 		nameLen := utf8.RuneCountInString(name)
