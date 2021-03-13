@@ -2,7 +2,6 @@ package getty
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/joho/godotenv"
 	"io/ioutil"
 	"net/http"
@@ -130,28 +129,30 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	token := r.FormValue("token")
 	name := r.FormValue("name")
 	//recommend := r.FormValue("recommend")
+	var state string
 	verify := GetJwtToken(token)
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
-		if u.Verify.Int32 == 1 {
-			fmt.Fprint(w, "FAILED")
-			return
-		}
 		nameLen := utf8.RuneCountInString(name)
-		if nameLen < 1 || nameLen > 6 {
-			fmt.Fprint(w, "FAILED")
-			return
+		if u.Verify.Int32 == 1 {
+			state = "FAILED"
+		} else if nameLen < 1 || nameLen > 6 {
+			state = "FAILED"
+		} else if match, _ := regexp.MatchString("[^가-힣]", name); match {
+			state = "FAILED"
+		} else if cFilter.Check(name) {
+			state = "UNAVAILABLE_NAME"
+		} else {
+			go db.UpdateUserVerify(name, verify, 1)
+			state = "LOGIN_SUCCESS"
 		}
-		if match, _ := regexp.MatchString("[^가-힣]", name); match {
-			fmt.Fprint(w, "FAILED")
-			return
-		}
-		if cFilter.Check(name) {
-			fmt.Fprint(w, "UNAVAILABLE_NAME")
-			return
-		}
-		go db.UpdateUserVerify(name, verify, 1)
-		fmt.Fprint(w, "LOGIN_SUCCESS")
 	}
+	jsonData, err := json.Marshal(struct {
+		State string
+		Token string
+	}{state, verify})
+	CheckError(err)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
 }
 
 func (s *Server) GetEnvValue(key string) string {
@@ -187,8 +188,7 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 		go db.InsertUser(uid, loginType)
 		state = "REGISTER_SUCCESS"
 	}
-	var jsonData []byte
-	jsonData, err = json.Marshal(struct {
+	jsonData, err := json.Marshal(struct {
 		State string
 		Token string
 	}{state, verify})
