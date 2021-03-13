@@ -154,6 +154,12 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	r.Body.Read(body)
 	var data map[string]interface{}
 
+	fmt.Println(r.FormValue("token"))
+	fmt.Println(r.FormValue("uuid"))
+	fmt.Println(r.FormValue("version"))
+
+	fmt.Println(body)
+	fmt.Println(body)
 	fmt.Println(body)
 	fmt.Println(string(body))
 
