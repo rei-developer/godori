@@ -270,6 +270,6 @@ func OnMessage(c *getty.Client, d *getty.Data) {
 
 func CheckError(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -148,28 +149,20 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	verify := ParseJwtToken(token)
 	fmt.Println(string(verify))
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
-		fmt.Println("asdfas")
 		nameLen := utf8.RuneCountInString(name)
-		fmt.Println(name, "dddd")
 		if u.Verify.Int32 == 1 {
-			fmt.Println("A")
 			state = "FAILED"
 		} else if nameLen < 1 || nameLen > 6 {
-			fmt.Println("B")
 			state = "FAILED"
 		} else if match, _ := regexp.MatchString("[^가-힣]", name); match {
-			fmt.Println("C", match)
 			state = "FAILED"
 		} else if cFilter.Check(name) {
-			fmt.Println("D")
 			state = "UNAVAILABLE_NAME"
 		} else {
-			fmt.Println("E")
 			go db.UpdateUserVerify(name, verify, 1)
 			state = "LOGIN_SUCCESS"
 		}
 	}
-	fmt.Println("29999999999999")
 	fmt.Fprint(w, state)
 }
 
@@ -250,6 +243,6 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 
 func CheckError(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

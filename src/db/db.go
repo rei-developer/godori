@@ -498,7 +498,7 @@ func CheckError(err error) bool {
 		if err == sql.ErrNoRows {
 			return false
 		} else {
-			panic(err)
+			log.Println(err)
 		}
 	}
 	return true

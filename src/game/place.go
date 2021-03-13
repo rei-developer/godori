@@ -102,6 +102,6 @@ func (p *Place) Update() {
 
 func CheckError(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
