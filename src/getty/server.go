@@ -152,7 +152,7 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 			state = "LOGIN_SUCCESS"
 		}
 	}
-	w.Write([]byte(state))
+	fmt.Fprint(w, state)
 }
 
 func (s *Server) GetEnvValue(key string) string {
