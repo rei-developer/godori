@@ -2,6 +2,7 @@ package getty
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/joho/godotenv"
 	"io/ioutil"
 	"net/http"
@@ -134,14 +135,19 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
 		nameLen := utf8.RuneCountInString(name)
 		if u.Verify.Int32 == 1 {
+			fmt.Println("A")
 			state = "FAILED"
 		} else if nameLen < 1 || nameLen > 6 {
+			fmt.Println("B")
 			state = "FAILED"
 		} else if match, _ := regexp.MatchString("[^가-힣]", name); match {
+			fmt.Println("C", match)
 			state = "FAILED"
 		} else if cFilter.Check(name) {
+			fmt.Println("D")
 			state = "UNAVAILABLE_NAME"
 		} else {
+			fmt.Println("E")
 			go db.UpdateUserVerify(name, verify, 1)
 			state = "LOGIN_SUCCESS"
 		}
