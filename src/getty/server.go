@@ -114,8 +114,13 @@ func GetJwtToken(token string) string {
 	return verifyString
 }
 
-func VerifyByGoogle(token string) {
-
+func VerifyByGoogle(token string) string {
+	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token)
+	CheckError(err)
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+	CheckError(err)
+	return string(data)
 }
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
@@ -151,10 +156,14 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	token := r.FormValue("token")
 	//uuid := r.FormValue("uuid")
 	//version := r.FormValue("version")
-	fmt.Println("A", r.FormValue("token"))
-	fmt.Println("A", r.FormValue("code"))
+	fmt.Println(token)
+
+	data := VerifyByGoogle(token)
+	fmt.Println(data)
+
 	tokenData, err := OAuthConf.Exchange(oauth2.NoContext, r.FormValue("token"))
 	fmt.Println("B", tokenData)
 	CheckError(err)
