@@ -118,22 +118,16 @@ func GetJwtToken(token string) string {
 
 func ParseJwtToken(receivedToken string) string {
 	token, err := jwt.Parse(receivedToken, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return JwtKey, nil
 	})
+	CheckError(err)
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims)
-		fmt.Println("ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ")
-		//fmt.Println(claims["foo"], claims["nbf"])
-		return "2"
-	} else {
-		fmt.Println(err)
-		return ""
+		return claims["Token"].(string)
 	}
+	return ""
 }
 
 func VerifyByGoogle(token string) []byte {
@@ -147,15 +141,11 @@ func VerifyByGoogle(token string) []byte {
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Println("234234423")
 	token := r.FormValue("token")
 	name := r.FormValue("name")
-	fmt.Println("zzzzzzzzzzz")
 	//recommend := r.FormValue("recommend")
 	var state string
 	verify := ParseJwtToken(token)
-	fmt.Println("2342423", verify)
-	fmt.Println(verify)
 	fmt.Println(string(verify))
 	if u, ok := db.GetUserByOAuth(verify, 1); ok {
 		fmt.Println("asdfas")
