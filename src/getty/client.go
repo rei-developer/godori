@@ -3,14 +3,14 @@ package getty
 import (
 	"bytes"
 	"encoding/binary"
+	"github.com/joho/godotenv"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
-
-const HEADER_SIZE = 2
 
 type Client struct {
 	Conn     *websocket.Conn
@@ -18,6 +18,19 @@ type Client struct {
 	Token    string
 	SendChan chan []byte
 	Run      bool
+}
+
+const HEADER_SIZE = 2
+
+var isDev = false
+
+func init() {
+	err := godotenv.Load()
+	CheckError(err)
+	mode := os.Getenv("MODE")
+	if mode == "dev" {
+		isDev = true
+	}
 }
 
 func NewClient(c *websocket.Conn, s *Server, t string) *Client {
@@ -112,7 +125,9 @@ func (c *Client) Response() {
 		if head == 0 {
 			err = c.Conn.WriteMessage(websocket.BinaryMessage, data)
 		} else {
-			log.Println(string(data))
+			if isDev {
+				log.Println(string(data))
+			}
 			err = c.Conn.WriteMessage(websocket.TextMessage, data)
 		}
 		CheckError(err)
