@@ -155,6 +155,7 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	var data map[string]interface{}
 
 	fmt.Println(body)
+	fmt.Println(string(body))
 
 	err := json.Unmarshal(body, &data)
 	CheckError(err)
