@@ -67,6 +67,7 @@ func NewServer(h string) *Server {
 
 func (s *Server) onConnect(c *Client) {
 	key := c.RemoteAddr().String()
+	fmt.Println(key, " 접속 시도")
 	if client, ok := s.Clients[key]; ok {
 		client.Close()
 	}
