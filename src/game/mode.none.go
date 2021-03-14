@@ -55,7 +55,7 @@ func (m *NoneMode) Result(winner int) {
 }
 
 func (m *NoneMode) Update() {
-	if len(m.Room.Users) >= 1 {
+	if len(m.Room.Users) >= 4 {
 		m.ChangeMode()
 	} else {
 		if m.Count%100 == 0 {
