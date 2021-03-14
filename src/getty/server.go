@@ -16,6 +16,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/websocket"
 	"godori.com/db"
+	lType "godori.com/util/constant/loginType"
 	cFilter "godori.com/util/filter"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -132,9 +133,6 @@ func ParseJwtToken(receivedToken string) string {
 }
 
 func VerifyByGoogle(token string) []byte {
-
-	fmt.Println(token, " 이 왜 안나오지?")
-
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token)
 	CheckError(err)
 	defer resp.Body.Close()
@@ -151,7 +149,7 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	var state string
 	verify := ParseJwtToken(token)
 	fmt.Println(string(verify))
-	if u, ok := db.GetUserByOAuth(verify, 1); ok {
+	if u, ok := db.GetUserByOAuth(verify, lType.GOOGLE); ok {
 		nameLen := utf8.RuneCountInString(name)
 		if u.Verify.Int32 == 1 {
 			state = "FAILED"
@@ -181,28 +179,23 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	//uuid := r.FormValue("uuid")
 	//version := r.FormValue("version")
 	body := VerifyByGoogle(token)
-
-	fmt.Println(body, " d빈디ㅏ")
-
 	var data map[string]interface{}
 	err := json.Unmarshal(body, &data)
 	CheckError(err)
-	var googleClientId = s.GetEnvValue("GOOGLE_CLIENT_ID")
-	if googleClientId != data["aud"].(string) {
+	if clientId := s.GetEnvValue("GOOGLE_CLIENT_ID"); clientId != data["aud"].(string) {
 		return
 	}
 	uid := data["sub"].(string)
-	loginType := 1
 	var state string
 	verify := GetJwtToken(uid)
-	if u, ok := db.GetUserByOAuth(uid, loginType); ok {
+	if u, ok := db.GetUserByOAuth(uid, lType.GOOGLE); ok {
 		if u.Verify.Int32 == 1 {
 			state = "LOGIN_SUCCESS"
 		} else {
 			state = "REGISTER_SUCCESS"
 		}
 	} else {
-		go db.InsertUser(uid, loginType)
+		go db.InsertUser(uid, lType.GOOGLE)
 		state = "REGISTER_SUCCESS"
 	}
 	jsonData, err := json.Marshal(struct {

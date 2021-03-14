@@ -6,6 +6,7 @@ require (
 	godori.com/db v0.0.0
 	godori.com/getty v0.0.0
 	godori.com/packet/toClient v0.0.0
+	godori.com/util/constant/loginType v0.0.0
 	godori.com/util/constant/mapType v0.0.0
 	godori.com/util/constant/modeType v0.0.0
 	godori.com/util/constant/modelType v0.0.0
@@ -20,6 +21,7 @@ replace (
 	godori.com/db v0.0.0 => ./../db
 	godori.com/getty v0.0.0 => ./../getty
 	godori.com/packet/toClient v0.0.0 => ./../packet/toClient
+	godori.com/util/constant/loginType v0.0.0 => ./../../util/constant/loginType
 	godori.com/util/constant/mapType v0.0.0 => ./../../util/constant/mapType
 	godori.com/util/constant/modelType v0.0.0 => ./../../util/constant/modelType
 	godori.com/util/constant/modeType v0.0.0 => ./../../util/constant/modeType
