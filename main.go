@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -127,7 +128,24 @@ func OnConnect(c *getty.Client) {
 	if token == "debug" {
 		uid, loginType = "110409668035092753325", 0
 	} else {
-		verify := strings.Split(c.Server.ParseJwtToken(token), " ")
+		server := &getty.Server{
+			Host:         "",
+			Clients:      nil,
+			PacketChan:   nil,
+			ConnChan:     nil,
+			DisConnChan:  nil,
+			OnConnect:    nil,
+			OnMessage:    nil,
+			OnDisconnect: nil,
+			BeforeAccept: nil,
+		}
+		t := server.ParseJwtToken(token)
+		fmt.Println(t)
+
+		verify := strings.Split(t, " ")
+
+		fmt.Println(verify)
+
 		if len(verify) >= 2 {
 			var err error
 			loginType, err = strconv.Atoi(verify[0])
