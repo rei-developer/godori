@@ -184,18 +184,8 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	token := r.FormValue("token")
 	//uuid := r.FormValue("uuid")
-	regex := regexp.MustCompile("[^가-힣]")
-
-	fmt.Println(r.FormValue("version"))
-	fmt.Println(regex.ReplaceAllString(r.FormValue("version"), ""))
-
-	aa := regex.ReplaceAllString(r.FormValue("version"), "")
-	fmt.Println(aa)
-
-	version, err := strconv.Atoi(aa)
-
-	fmt.Println(version)
-
+	regex := regexp.MustCompile("[^0-9]")
+	version, err := strconv.Atoi(regex.ReplaceAllString(r.FormValue("version"), ""))
 	CheckError(err)
 	var state, verify string
 	if version < VERSION {
