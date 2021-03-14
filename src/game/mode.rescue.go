@@ -319,7 +319,7 @@ func (m *RescueMode) Update() {
 		} else if m.Count == 200 {
 			//m.Room.Lock = true
 			m.State = STATE_GAME
-			for _, u := range m.Room.Mode.Sample(m.BlueUsers, (len(m.BlueUsers)/5)+1) {
+			for _, u := range m.Room.Mode.Sample(m.BlueUsers, (len(m.BlueUsers)/4)+1) {
 				m.RemoveUser(u)
 				u.GameData["team"] = teamType.RED
 				m.AddUser(u)
@@ -369,13 +369,13 @@ func (m *RescueMode) Update() {
 		}
 		if len(m.RedUsers) == 0 {
 			fmt.Println("A")
-			m.Result(teamType.BLUE)
+			//m.Result(teamType.BLUE)
 		} else if len(m.BlueUsers) == 0 {
 			fmt.Println("B")
-			m.Result(teamType.RED)
+			//m.Result(teamType.RED)
 		} else if m.RedScore == len(m.BlueUsers) {
 			fmt.Println("C")
-			m.Result(teamType.RED)
+			//m.Result(teamType.RED)
 		} else if m.Count == 5 {
 			fmt.Println("D")
 			m.Room.Publish(toClient.PlaySound("Second"))
