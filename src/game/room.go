@@ -20,6 +20,7 @@ type Room struct {
 	Users          map[*getty.Client]*User
 	Run            bool
 	Lock           bool
+	Mutex          sync.Mutex
 }
 
 var nextRoomIndex int = 0
@@ -88,6 +89,8 @@ func (r *Room) RemoveUser(u *User) {
 }
 
 func (r *Room) GetPlace(place int) *Place {
+	r.Mutex.Lock()
+	defer r.Mutex.Unlock()
 	p, ok := r.Places[place]
 	if !ok {
 		r.Places[place] = NewPlace(place, r)
@@ -210,9 +213,9 @@ var lock = sync.RWMutex{}
 func (r *Room) Update() {
 	for r.Run {
 		lock.Lock()
-		//for _, p := range r.Places {
-		//	p.Update()
-		//}
+		for _, p := range r.Places {
+			p.Update()
+		}
 		r.Mode.Update()
 		time.Sleep(100 * time.Millisecond)
 		lock.Unlock()
