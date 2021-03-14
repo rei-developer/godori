@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"time"
 
 	"godori.com/getty"
@@ -46,6 +47,7 @@ func AvailableRoom(rType int) *Room {
 			return r
 		}
 	}
+	fmt.Println("새로운 방 만들기 시도 ")
 	return NewRoom(rType)
 }
 
