@@ -509,26 +509,26 @@ func UpdateUser(
 	memo string,
 ) {
 	_, err := database.Exec(`
-		UPDATE users
-		SET uuid = ?,
-		    sex = ?,
-		    level = ?,
-		    exp = ?,
-		    coin = ?,
-		    cash = ?,
-		    point = ?,
-		    "kill" = ?,
-		    death = ?,
-		    assist = ?,
-		    blast = ?,
-		    rescue = ?,
-		    rescueCombo = ?,
-		    survive = ?,
-		    escape = ?,
-		    redGraphics = ?,
-		    blueGraphics = ?,
-		    memo = ?
-		WHERE uid = ? AND login_type = ?
+		UPDATE users u
+		SET u.uuid = ?,
+		    u.sex = ?,
+		    u.level = ?,
+		    u.exp = ?,
+		    u.coin = ?,
+		    u.cash = ?,
+		    u.point = ?,
+		    u.kill = ?,
+		    u.death = ?,
+		    u.assist = ?,
+		    u.blast = ?,
+		    u.rescue = ?,
+		    u.rescueCombo = ?,
+		    u.survive = ?,
+		    u.escape = ?,
+		    u.redGraphics = ?,
+		    u.blueGraphics = ?,
+		    u.memo = ?
+		WHERE u.uid = ? AND u.login_type = ?
 	`, uuid, sex, level, exp, coin, cash, point, kill, death, assist, blast, rescue, rescueCombo, survive, escape, redGraphics, blueGraphics, memo)
 	CheckError(err)
 }
