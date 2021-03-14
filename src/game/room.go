@@ -47,7 +47,10 @@ func AvailableRoom(rType int) *Room {
 			return r
 		}
 	}
-	fmt.Println("새로운 방 만들기 시도 ")
+	fmt.Println("새로운 방 만들기 시도 ", len(Rooms))
+	for _, k := range Rooms {
+		fmt.Println(k.Index, " 번 방 있음")
+	}
 	return NewRoom(rType)
 }
 
