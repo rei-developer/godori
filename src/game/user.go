@@ -42,6 +42,7 @@ type UserData struct {
 	Assist       int
 	Blast        int
 	Rescue       int
+	RescueCombo  int
 	Survive      int
 	Escape       int
 	Graphics     string
@@ -101,6 +102,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 				int(result.Assist.Int32),
 				int(result.Blast.Int32),
 				int(result.Rescue.Int32),
+				int(result.RescueCombo.Int32),
 				int(result.Survive.Int32),
 				int(result.Escape.Int32),
 				"",
@@ -570,10 +572,35 @@ func (u *User) Result(ad int) {
 	u.GameData = nil
 }
 
+func (u *User) UpdateUser() {
+	fmt.Println(u.UserData.Name, " DB 업데이트")
+	go db.UpdateUser(
+		u.UserData.Id,
+		u.UserData.Uuid,
+		u.UserData.Sex,
+		u.UserData.Level,
+		u.UserData.Exp,
+		u.UserData.Coin,
+		u.UserData.Cash,
+		u.UserData.Point,
+		u.UserData.Kill,
+		u.UserData.Death,
+		u.UserData.Assist,
+		u.UserData.Blast,
+		u.UserData.Rescue,
+		u.UserData.RescueCombo,
+		u.UserData.Survive,
+		u.UserData.Escape,
+		u.UserData.RedGraphics,
+		u.UserData.BlueGraphics,
+		u.UserData.Memo,
+	)
+}
+
 func (u *User) Disconnect() {
+	u.UpdateUser()
 	u.Leave()
 	u.Remove()
-	// TODO : db 저장
 }
 
 func (u *User) Send(d []byte) {

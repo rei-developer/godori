@@ -101,6 +101,9 @@ func main() {
 		log.Println("The Godori server has been shut down.")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer func() {
+			for _, u := range game.Users {
+				u.UpdateUser()
+			}
 			cancel()
 		}()
 		if err := handle.Shutdown(ctx); err != nil {

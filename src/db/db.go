@@ -111,6 +111,7 @@ type User struct {
 	Assist       sql.NullInt32
 	Blast        sql.NullInt32
 	Rescue       sql.NullInt32
+	RescueCombo  sql.NullInt32
 	Survive      sql.NullInt32
 	Escape       sql.NullInt32
 	RedGraphics  sql.NullString
@@ -418,7 +419,8 @@ func GetUser(args map[string]interface{}) (User, bool) {
 			death,
 			assist,
 			blast,
-			1,
+			rescue,
+			rescue_combo,
 			survive,
 			escape,
 			red_graphics,
@@ -446,6 +448,7 @@ func GetUser(args map[string]interface{}) (User, bool) {
 		&item.Assist,
 		&item.Blast,
 		&item.Rescue,
+		&item.RescueCombo,
 		&item.Survive,
 		&item.Escape,
 		&item.RedGraphics,
@@ -482,6 +485,52 @@ func GetUserCount() (count int) {
 	err := database.QueryRow("SELECT COUNT(*) count FROM users").Scan(&count)
 	CheckError(err)
 	return count
+}
+
+func UpdateUser(
+	id int,
+	uuid string,
+	sex int,
+	level int,
+	exp int,
+	coin int,
+	cash int,
+	point int,
+	kill int,
+	death int,
+	assist int,
+	blast int,
+	rescue int,
+	rescueCombo int,
+	survive int,
+	escape int,
+	redGraphics string,
+	blueGraphics string,
+	memo string,
+) {
+	_, err := database.Exec(`
+		UPDATE users
+		SET uuid = ?,
+		    sex = ?,
+		    level = ?,
+		    exp = ?,
+		    coin = ?,
+		    cash = ?,
+		    point = ?,
+		    kill = ?,
+		    death = ?,
+		    assist = ?,
+		    blast = ?,
+		    rescue = ?,
+		    rescueCombo = ?,
+		    survive = ?,
+		    escape = ?,
+		    redGraphics = ?,
+		    blueGraphics = ?,
+		    memo = ?
+		WHERE uid = ? AND login_type = ?
+	`, uuid, sex, level, exp, coin, cash, point, kill, death, assist, blast, rescue, rescueCombo, survive, escape, redGraphics, blueGraphics, memo)
+	CheckError(err)
 }
 
 func UpdateUserVerify(name string, uid string, lType int) {
