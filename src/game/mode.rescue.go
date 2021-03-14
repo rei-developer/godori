@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"strconv"
 
 	"godori.com/getty"
@@ -192,7 +191,6 @@ func (m *RescueMode) Leave(u *User) {
 	m.RemoveUser(u)
 	if caught, ok := u.GameData["caught"]; ok && caught.(bool) {
 		m.RedScore--
-		fmt.Println("레드 스코어 삭감") // 테스트 로그
 	}
 	u.GameData = nil
 	u.SetGraphics(u.BlueImage)
@@ -264,16 +262,44 @@ func (m *RescueMode) UseItem(u *User) {
 }
 
 func (m *RescueMode) Result(winner int) {
-	fmt.Println("끝", winner)
 	m.State = STATE_RESULT
 	for _, u := range m.Room.Users {
 		u.Room = nil
 		u.GameData["result"] = true
 	}
+	for _, u := range m.RedUsers {
+		u.Score.Sum += u.Score.Kill*10 + u.Score.KillForWardrobe*50
+	}
+	for _, u := range m.BlueUsers {
+		u.Score.Sum += u.Score.Rescue*10 + u.Score.RescueCombo - u.Score.Death*10 - u.Score.DeathForWardrobe*20
+	}
+	// TODO : rank order
+	persons := len(m.Room.Users)
+	for _, u := range m.RedUsers {
+		mission := "킬 " + strconv.Itoa(u.Score.Kill) + "\n장농 킬 " + strconv.Itoa(u.Score.KillForWardrobe)
+		exp := 100 + u.Score.Sum
+		coin := 50 + (u.Score.Sum / 2)
+		if exp < 100 {
+			exp = 100
+		}
+		if coin < 50 {
+			coin = 50
+		}
+		u.Send(toClient.ResultGame(winner, 1, persons, mission, exp, coin))
+	}
+	for _, u := range m.BlueUsers {
+		mission := "구출 " + strconv.Itoa(u.Score.Rescue) + " (" + strconv.Itoa(u.Score.RescueCombo) + "콤보)\n수감 " + strconv.Itoa(u.Score.Death+u.Score.DeathForWardrobe)
+		exp := 100 + u.Score.Sum
+		coin := 50 + (u.Score.Sum / 2)
+		if exp < 100 {
+			exp = 100
+		}
+		if coin < 50 {
+			coin = 50
+		}
+		u.Send(toClient.ResultGame(winner, 1, persons, mission, exp, coin))
+	}
 	m.Room.Remove()
-	//for _, u := range m.RedUsers {
-	//
-	//} TODO : 점수 가산
 }
 
 func (m *RescueMode) Update() {
@@ -340,19 +366,19 @@ func (m *RescueMode) Update() {
 			m.Room.Publish(toClient.InformMessage("<color=#B5E61D>인질 구출이 가능합니다!</color>"))
 			m.Room.Publish(toClient.PlaySound("thump"))
 		}
-		//if len(m.RedUsers) == 0 {
-		//	m.Result(teamType.BLUE)
-		//} else if len(m.BlueUsers) == 0 || m.RedScore == len(m.BlueUsers) {
-		//	m.Result(teamType.RED)
-		//} else if m.Count == 5 {
-		//	m.Room.Publish(toClient.PlaySound("Second"))
-		//} else if m.Count == 0 {
-		//	if m.RedScore > 0 {
-		//		m.Result(teamType.RED)
-		//	} else {
-		//		m.Result(teamType.BLUE)
-		//	}
-		//}
+		if len(m.RedUsers) == 0 {
+			m.Result(teamType.BLUE)
+		} else if len(m.BlueUsers) == 0 || m.RedScore == len(m.BlueUsers) {
+			m.Result(teamType.RED)
+		} else if m.Count == 5 {
+			m.Room.Publish(toClient.PlaySound("Second"))
+		} else if m.Count == 0 {
+			if m.RedScore > 0 {
+				m.Result(teamType.RED)
+			} else {
+				m.Result(teamType.BLUE)
+			}
+		}
 	}
 	m.Count--
 }

@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -19,8 +20,6 @@ import (
 	"godori.com/db"
 	lType "godori.com/util/constant/loginType"
 	cFilter "godori.com/util/filter"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 type Claims struct {
@@ -38,16 +37,10 @@ type Server struct {
 	OnMessage    func(*Client, *Data)
 	OnDisconnect func(*Client)
 	BeforeAccept func() bool
+	Lock         sync.RWMutex
 }
 
 const VERSION = 4
-
-const (
-	CallBackURL         = "http://localhost:50001/verify/google" //auth/callback"
-	UserInfoAPIEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
-	ScopeEmail          = "https://www.googleapis.com/auth/userinfo.email"
-	ScopeProfile        = "https://www.googleapis.com/auth/userinfo.profile"
-)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -58,17 +51,6 @@ var upgrader = websocket.Upgrader{
 }
 var expirationTime = 5 * time.Minute
 var JwtKey = []byte("apple")
-var OAuthConf *oauth2.Config
-
-func init() {
-	OAuthConf = &oauth2.Config{
-		ClientID:     "112494846092-ar8ml4nm16mr7bhd3cekb87846fr5k0e.apps.googleusercontent.com",
-		ClientSecret: "PYpSubbdJdIbzSUy4mqxcpVf",
-		RedirectURL:  CallBackURL,
-		Scopes:       []string{ScopeEmail, ScopeProfile},
-		Endpoint:     google.Endpoint,
-	}
-}
 
 func NewServer(h string) *Server {
 	server := &Server{Host: h}
@@ -236,7 +218,9 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	}
 	token := r.URL.Query().Get("token")
 	go func() {
+		s.Lock.Lock()
 		fork.ConnChan <- NewClient(conn, fork, token)
+		s.Lock.Unlock()
 	}()
 	for {
 		select {
