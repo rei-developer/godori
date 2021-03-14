@@ -187,6 +187,10 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	regex := regexp.MustCompile("[^0-9]")
 	version, err := strconv.Atoi(regex.ReplaceAllString(r.FormValue("version"), ""))
 	CheckError(err)
+
+	fmt.Println(version)
+	fmt.Println(VERSION)
+
 	var state, verify string
 	if version < VERSION {
 		state = "NOT_UPDATED"
