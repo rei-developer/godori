@@ -131,7 +131,7 @@ func OnConnect(c *getty.Client) {
 	var uid string
 	var loginType int
 	if token == "debug" {
-		uid, loginType = "110409668035092753325", 0
+		uid, loginType = "108105217447453446047", 0
 	} else {
 		t := c.Server.ParseJwtToken(token)
 		verify := strings.Split(t, " ")
