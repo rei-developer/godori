@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"runtime"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -126,7 +127,13 @@ func OnConnect(c *getty.Client) {
 	if token == "debug" {
 		uid, loginType = "110409668035092753325", 0
 	} else {
-		uid, loginType = "110409668035092753325", 0
+		verify := strings.Split(c.Server.ParseJwtToken(token), " ")
+		if len(verify) >= 2 {
+			var err error
+			loginType, err = strconv.Atoi(verify[0])
+			CheckError(err)
+			uid = verify[1]
+		}
 	}
 	if u, ok := game.NewUser(c, uid, loginType); ok {
 		connections++

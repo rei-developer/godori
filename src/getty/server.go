@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -118,7 +120,7 @@ func GetJwtToken(token string) string {
 	return verifyString
 }
 
-func ParseJwtToken(receivedToken string) string {
+func (s *Server) ParseJwtToken(receivedToken string) string {
 	token, err := jwt.Parse(receivedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -147,21 +149,27 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	//recommend := r.FormValue("recommend")
 	var state string
-	verify := ParseJwtToken(token)
-	fmt.Println(string(verify))
-	if u, ok := db.GetUserByOAuth(verify, lType.GOOGLE); ok {
-		nameLen := utf8.RuneCountInString(name)
-		if u.Verify.Int32 == 1 {
-			state = "FAILED"
-		} else if nameLen < 1 || nameLen > 6 {
-			state = "FAILED"
-		} else if match, _ := regexp.MatchString("[^가-힣]", name); match {
-			state = "FAILED"
-		} else if cFilter.Check(name) {
-			state = "UNAVAILABLE_NAME"
-		} else {
-			go db.UpdateUserVerify(name, verify, 1)
-			state = "LOGIN_SUCCESS"
+	verify := strings.Split(s.ParseJwtToken(token), " ")
+	if len(verify) < 2 {
+		state = "FAILED"
+	} else {
+		loginType, err := strconv.Atoi(verify[0])
+		CheckError(err)
+		uid := verify[1]
+		if u, ok := db.GetUserByOAuth(uid, loginType); ok {
+			nameLen := utf8.RuneCountInString(name)
+			if u.Verify.Int32 == 1 {
+				state = "FAILED"
+			} else if nameLen < 1 || nameLen > 6 {
+				state = "FAILED"
+			} else if match, _ := regexp.MatchString("[^가-힣]", name); match {
+				state = "FAILED"
+			} else if cFilter.Check(name) {
+				state = "UNAVAILABLE_NAME"
+			} else {
+				go db.UpdateUserVerify(name, uid, loginType)
+				state = "LOGIN_SUCCESS"
+			}
 		}
 	}
 	fmt.Fprint(w, state)
@@ -187,7 +195,7 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	}
 	uid := data["sub"].(string)
 	var state string
-	verify := GetJwtToken(uid)
+	verify := GetJwtToken(strconv.Itoa(lType.GOOGLE) + " " + uid)
 	if u, ok := db.GetUserByOAuth(uid, lType.GOOGLE); ok {
 		if u.Verify.Int32 == 1 {
 			state = "LOGIN_SUCCESS"
