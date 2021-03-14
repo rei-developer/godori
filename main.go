@@ -128,19 +128,11 @@ func OnConnect(c *getty.Client) {
 	if token == "debug" {
 		uid, loginType = "110409668035092753325", 0
 	} else {
-		server := &getty.Server{
-			Host:         "",
-			Clients:      nil,
-			PacketChan:   nil,
-			ConnChan:     nil,
-			DisConnChan:  nil,
-			OnConnect:    nil,
-			OnMessage:    nil,
-			OnDisconnect: nil,
-			BeforeAccept: nil,
-		}
-		t := server.ParseJwtToken(token)
-		fmt.Println(t)
+
+		fmt.Println(token, " 입니다용")
+
+		t := c.Server.ParseJwtToken(token)
+		fmt.Println(t, " 이랑께")
 
 		verify := strings.Split(t, " ")
 
