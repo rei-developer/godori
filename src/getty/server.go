@@ -77,7 +77,11 @@ func (s *Server) onConnect(c *Client) {
 
 func (s *Server) onDisconnect(c *Client) {
 	key := c.RemoteAddr().String()
-	c.Run = false
+	fmt.Println("true 하기 전임")
+	go func() {
+		c.Run <- true
+	}()
+	fmt.Println("true 했지요")
 	s.OnDisconnect(c)
 	delete(s.Clients, key)
 	c.Close()
@@ -219,9 +223,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	}
 	token := r.URL.Query().Get("token")
 	go func() {
-		s.Lock.Lock()
 		fork.ConnChan <- NewClient(conn, fork, token)
-		s.Lock.Unlock()
 	}()
 	for {
 		select {

@@ -18,9 +18,9 @@ type Room struct {
 	Places         map[int]*Place
 	Events         map[int]*Event
 	Users          map[*getty.Client]*User
-	Run            bool
+	Run            chan bool
 	Lock           bool
-	Mutex          sync.Mutex
+	Mutex          sync.RWMutex
 }
 
 var nextRoomIndex int = 0
@@ -35,7 +35,7 @@ func NewRoom(rType int) *Room {
 		Places:   make(map[int]*Place),
 		Events:   make(map[int]*Event),
 		Users:    make(map[*getty.Client]*User),
-		Run:      true,
+		Run:      make(chan bool),
 	}
 	Rooms[nextRoomIndex] = room
 	room.Mode = NewMode(room)
@@ -57,7 +57,7 @@ func AvailableRoom(rType int) *Room {
 }
 
 func (r *Room) Remove() {
-	r.Run = false
+	r.Run <- true
 	r.Places = make(map[int]*Place)
 	r.Events = make(map[int]*Event)
 	r.Users = make(map[*getty.Client]*User)
@@ -78,22 +78,26 @@ func (r *Room) RemoveEvent(e *Event) {
 
 func (r *Room) AddUser(u *User) {
 	u.Room = r
+	r.Mutex.Lock()
 	r.Users[u.Client] = u
+	r.Mutex.Unlock()
 	r.GetPlace(u.Place).AddUser(u)
 }
 
 func (r *Room) RemoveUser(u *User) {
+	r.Mutex.Lock()
 	delete(r.Users, u.Client)
+	r.Mutex.Unlock()
 	r.GetPlace(u.Place).RemoveUser(u)
 	u.Room = nil
 }
 
 func (r *Room) GetPlace(place int) *Place {
-	r.Mutex.Lock()
-	defer r.Mutex.Unlock()
 	p, ok := r.Places[place]
 	if !ok {
+		r.Mutex.Lock()
 		r.Places[place] = NewPlace(place, r)
+		r.Mutex.Unlock()
 		p = r.Places[place]
 	}
 	return p
@@ -101,31 +105,37 @@ func (r *Room) GetPlace(place int) *Place {
 
 func (r *Room) Publish(d []byte) {
 	for _, u := range r.Users {
+		//r.Mutex.RLock()
 		u.Send(d)
+		//r.Mutex.RUnlock()
 	}
 }
 
 func (r *Room) PublishMap(place int, d []byte) {
 	for _, u := range r.GetPlace(place).Users {
+		r.Mutex.RLock()
 		u.Send(d)
+		r.Mutex.RUnlock()
 	}
 }
 
 func (r *Room) Broadcast(self *User, d []byte) {
 	for _, u := range r.Users {
-		if u == self {
-			continue
+		r.Mutex.RLock()
+		if u != self {
+			u.Send(d)
 		}
-		u.Send(d)
+		r.Mutex.RUnlock()
 	}
 }
 
 func (r *Room) BroadcastMap(self *User, d []byte) {
 	for _, u := range r.GetPlace(self.Place).Users {
-		if u == self {
-			continue
+		//r.Mutex.RLock()
+		if u != self {
+			u.Send(d)
 		}
-		u.Send(d)
+		//r.Mutex.RUnlock()
 	}
 }
 
@@ -155,7 +165,7 @@ func (r *Room) Portal(u *User) {
 
 func (r *Room) Teleport(u *User, place int, x int, y int, dirX int, dirY int) {
 	r.GetPlace(u.Place).RemoveUser(u)
-	u.Portal(place, x, y, dirX, dirY)
+	u.Portal(r, place, x, y, dirX, dirY)
 	r.GetPlace(place).AddUser(u)
 	r.Draw(u)
 }
@@ -209,11 +219,20 @@ func (r *Room) Leave(u *User) {
 }
 
 func (r *Room) Update() {
-	for r.Run {
-		for _, p := range r.Places {
-			p.Update()
+	for {
+		select {
+		case <-r.Run:
+			fmt.Println("으음...")
+			return
+		default:
+			r.Mutex.RLock()
+			for _, p := range r.Places {
+				p.Update()
+			}
+			r.Mode.Update()
+			r.Mutex.RUnlock()
+			fmt.Println("ㅇ으으으음")
+			time.Sleep(100 * time.Millisecond)
 		}
-		r.Mode.Update()
-		time.Sleep(100 * time.Millisecond)
 	}
 }

@@ -371,18 +371,22 @@ func (u *User) Turn(dirX int, dirY int) {
 	if u.Room == nil {
 		return
 	}
+	u.Room.Mutex.Lock()
 	u.Character.Turn(dirX, dirY)
+	u.Room.Mutex.Unlock()
 }
 
 func (u *User) Move(x int, y int) {
 	if u.Room == nil {
 		return
 	}
-	u.Character.Turn(x, y)
+	u.Turn(x, y)
 	dir := u.GetDirection(x, y)
 	r := u.Room
 	if r.Passable(u.Place, u.X, u.Y, dir, false) && r.Passable(u.Place, u.X+x, u.Y-y, 10-dir, true) {
+		u.Room.Mutex.Lock()
 		u.Character.Move(x, -y)
+		u.Room.Mutex.Unlock()
 		r.Portal(u)
 	} else {
 		u.Teleport(u.Place, u.X, u.Y)
@@ -538,13 +542,15 @@ func (u *User) UseItem() {
 	u.Room.UseItem(u)
 }
 
-func (u *User) Portal(place int, x int, y int, dirX int, dirY int) {
-	u.BroadcastMap(toClient.RemoveGameObject(u.Model, u.Index))
+func (u *User) Portal(r *Room, place int, x int, y int, dirX int, dirY int) {
+	//u.BroadcastMap(toClient.RemoveGameObject(u.Model, u.Index))
+	r.Mutex.Lock()
 	u.Place = place
-	u.SetPosition(x, y)
+	u.Character.SetPosition(x, y)
 	if !(dirX == dirY && dirX == 0) {
 		u.Character.Turn(dirX, dirY)
 	}
+	r.Mutex.Unlock()
 	u.Send(toClient.Portal(place, x, y, u.DirX, u.DirY))
 }
 

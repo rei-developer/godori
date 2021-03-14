@@ -3,13 +3,13 @@ package getty
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"os"
 	"sync"
-	"time"
 )
 
 type Client struct {
@@ -17,7 +17,7 @@ type Client struct {
 	Server   *Server
 	Token    string
 	SendChan chan []byte
-	Run      bool
+	Run      chan bool
 	Lock     sync.RWMutex
 }
 
@@ -40,7 +40,7 @@ func NewClient(c *websocket.Conn, s *Server, t string) *Client {
 		Server:   s,
 		Token:    t,
 		SendChan: make(chan []byte),
-		Run:      true,
+		Run:      make(chan bool),
 	}
 }
 
@@ -63,9 +63,7 @@ func (c *Client) RemoteAddr() net.Addr {
 }
 
 func (c *Client) Send(d []byte) {
-	if c.Run {
-		c.SendChan <- d
-	}
+	c.SendChan <- d
 }
 
 func (c *Client) Broadcast(d []byte) {
@@ -93,14 +91,18 @@ func (c *Client) Request() {
 	defer func() {
 		c.Server.DisConnChan <- c
 	}()
-	for c.Run {
-		if c.Conn != nil {
-			c.Conn.SetReadLimit(512)
-			c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-			c.Conn.SetPongHandler(func(string) error {
-				c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-				return nil
-			})
+	for {
+		select {
+		case <-c.Run:
+			fmt.Println("RUN ")
+			return
+		default:
+			//c.Conn.SetReadLimit(512)
+			//c.Conn.SetReadDeadline(time.Now().Add(600 * time.Second))
+			//c.Conn.SetPongHandler(func(string) error {
+			//	c.Conn.SetReadDeadline(time.Now().Add(600 * time.Second))
+			//	return nil
+			//})
 			_, message, err := c.Conn.ReadMessage()
 			if err != nil {
 				if e, ok := err.(*websocket.CloseError); ok {
@@ -133,8 +135,12 @@ func (c *Client) Response() {
 	//	log.Println("ping:", c.RemoteAddr(), tick.Second())
 	//	err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
 	//	CheckError(err)
-	for c.Run {
-		if c.Conn != nil {
+	for {
+		select {
+		case <-c.Run:
+			fmt.Println("response RUN false ")
+			return
+		default:
 			data := <-c.SendChan
 			var err error
 			var head uint8

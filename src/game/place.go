@@ -3,8 +3,10 @@ package game
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"godori.com/getty"
 	"log"
+	"time"
 )
 
 type Place struct {
@@ -38,14 +40,14 @@ func (p *Place) RemoveAllEvent() {
 
 func (p *Place) AddUser(u *User) {
 	p.Room.Mutex.Lock()
-	defer p.Room.Mutex.Unlock()
 	p.Users[u.Client] = u
+	p.Room.Mutex.Unlock()
 }
 
 func (p *Place) RemoveUser(u *User) {
 	p.Room.Mutex.Lock()
-	defer p.Room.Mutex.Unlock()
 	delete(p.Users, u.Client)
+	p.Room.Mutex.Unlock()
 }
 
 func (p *Place) RemoveAllUser() {
@@ -53,7 +55,11 @@ func (p *Place) RemoveAllUser() {
 }
 
 func (p *Place) Update() {
-	if len(p.Users) < 1 {
+	p.Room.Mutex.RLock()
+	userCount := len(p.Users)
+	p.Room.Mutex.RUnlock()
+	fmt.Println("룰루랄라", time.Now().Unix())
+	if userCount < 1 {
 		return
 	}
 	var events map[int]*Event = make(map[int]*Event)
