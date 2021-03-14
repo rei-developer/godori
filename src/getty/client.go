@@ -103,17 +103,17 @@ func (c *Client) Request() {
 			})
 			_, message, err := c.Conn.ReadMessage()
 			if err != nil {
-				log.Println(err)
-				return
-			}
-			if e, ok := err.(*websocket.CloseError); ok {
-				switch e.Code {
-				case 1001, 1005, 1006:
-					return
-				default:
-					log.Println(e)
-					return
+				if e, ok := err.(*websocket.CloseError); ok {
+					switch e.Code {
+					case 1001, 1005, 1006:
+						return
+					default:
+						log.Println(e, " : close error")
+						return
+					}
 				}
+				log.Println(err, " : default error")
+				return
 			}
 			pSize := len(message)
 			if pSize >= HEADER_SIZE {
