@@ -418,8 +418,6 @@ func (u *User) Chat(text string) {
 	}
 	fmt.Println(string(u.UserData.Name) + "(#" + strconv.Itoa(r.Index) + "@" + strconv.Itoa(u.Place) + "): " + text)
 	switch r.RoomType {
-	case roomType.PLAYGROUND:
-		u.Publish(toClient.ChatMessage(u.Model, u.Index, u.UserData.Name, text))
 	case roomType.GAME:
 		if team, ok := u.GameData["team"]; ok {
 			if team.(int) == teamType.RED {
@@ -427,7 +425,11 @@ func (u *User) Chat(text string) {
 			} else {
 				u.ChatToBlueTeam(text)
 			}
+			break
 		}
+		fallthrough
+	default:
+		u.Publish(toClient.ChatMessage(u.Model, u.Index, u.UserData.Name, text))
 	}
 }
 
