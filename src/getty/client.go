@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"sync"
 )
 
 type Client struct {
@@ -109,6 +110,8 @@ func (c *Client) Request() {
 	}
 }
 
+var lock sync.RWMutex
+
 func (c *Client) Response() {
 	//ticker := time.NewTicker(3 * time.Second)
 	//defer func() {
@@ -116,6 +119,7 @@ func (c *Client) Response() {
 	//}()
 	for c.Run {
 		data := <-c.SendChan
+		lock.Lock()
 		var err error
 		var head uint8
 		buf := bytes.NewBuffer(data)
@@ -130,6 +134,7 @@ func (c *Client) Response() {
 			err = c.Conn.WriteMessage(websocket.TextMessage, data)
 		}
 		CheckError(err)
+		lock.Unlock()
 		//case tick := <-ticker.C:
 		//	log.Println("ping:", c.RemoteAddr(), tick.Second())
 		//	err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
