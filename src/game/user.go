@@ -434,7 +434,6 @@ func (u *User) Chat(text string) {
 }
 
 func (u *User) ChatToRedTeam(text string) {
-	fmt.Println(u.Room)
 	u.Publish(toClient.ChatMessage(u.Model, u.Index, "<color=#FF0000>"+u.UserData.Name+"</color>", text))
 }
 
