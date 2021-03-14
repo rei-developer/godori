@@ -114,7 +114,7 @@ func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
 			},
 		}
 		Users[c] = user
-		user.Setting(user.Model, user.UserData.RedGraphics, user.UserData.BlueGraphics)
+		user.Setting(user.Model, user.UserData.BlueGraphics)
 		user.UserData.MaxExp = cMath.GetMaxExp(user.UserData.Level)
 		return user, true
 	}

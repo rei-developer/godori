@@ -76,7 +76,7 @@ func NewEvent(r *Room, id int, place int, x int, y int) *Event {
 		GameData:  make(map[string]interface{}),
 	}
 	Events[nextEventIndex] = event
-	event.Setting(event.Model, event.EventData.Image, event.EventData.Image)
+	event.Setting(event.Model, event.EventData.Image)
 	event.SetPosition(x, y)
 	return event
 }

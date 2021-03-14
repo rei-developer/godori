@@ -172,12 +172,12 @@ func (m *RescueMode) Join(u *User) {
 	m.SetUserGameData(u)
 	switch m.State {
 	case STATE_READY:
-		u.SetGraphics(u.BlueImage)
+		u.SetGraphics(u.UserData.BlueGraphics)
 		m.AddUser(u)
 		m.MoveToBase(u)
 	case STATE_GAME:
 		u.GameData["caught"] = true
-		u.SetGraphics(u.BlueImage)
+		u.SetGraphics(u.UserData.BlueGraphics)
 		m.AddUser(u)
 		m.MoveToPrison(u)
 		m.RedScore++
@@ -193,7 +193,7 @@ func (m *RescueMode) Leave(u *User) {
 		m.RedScore--
 	}
 	u.GameData = make(map[string]interface{})
-	u.SetGraphics(u.BlueImage)
+	u.SetGraphics(u.UserData.BlueGraphics)
 	u.Publish(toClient.UpdateModeCount(m.RedScore))
 }
 
@@ -325,7 +325,7 @@ func (m *RescueMode) Update() {
 				m.RemoveUser(u)
 				u.GameData["team"] = teamType.RED
 				m.AddUser(u)
-				u.SetGraphics(u.RedImage)
+				u.SetGraphics(u.UserData.RedGraphics)
 				// TODO : 장농
 				//u.Send()
 			}

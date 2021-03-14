@@ -11,7 +11,7 @@ func (m *PlaygroundMode) MoveToBase(u *User) {
 }
 
 func (m *PlaygroundMode) Join(u *User) {
-	u.SetGraphics(u.BlueImage)
+	u.SetGraphics(u.UserData.BlueGraphics)
 	m.MoveToBase(u)
 }
 
