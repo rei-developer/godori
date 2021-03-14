@@ -46,7 +46,7 @@ func (m *GameMode) ChangeMode(mType int, join bool) {
 		m.Mode = &PlaygroundMode{Room: m.Room}
 		m.InitEvent(mType, 1)
 	} else if rType == roomType.GAME {
-		pType := cMath.Rand(mapType.DESERT) + 1
+		pType := cMath.Rand(mapType.MANSION) + 1
 		switch mType {
 		case modeType.NONE:
 			m.Mode = &NoneMode{Room: m.Room}
