@@ -35,7 +35,7 @@ const (
 )
 
 func NewMode(r *Room) *GameMode {
-	mode := &GameMode{Room: r}
+	mode := &GameMode{Room: r, Mode: nil}
 	mode.ChangeMode(modeType.NONE, false)
 	return mode
 }
