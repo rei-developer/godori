@@ -41,9 +41,8 @@ type Server struct {
 	BeforeAccept func() bool
 }
 
-const VERSION = 123
+const VERSION = 4
 
-// auth.go
 const (
 	CallBackURL         = "http://localhost:50001/verify/google" //auth/callback"
 	UserInfoAPIEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -185,26 +184,32 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	token := r.FormValue("token")
 	//uuid := r.FormValue("uuid")
-	//version := r.FormValue("version")
-	body := VerifyByGoogle(token)
-	var data map[string]interface{}
-	err := json.Unmarshal(body, &data)
+	regex := regexp.MustCompile("[^가-힣]")
+	version, err := strconv.Atoi(regex.ReplaceAllString(r.FormValue("version"), ""))
 	CheckError(err)
-	if clientId := s.GetEnvValue("GOOGLE_CLIENT_ID"); clientId != data["aud"].(string) {
-		return
-	}
-	uid := data["sub"].(string)
-	var state string
-	verify := GetJwtToken(strconv.Itoa(lType.GOOGLE) + " " + uid)
-	if u, ok := db.GetUserByOAuth(uid, lType.GOOGLE); ok {
-		if u.Verify.Int32 == 1 {
-			state = "LOGIN_SUCCESS"
+	var state, verify string
+	if version < VERSION {
+		state = "NOT_UPDATED"
+	} else {
+		body := VerifyByGoogle(token)
+		var data map[string]interface{}
+		err = json.Unmarshal(body, &data)
+		CheckError(err)
+		if clientId := s.GetEnvValue("GOOGLE_CLIENT_ID"); clientId != data["aud"].(string) {
+			return
+		}
+		uid := data["sub"].(string)
+		verify = GetJwtToken(strconv.Itoa(lType.GOOGLE) + " " + uid)
+		if u, ok := db.GetUserByOAuth(uid, lType.GOOGLE); ok {
+			if u.Verify.Int32 == 1 {
+				state = "LOGIN_SUCCESS"
+			} else {
+				state = "REGISTER_SUCCESS"
+			}
 		} else {
+			go db.InsertUser(uid, lType.GOOGLE)
 			state = "REGISTER_SUCCESS"
 		}
-	} else {
-		go db.InsertUser(uid, lType.GOOGLE)
-		state = "REGISTER_SUCCESS"
 	}
 	jsonData, err := json.Marshal(struct {
 		State string
