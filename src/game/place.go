@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"log"
+	"sync"
 
 	"godori.com/getty"
 )
@@ -49,6 +50,8 @@ func (p *Place) RemoveAllUser() {
 	p.Users = make(map[*getty.Client]*User)
 }
 
+var lock = sync.RWMutex{}
+
 func (p *Place) Update() {
 	if len(p.Users) < 1 {
 		return
@@ -56,15 +59,19 @@ func (p *Place) Update() {
 	var events map[int]*Event = make(map[int]*Event)
 	var users map[*getty.Client]*User = make(map[*getty.Client]*User)
 	for i, e := range p.Events {
+		lock.RLock()
 		e.Update()
 		if e.Dirty {
 			events[i] = e
 		}
+		lock.RUnlock()
 	}
 	for c, u := range p.Users {
+		lock.RLock()
 		if u.Dirty {
 			users[c] = u
 		}
+		lock.RUnlock()
 	}
 	if len(events)+len(users) <= 0 {
 		return
@@ -75,6 +82,7 @@ func (p *Place) Update() {
 		uint8(len(events) + len(users)),
 	}
 	for _, e := range events {
+		lock.RLock()
 		e.Dirty = false
 		data = append(data, int8(e.Model))
 		data = append(data, int32(e.Index))
@@ -82,8 +90,10 @@ func (p *Place) Update() {
 		data = append(data, int16(e.Y))
 		data = append(data, int8(e.DirX))
 		data = append(data, int8(e.DirY))
+		lock.RUnlock()
 	}
 	for _, u := range users {
+		lock.RLock()
 		u.Dirty = false
 		data = append(data, int8(u.Model))
 		data = append(data, int32(u.Index))
@@ -91,13 +101,18 @@ func (p *Place) Update() {
 		data = append(data, int16(u.Y))
 		data = append(data, int8(u.DirX))
 		data = append(data, int8(u.DirY))
+		lock.RUnlock()
 	}
 	for _, v := range data {
+		lock.RLock()
 		err := binary.Write(buf, binary.LittleEndian, v)
 		CheckError(err)
+		lock.RUnlock()
 	}
 	for _, u := range p.Users {
+		lock.RLock()
 		u.Client.Send(buf.Bytes())
+		lock.RUnlock()
 	}
 }
 

@@ -112,7 +112,7 @@ func (c *Client) Request() {
 						return
 					}
 				}
-				log.Println(err, " : default error")
+				log.Println(err, " - 비정상 종료?")
 				return
 			}
 			pSize := len(message)

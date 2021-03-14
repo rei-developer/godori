@@ -575,7 +575,6 @@ func (u *User) Result(ad int) {
 }
 
 func (u *User) UpdateUser() {
-	fmt.Println(u.UserData.Name, " DB 업데이트")
 	go db.UpdateUser(
 		u.UserData.Id,
 		u.UserData.Uuid,
