@@ -525,8 +525,8 @@ func UpdateUser(
 		    u.rescue_combo = ?,
 		    u.survive = ?,
 		    u.escape = ?,
-		    u.redGraphics = ?,
-		    u.blueGraphics = ?,
+		    u.red_graphics = ?,
+		    u.blue_graphics = ?,
 		    u.memo = ?
 		WHERE u.uid = ? AND u.login_type = ?
 	`, uuid, sex, level, exp, coin, cash, point, kill, death, assist, blast, rescue, rescueCombo, survive, escape, redGraphics, blueGraphics, memo)
