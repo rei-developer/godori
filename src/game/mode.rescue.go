@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"strconv"
 
 	"godori.com/getty"
@@ -239,7 +238,6 @@ func (m *RescueMode) Hit(self *User, target *User) bool {
 	if !ok {
 		return false
 	}
-	fmt.Println(selfTeam, self.UserData.Name, " / ", targetTeam, target.UserData.Name)
 	if selfTeam.(int) == teamType.BLUE {
 		return true
 	}
