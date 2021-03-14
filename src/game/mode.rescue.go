@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"strconv"
 
 	"godori.com/getty"
@@ -274,9 +275,9 @@ func (m *RescueMode) Result(winner int) {
 		u.Score.Sum += u.Score.Rescue*10 + u.Score.RescueCombo - u.Score.Death*10 - u.Score.DeathForWardrobe*20
 	}
 	// TODO : rank order
-	persons := len(m.Room.Users)
+	//persons := len(m.Room.Users)
 	for _, u := range m.RedUsers {
-		mission := "킬 " + strconv.Itoa(u.Score.Kill) + "\n장농 킬 " + strconv.Itoa(u.Score.KillForWardrobe)
+		//mission := "킬 " + strconv.Itoa(u.Score.Kill) + "\n장농 킬 " + strconv.Itoa(u.Score.KillForWardrobe)
 		exp := 100 + u.Score.Sum
 		coin := 50 + (u.Score.Sum / 2)
 		if exp < 100 {
@@ -285,10 +286,10 @@ func (m *RescueMode) Result(winner int) {
 		if coin < 50 {
 			coin = 50
 		}
-		u.Send(toClient.ResultGame(winner, 1, persons, mission, exp, coin))
+		//u.Send(toClient.ResultGame(winner, 1, persons, mission, exp, coin))
 	}
 	for _, u := range m.BlueUsers {
-		mission := "구출 " + strconv.Itoa(u.Score.Rescue) + " (" + strconv.Itoa(u.Score.RescueCombo) + "콤보)\n수감 " + strconv.Itoa(u.Score.Death+u.Score.DeathForWardrobe)
+		//mission := "구출 " + strconv.Itoa(u.Score.Rescue) + " (" + strconv.Itoa(u.Score.RescueCombo) + "콤보)\n수감 " + strconv.Itoa(u.Score.Death+u.Score.DeathForWardrobe)
 		exp := 100 + u.Score.Sum
 		coin := 50 + (u.Score.Sum / 2)
 		if exp < 100 {
@@ -297,9 +298,9 @@ func (m *RescueMode) Result(winner int) {
 		if coin < 50 {
 			coin = 50
 		}
-		u.Send(toClient.ResultGame(winner, 1, persons, mission, exp, coin))
+		//u.Send(toClient.ResultGame(winner, 1, persons, mission, exp, coin))
 	}
-	m.Room.Remove()
+	//m.Room.Remove()
 }
 
 func (m *RescueMode) Update() {
@@ -367,12 +368,19 @@ func (m *RescueMode) Update() {
 			m.Room.Publish(toClient.PlaySound("thump"))
 		}
 		if len(m.RedUsers) == 0 {
+			fmt.Println("A")
 			m.Result(teamType.BLUE)
-		} else if len(m.BlueUsers) == 0 || m.RedScore == len(m.BlueUsers) {
+		} else if len(m.BlueUsers) == 0 {
+			fmt.Println("B")
+			m.Result(teamType.RED)
+		} else if m.RedScore == len(m.BlueUsers) {
+			fmt.Println("C")
 			m.Result(teamType.RED)
 		} else if m.Count == 5 {
+			fmt.Println("D")
 			m.Room.Publish(toClient.PlaySound("Second"))
 		} else if m.Count == 0 {
+			fmt.Println("E")
 			if m.RedScore > 0 {
 				m.Result(teamType.RED)
 			} else {
