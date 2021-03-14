@@ -290,7 +290,7 @@ func (m *RescueMode) Update() {
 			}
 			m.Room.Publish(toClient.NoticeMessage(strconv.Itoa(m.Count - 200)))
 		} else if m.Count == 200 {
-			m.Room.Lock = true
+			//m.Room.Lock = true
 			m.State = STATE_GAME
 			for _, u := range m.Room.Mode.Sample(m.BlueUsers, (len(m.BlueUsers)/5)+1) {
 				m.RemoveUser(u)
