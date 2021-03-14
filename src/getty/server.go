@@ -166,8 +166,12 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 			} else if cFilter.Check(name) {
 				state = "UNAVAILABLE_NAME"
 			} else {
-				go db.UpdateUserVerify(name, uid, loginType)
-				state = "LOGIN_SUCCESS"
+				if _, ok := db.GetUserByName(name); ok {
+					state = "RE_REQUEST"
+				} else {
+					go db.UpdateUserVerify(name, uid, loginType)
+					state = "LOGIN_SUCCESS"
+				}
 			}
 		}
 	}
@@ -187,10 +191,6 @@ func (s *Server) HandleAuthByGoogle(w http.ResponseWriter, r *http.Request) {
 	regex := regexp.MustCompile("[^0-9]")
 	version, err := strconv.Atoi(regex.ReplaceAllString(r.FormValue("version"), ""))
 	CheckError(err)
-
-	fmt.Println(version)
-	fmt.Println(VERSION)
-
 	var state, verify string
 	if version < VERSION {
 		state = "NOT_UPDATED"

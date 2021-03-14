@@ -34,7 +34,7 @@ type Portal struct {
 	Sound     string
 }
 
-const maxMapCnt int = 1//257
+const maxMapCnt int = 257
 
 var GameMaps map[int]*GameMap = make(map[int]*GameMap)
 
