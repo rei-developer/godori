@@ -122,6 +122,9 @@ func Login(u *game.User) {
 
 func OnConnect(c *getty.Client) {
 	token := c.GetToken()
+	if token == "" {
+		return
+	}
 	var uid string
 	var loginType int
 	if token == "debug" {
