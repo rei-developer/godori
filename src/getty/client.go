@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 )
 
 type Client struct {
@@ -93,22 +94,28 @@ func (c *Client) Request() {
 		c.Server.DisConnChan <- c
 	}()
 	for c.Run {
-		c.Lock.RLock()
-		_, message, err := c.Conn.ReadMessage()
-		if e, ok := err.(*websocket.CloseError); ok {
-			switch e.Code {
-			case 1001, 1005, 1006:
-				return
-			default:
-				log.Println(e)
-				return
+		c.Conn.SetReadLimit(512)
+		c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		c.Conn.SetPongHandler(func(string) error {
+			c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+			return nil
+		})
+		for {
+			_, message, err := c.Conn.ReadMessage()
+			if e, ok := err.(*websocket.CloseError); ok {
+				switch e.Code {
+				case 1001, 1005, 1006:
+					return
+				default:
+					log.Println(e)
+					return
+				}
 			}
-		}
-		c.Lock.RUnlock()
-		pSize := len(message)
-		if pSize >= HEADER_SIZE {
-			pType := BytesToInt(message[:HEADER_SIZE])
-			c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			pSize := len(message)
+			if pSize >= HEADER_SIZE {
+				pType := BytesToInt(message[:HEADER_SIZE])
+				c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			}
 		}
 	}
 }
