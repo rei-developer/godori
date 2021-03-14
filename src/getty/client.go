@@ -93,6 +93,7 @@ func (c *Client) Request() {
 		c.Server.DisConnChan <- c
 	}()
 	for c.Run {
+		c.Lock.Lock()
 		_, message, err := c.Conn.ReadMessage()
 		if e, ok := err.(*websocket.CloseError); ok {
 			switch e.Code {
@@ -108,6 +109,7 @@ func (c *Client) Request() {
 			pType := BytesToInt(message[:HEADER_SIZE])
 			c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 		}
+		c.Lock.Unlock()
 	}
 }
 
