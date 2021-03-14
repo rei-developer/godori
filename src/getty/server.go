@@ -233,7 +233,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	CheckError(err)
 	defer conn.Close()
 	var wg sync.WaitGroup
-	wg.Add(0)
+	wg.Add(1)
 	go func() {
 		for {
 			if !s.BeforeAccept() {
@@ -241,6 +241,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 			}
 			token := r.URL.Query().Get("token")
 			fork.ConnChan <- NewClient(conn, fork, token)
+			wg.Wait()
 		}
 	}()
 	for {
@@ -254,7 +255,6 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 			fork.onMessage(packet.Client, packet.Data)
 		}
 	}
-	wg.Wait()
 }
 
 func CheckError(err error) {
