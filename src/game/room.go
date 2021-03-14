@@ -208,16 +208,12 @@ func (r *Room) Leave(u *User) {
 	}
 }
 
-var lock = sync.RWMutex{}
-
 func (r *Room) Update() {
 	for r.Run {
-		lock.Lock()
 		for _, p := range r.Places {
 			p.Update()
 		}
 		r.Mode.Update()
 		time.Sleep(100 * time.Millisecond)
-		lock.Unlock()
 	}
 }

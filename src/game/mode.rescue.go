@@ -204,6 +204,8 @@ func (m *RescueMode) DrawEvents(u *User) {
 }
 
 func (m *RescueMode) DrawUsers(self *User) {
+	m.Room.Mutex.Lock()
+	defer m.Room.Mutex.Unlock()
 	selfHide := false
 	for _, u := range m.Room.SameMapUsers(self.Place) {
 		if u == self {

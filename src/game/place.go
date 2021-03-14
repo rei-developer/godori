@@ -37,10 +37,14 @@ func (p *Place) RemoveAllEvent() {
 }
 
 func (p *Place) AddUser(u *User) {
+	p.Room.Mutex.Lock()
+	defer p.Room.Mutex.Unlock()
 	p.Users[u.Client] = u
 }
 
 func (p *Place) RemoveUser(u *User) {
+	p.Room.Mutex.Lock()
+	defer p.Room.Mutex.Unlock()
 	delete(p.Users, u.Client)
 }
 
