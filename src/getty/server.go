@@ -231,9 +231,6 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			token := r.URL.Query().Get("token")
-
-			fmt.Println(token, "이 왜 안나올까용")
-
 			fork.ConnChan <- NewClient(conn, fork, token)
 			wg.Wait()
 		}
