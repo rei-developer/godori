@@ -105,8 +105,10 @@ func (c *Client) Request() {
 			continue
 		}
 		pSize := len(message)
-		pType := BytesToInt(message[:HEADER_SIZE])
-		c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+		if pSize >= HEADER_SIZE {
+			pType := BytesToInt(message[:HEADER_SIZE])
+			c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+		}
 	}
 }
 
