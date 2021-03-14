@@ -100,22 +100,24 @@ func (c *Client) Request() {
 			c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 			return nil
 		})
-		for {
-			_, message, err := c.Conn.ReadMessage()
-			if e, ok := err.(*websocket.CloseError); ok {
-				switch e.Code {
-				case 1001, 1005, 1006:
-					return
-				default:
-					log.Println(e)
-					return
-				}
+		_, message, err := c.Conn.ReadMessage()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if e, ok := err.(*websocket.CloseError); ok {
+			switch e.Code {
+			case 1001, 1005, 1006:
+				return
+			default:
+				log.Println(e)
+				return
 			}
-			pSize := len(message)
-			if pSize >= HEADER_SIZE {
-				pType := BytesToInt(message[:HEADER_SIZE])
-				c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
-			}
+		}
+		pSize := len(message)
+		if pSize >= HEADER_SIZE {
+			pType := BytesToInt(message[:HEADER_SIZE])
+			c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 		}
 	}
 }
