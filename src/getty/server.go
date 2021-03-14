@@ -235,7 +235,7 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	go func() {
 		for {
-			wg.Add(1)
+			wg.Add(-1)
 			if !s.BeforeAccept() {
 				continue
 			}
