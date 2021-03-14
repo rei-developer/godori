@@ -40,7 +40,7 @@ type Server struct {
 	Lock         sync.RWMutex
 }
 
-const VERSION = 4
+const VERSION = 5
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
