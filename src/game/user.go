@@ -571,7 +571,7 @@ func (u *User) Result(ad int) {
 	}
 	u.Score.Send(u)
 	u.Reward.Send(u)
-	u.GameData = nil
+	u.GameData = make(map[string]interface{})
 }
 
 func (u *User) UpdateUser() {

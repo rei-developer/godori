@@ -37,7 +37,7 @@ func NewRescueMode(r *Room, pType int) *RescueMode {
 		BlueUsers: make(map[*getty.Client]*User),
 		State:     STATE_READY,
 		Tick:      0,
-		Count:     201,
+		Count:     230,
 		MaxCount:  230,
 		Caught:    false,
 	}
@@ -192,7 +192,7 @@ func (m *RescueMode) Leave(u *User) {
 	if caught, ok := u.GameData["caught"]; ok && caught.(bool) {
 		m.RedScore--
 	}
-	u.GameData = nil
+	u.GameData = make(map[string]interface{})
 	u.SetGraphics(u.BlueImage)
 	u.Publish(toClient.UpdateModeCount(m.RedScore))
 }

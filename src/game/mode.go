@@ -46,7 +46,7 @@ func (m *GameMode) ChangeMode(mType int, join bool) {
 		m.Mode = &PlaygroundMode{Room: m.Room}
 		m.InitEvent(mType, 1)
 	} else if rType == roomType.GAME {
-		pType := mapType.TATAMI //cMath.Rand(mapType.DESERT) + 1
+		pType := cMath.Rand(mapType.DESERT) + 1
 		switch mType {
 		case modeType.NONE:
 			m.Mode = &NoneMode{Room: m.Room}
@@ -146,8 +146,5 @@ func (m *GameMode) Sample(target map[*getty.Client]*User, count int) map[*getty.
 }
 
 func (m *GameMode) Update() {
-	if m.Mode == nil {
-		return
-	}
 	m.Mode.Update()
 }
