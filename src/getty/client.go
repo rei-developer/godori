@@ -116,9 +116,13 @@ func (c *Client) Response() {
 	//defer func() {
 	//	ticker.Stop()
 	//}()
+	//case tick := <-ticker.C:
+	//	log.Println("ping:", c.RemoteAddr(), tick.Second())
+	//	err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
+	//	CheckError(err)
 	for c.Run {
-		data := <-c.SendChan
 		c.Lock.Lock()
+		data := <-c.SendChan
 		var err error
 		var head uint8
 		buf := bytes.NewBuffer(data)
@@ -134,10 +138,6 @@ func (c *Client) Response() {
 		}
 		CheckError(err)
 		c.Lock.Unlock()
-		//case tick := <-ticker.C:
-		//	log.Println("ping:", c.RemoteAddr(), tick.Second())
-		//	err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
-		//	CheckError(err)
 	}
 }
 
