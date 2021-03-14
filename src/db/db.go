@@ -517,7 +517,7 @@ func UpdateUser(
 		    coin = ?,
 		    cash = ?,
 		    point = ?,
-		    kill = ?,
+		    "kill" = ?,
 		    death = ?,
 		    assist = ?,
 		    blast = ?,
