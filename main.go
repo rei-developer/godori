@@ -23,7 +23,7 @@ import (
 
 const (
 	port         = "50001"
-	maxAcceptCnt = 3
+	maxAcceptCnt = 2000
 )
 
 var connections int
