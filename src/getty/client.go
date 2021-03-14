@@ -3,13 +3,11 @@ package getty
 import (
 	"bytes"
 	"encoding/binary"
+	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	"log"
 	"net"
 	"os"
-	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 type Client struct {
@@ -100,9 +98,8 @@ func (c *Client) Request() {
 				return
 			default:
 				log.Println(e)
+				return
 			}
-			time.Sleep(100 * time.Millisecond)
-			continue
 		}
 		pSize := len(message)
 		if pSize >= HEADER_SIZE {

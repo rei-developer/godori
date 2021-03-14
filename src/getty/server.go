@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -232,23 +231,17 @@ func (s *Server) Listen(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	CheckError(err)
 	defer conn.Close()
-	var wg sync.WaitGroup
-	wg.Add(1)
+	if !s.BeforeAccept() {
+		return
+	}
+	token := r.URL.Query().Get("token")
 	go func() {
-		for {
-			if !s.BeforeAccept() {
-				continue
-			}
-			token := r.URL.Query().Get("token")
-			fork.ConnChan <- NewClient(conn, fork, token)
-			wg.Wait()
-		}
+		fork.ConnChan <- NewClient(conn, fork, token)
 	}()
 	for {
 		select {
 		case conn := <-fork.ConnChan:
 			fork.onConnect(conn)
-			defer wg.Done()
 		case disconn := <-fork.DisConnChan:
 			fork.onDisconnect(disconn)
 		case packet := <-fork.PacketChan:
