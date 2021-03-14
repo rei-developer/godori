@@ -71,7 +71,7 @@ func main() {
 	//	}
 	//}
 
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(1) //runtime.NumCPU())
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	server := getty.NewServer("")
