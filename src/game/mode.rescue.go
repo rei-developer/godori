@@ -227,6 +227,9 @@ func (m *RescueMode) DrawUsers(self *User) {
 }
 
 func (m *RescueMode) Hit(self *User, target *User) bool {
+	if m.State != STATE_GAME {
+		return false
+	}
 	if self.GameData["team"] == teamType.BLUE {
 		return true
 	}
