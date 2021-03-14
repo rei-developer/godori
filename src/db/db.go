@@ -522,7 +522,7 @@ func UpdateUser(
 		    u.assist = ?,
 		    u.blast = ?,
 		    u.rescue = ?,
-		    u.rescueCombo = ?,
+		    u.rescue_combo = ?,
 		    u.survive = ?,
 		    u.escape = ?,
 		    u.redGraphics = ?,
