@@ -67,7 +67,6 @@ func NewServer(h string) *Server {
 
 func (s *Server) onConnect(c *Client) {
 	key := c.RemoteAddr().String()
-	fmt.Println(key, " 접속 시도")
 	if client, ok := s.Clients[key]; ok {
 		s.onDisconnect(client)
 	}
@@ -80,7 +79,6 @@ func (s *Server) onDisconnect(c *Client) {
 	key := c.RemoteAddr().String()
 	c.Run = false
 	s.OnDisconnect(c)
-	fmt.Println(key, " 입니다용 키값은!")
 	delete(s.Clients, key)
 	c.Close()
 }

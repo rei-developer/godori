@@ -94,30 +94,32 @@ func (c *Client) Request() {
 		c.Server.DisConnChan <- c
 	}()
 	for c.Run {
-		c.Conn.SetReadLimit(512)
-		c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-		c.Conn.SetPongHandler(func(string) error {
+		if c.Conn != nil {
+			c.Conn.SetReadLimit(512)
 			c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-			return nil
-		})
-		_, message, err := c.Conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		if e, ok := err.(*websocket.CloseError); ok {
-			switch e.Code {
-			case 1001, 1005, 1006:
-				return
-			default:
-				log.Println(e)
+			c.Conn.SetPongHandler(func(string) error {
+				c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+				return nil
+			})
+			_, message, err := c.Conn.ReadMessage()
+			if err != nil {
+				log.Println(err)
 				return
 			}
-		}
-		pSize := len(message)
-		if pSize >= HEADER_SIZE {
-			pType := BytesToInt(message[:HEADER_SIZE])
-			c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			if e, ok := err.(*websocket.CloseError); ok {
+				switch e.Code {
+				case 1001, 1005, 1006:
+					return
+				default:
+					log.Println(e)
+					return
+				}
+			}
+			pSize := len(message)
+			if pSize >= HEADER_SIZE {
+				pType := BytesToInt(message[:HEADER_SIZE])
+				c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
+			}
 		}
 	}
 }
@@ -132,21 +134,23 @@ func (c *Client) Response() {
 	//	err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
 	//	CheckError(err)
 	for c.Run {
-		data := <-c.SendChan
-		var err error
-		var head uint8
-		buf := bytes.NewBuffer(data)
-		err = binary.Read(buf, binary.BigEndian, &head)
-		CheckError(err)
-		if head == 0 {
-			err = c.Conn.WriteMessage(websocket.BinaryMessage, data)
-		} else {
-			if isDev {
-				log.Println(string(data))
+		if c.Conn != nil {
+			data := <-c.SendChan
+			var err error
+			var head uint8
+			buf := bytes.NewBuffer(data)
+			err = binary.Read(buf, binary.BigEndian, &head)
+			CheckError(err)
+			if head == 0 {
+				err = c.Conn.WriteMessage(websocket.BinaryMessage, data)
+			} else {
+				if isDev {
+					log.Println(string(data))
+				}
+				err = c.Conn.WriteMessage(websocket.TextMessage, data)
 			}
-			err = c.Conn.WriteMessage(websocket.TextMessage, data)
+			CheckError(err)
 		}
-		CheckError(err)
 	}
 }
 
