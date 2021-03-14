@@ -143,7 +143,6 @@ func OnConnect(c *getty.Client) {
 		}
 	}
 	if u, ok := game.NewUser(c, uid, loginType); ok {
-		Login(u)
 		connections++
 		log.Printf("클라이언트 %s - %s 접속 (동시접속자: %d/%d명)\n", u.UserData.Name, c.RemoteAddr(), connections, maxAcceptCnt)
 	}
