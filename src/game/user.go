@@ -438,7 +438,6 @@ func (u *User) ChatToRedTeam(text string) {
 }
 
 func (u *User) ChatToBlueTeam(text string) {
-	fmt.Println(u.Room)
 	if caught, ok := u.GameData["caught"]; ok {
 		if caught.(bool) {
 			u.PublishMap(toClient.ChatMessage(u.Model, u.Index, "<color=#808080>"+u.UserData.Name+"</color>", text))
