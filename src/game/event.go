@@ -34,7 +34,7 @@ type Event struct {
 	GameData  map[string]interface{}
 }
 
-var nextEventIndex int
+var nextEventIndex int = 0
 var EventDatas map[int]*EventData = make(map[int]*EventData)
 var Events map[int]*Event = make(map[int]*Event)
 

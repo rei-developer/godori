@@ -67,7 +67,7 @@ type User struct {
 	GameData map[string]interface{}
 }
 
-var nextUserIndex int
+var nextUserIndex int = 0
 var Users map[*getty.Client]*User = make(map[*getty.Client]*User)
 
 func NewUser(c *getty.Client, uid string, loginType int) (*User, bool) {
@@ -395,8 +395,8 @@ func (u *User) Chat(text string) {
 	}
 	r := u.Room
 	size := len(text)
-	if size > 35 {
-		size = 35
+	if size > 128 {
+		size = 128
 	}
 	text = text[:size]
 	if u.UserData.LastChat > int(time.Now().Unix()) {

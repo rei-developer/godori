@@ -20,7 +20,7 @@ type Room struct {
 	Lock           bool
 }
 
-var nextRoomIndex int
+var nextRoomIndex int = 0
 var Rooms map[int]*Room = make(map[int]*Room)
 
 func NewRoom(rType int) *Room {
