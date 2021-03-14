@@ -93,7 +93,7 @@ func (c *Client) Request() {
 		c.Server.DisConnChan <- c
 	}()
 	for c.Run {
-		c.Lock.Lock()
+		c.Lock.RLock()
 		_, message, err := c.Conn.ReadMessage()
 		if e, ok := err.(*websocket.CloseError); ok {
 			switch e.Code {
@@ -104,12 +104,12 @@ func (c *Client) Request() {
 				return
 			}
 		}
+		c.Lock.RUnlock()
 		pSize := len(message)
 		if pSize >= HEADER_SIZE {
 			pType := BytesToInt(message[:HEADER_SIZE])
 			c.Server.PacketChan <- &Message{c, &Data{pType, message[HEADER_SIZE:pSize]}}
 		}
-		c.Lock.Unlock()
 	}
 }
 
@@ -123,7 +123,6 @@ func (c *Client) Response() {
 	//	err := c.conn.WriteMessage(websocket.PingMessage, []byte{})
 	//	CheckError(err)
 	for c.Run {
-		c.Lock.Lock()
 		data := <-c.SendChan
 		var err error
 		var head uint8
@@ -139,7 +138,6 @@ func (c *Client) Response() {
 			err = c.Conn.WriteMessage(websocket.TextMessage, data)
 		}
 		CheckError(err)
-		c.Lock.Unlock()
 	}
 }
 
