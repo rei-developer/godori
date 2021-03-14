@@ -50,10 +50,10 @@ func AvailableRoom(rType int) *Room {
 }
 
 func (r *Room) Remove() {
+	r.Run = false
 	r.Places = make(map[int]*Place)
 	r.Events = make(map[int]*Event)
 	r.Users = make(map[*getty.Client]*User)
-	r.Run = false
 	delete(Rooms, r.Index)
 }
 
