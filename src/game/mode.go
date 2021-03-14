@@ -146,5 +146,8 @@ func (m *GameMode) Sample(target map[*getty.Client]*User, count int) map[*getty.
 }
 
 func (m *GameMode) Update() {
+	if m.Mode == nil {
+		return
+	}
 	m.Mode.Update()
 }
