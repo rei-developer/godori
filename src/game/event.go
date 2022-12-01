@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	modelType "godori.com/util/constant/modelType"
+	modelType "godori/util/constant/modelType"
 )
 
 type EventPureData struct {

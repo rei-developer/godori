@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	//"godori.com/db"
-	"godori.com/game"
-	"godori.com/getty"
-	toClient "godori.com/packet/toClient"
-	toServer "godori.com/packet/toServer"
+	//"./src/db"
+	"godori/game"
+	"godori/getty"
+	toClient "godori/packet/toClient"
+	toServer "godori/packet/toServer"
 )
 
 const (
@@ -166,6 +166,8 @@ func DataToInt(d *getty.Data) int {
 }
 
 func OnMessage(c *getty.Client, d *getty.Data) {
+	log.Printf(string(d.Buffers))
+
 	if u, ok := game.Users[c]; ok {
 		switch d.Type {
 		case toServer.HELLO:

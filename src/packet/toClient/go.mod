@@ -1,3 +1,3 @@
-module server/src/packet/toClient
+module godori/packet/toClient
 
-go 1.16
+go 1.19

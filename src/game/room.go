@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"godori.com/getty"
-	toClient "godori.com/packet/toClient"
+	"godori/getty"
+	toClient "godori/packet/toClient"
 )
 
 type Room struct {

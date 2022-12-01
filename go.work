@@ -1,0 +1,18 @@
+go 1.19
+
+use (
+	./src/db
+	./src/game
+	./src/getty
+	./src/packet/toClient
+	./src/packet/toServer
+	./util/constant/loginType
+	./util/constant/mapType
+	./util/constant/modeType
+	./util/constant/modelType
+	./util/constant/roomType
+	./util/constant/teamType
+	./util/filter
+	./util/math
+	./util/pix
+)

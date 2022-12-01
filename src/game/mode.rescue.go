@@ -3,12 +3,12 @@ package game
 import (
 	"strconv"
 
-	"godori.com/getty"
-	toClient "godori.com/packet/toClient"
-	mapType "godori.com/util/constant/mapType"
-	modeType "godori.com/util/constant/modeType"
-	teamType "godori.com/util/constant/teamType"
-	pix "godori.com/util/pix"
+	"godori/getty"
+	toClient "godori/packet/toClient"
+	mapType "godori/util/constant/mapType"
+	modeType "godori/util/constant/modeType"
+	teamType "godori/util/constant/teamType"
+	pix "godori/util/pix"
 )
 
 type RescueMode struct {

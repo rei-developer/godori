@@ -7,8 +7,8 @@ import (
 	"os"
 	"strconv"
 
-	"godori.com/db"
-	cMath "godori.com/util/math"
+	"godori/db"
+	cMath "godori/util/math"
 )
 
 type GameMap struct {

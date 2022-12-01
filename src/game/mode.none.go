@@ -1,8 +1,8 @@
 package game
 
 import (
-	toClient "godori.com/packet/toClient"
-	cMath "godori.com/util/math"
+	toClient "godori/packet/toClient"
+	cMath "godori/util/math"
 )
 
 type NoneMode struct {

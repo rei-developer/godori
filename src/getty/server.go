@@ -17,9 +17,9 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/websocket"
-	"godori.com/db"
-	lType "godori.com/util/constant/loginType"
-	cFilter "godori.com/util/filter"
+	"godori/db"
+	lType "godori/util/constant/loginType"
+	cFilter "godori/util/filter"
 )
 
 type Claims struct {

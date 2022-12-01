@@ -1,3 +1,3 @@
-module pix
+module godori/util/pix
 
-go 1.16
+go 1.19

@@ -1,3 +1,3 @@
-module server/util/constant/loginType
+module godori/util/constant/loginType
 
-go 1.16
+go 1.19

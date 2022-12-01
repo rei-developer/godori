@@ -1,3 +1,3 @@
-module server/util/constant/roomType
+module godori/util/constant/roomType
 
-go 1.16
+go 1.19

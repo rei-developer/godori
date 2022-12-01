@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"strconv"
 
-	toClient "godori.com/packet/toClient"
-	teamType "godori.com/util/constant/teamType"
-	cMath "godori.com/util/math"
+	toClient "godori/packet/toClient"
+	teamType "godori/util/constant/teamType"
+	cMath "godori/util/math"
 )
 
 type Action struct{}

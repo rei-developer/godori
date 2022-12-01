@@ -10,15 +10,15 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"godori.com/db"
-	"godori.com/getty"
-	toClient "godori.com/packet/toClient"
-	modelType "godori.com/util/constant/modelType"
-	roomType "godori.com/util/constant/roomType"
-	teamType "godori.com/util/constant/teamType"
-	cFilter "godori.com/util/filter"
-	cMath "godori.com/util/math"
-	pix "godori.com/util/pix"
+	"godori/db"
+	"godori/getty"
+	toClient "godori/packet/toClient"
+	modelType "godori/util/constant/modelType"
+	roomType "godori/util/constant/roomType"
+	teamType "godori/util/constant/teamType"
+	cFilter "godori/util/filter"
+	cMath "godori/util/math"
+	pix "godori/util/pix"
 )
 
 type UserData struct {

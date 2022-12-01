@@ -1,18 +1,9 @@
-module server/src/getty
+module godori/getty
 
-go 1.16
+go 1.19
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/websocket v1.4.2
 	golang.org/x/oauth2 v0.0.0-20210311163135-5366d9dc1934
-	godori.com/db v0.0.0
-	godori.com/util/constant/loginType v0.0.0
-	godori.com/util/filter v0.0.0
-)
-
-replace (
-	godori.com/db v0.0.0 => ./../db
-	godori.com/util/constant/loginType v0.0.0 => ./../../util/constant/loginType
-	godori.com/util/filter v0.0.0 => ./../../util/filter
 )

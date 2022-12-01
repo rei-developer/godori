@@ -2,11 +2,11 @@ package game
 
 import (
 	"encoding/json"
-	"godori.com/getty"
-	mapType "godori.com/util/constant/mapType"
-	modeType "godori.com/util/constant/modeType"
-	roomType "godori.com/util/constant/roomType"
-	cMath "godori.com/util/math"
+	"godori/getty"
+	mapType "godori/util/constant/mapType"
+	modeType "godori/util/constant/modeType"
+	roomType "godori/util/constant/roomType"
+	cMath "godori/util/math"
 	"io/ioutil"
 	"os"
 	"strconv"

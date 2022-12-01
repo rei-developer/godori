@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"godori.com/getty"
+	"godori/getty"
 	"log"
 	"time"
 )
